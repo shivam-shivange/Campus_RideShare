@@ -48,7 +48,6 @@
             background-color: var(--form-bg);
         }
 
-        /* Desktop: Show sidebar */
         .chat-list-container {
             flex: 0 0 320px;
             min-width: 250px;
@@ -85,11 +84,7 @@
         }
         .resize-handle:hover { background: var(--warning-color); }
 
-        .chat-area-container { 
-            flex-grow: 1; 
-            display: flex; 
-            flex-direction: column; 
-        }
+        .chat-area-container { flex-grow: 1; display: flex; flex-direction: column; }
 
         .header-bar {
             background: var(--form-bg);
@@ -130,26 +125,17 @@
         .ride-info i { color: var(--text-secondary); }
 
         .chat-container {
-            display: flex; 
-            flex-direction: column;
-            height: calc(100vh - 140px); 
-            flex-grow: 1;
+            display: flex; flex-direction: column;
+            height: calc(100vh - 140px); flex-grow: 1;
             padding: 0 20px 20px 20px;
         }
 
         .messages-area {
-            flex: 1; 
-            background: var(--form-bg);
-            backdrop-filter: blur(25px); 
-            border: 1px solid var(--glass-border);
-            border-radius: 25px 25px 10px 10px; 
-            padding: 25px;
-            overflow-y: auto; 
-            display: flex; 
-            flex-direction: column;
-            gap: 15px; 
-            margin-bottom: 5px; 
-            box-shadow: var(--shadow-glass);
+            flex: 1; background: var(--form-bg);
+            backdrop-filter: blur(25px); border: 1px solid var(--glass-border);
+            border-radius: 25px 25px 10px 10px; padding: 25px;
+            overflow-y: auto; display: flex; flex-direction: column;
+            gap: 15px; margin-bottom: 5px; box-shadow: var(--shadow-glass);
         }
 
         .message { max-width: 75%; }
@@ -157,18 +143,15 @@
         .message.received { align-self: flex-start; }
 
         .message-bubble {
-            padding: 15px 20px; 
-            border-radius: 20px;
-            backdrop-filter: blur(20px); 
-            border: 1px solid var(--glass-border);
+            padding: 15px 20px; border-radius: 20px;
+            backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
             word-wrap: break-word;
         }
 
         .message.sent .message-bubble {
             background: var(--secondary-gradient);
             border-radius: 20px 20px 5px 20px;
-            color: white; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            color: white; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         .message.received .message-bubble {
             background: rgba(255, 255, 255, 0.6);
@@ -183,167 +166,78 @@
         .message.received .message-time { color: var(--text-secondary); text-align: left; }
         
         .system-message { 
-            align-self: center; 
-            max-width: 90%; 
-            background: rgba(255, 255, 255, 0.4); 
-            border-radius: 15px; 
-            text-align: center; 
-            padding: 10px 15px; 
-            color: var(--text-secondary); 
-            border: 1px solid rgba(255, 255, 255, 0.5); 
+            align-self: center; max-width: 90%; background: rgba(255, 255, 255, 0.4); 
+            border-radius: 15px; text-align: center; padding: 10px 15px; 
+            color: var(--text-secondary); border: 1px solid rgba(255, 255, 255, 0.5); 
         }
         .error-message { background: var(--error-color); color: white; }
 
-        .quick-actions { 
-            display: flex; 
-            gap: 10px; 
-            margin-bottom: 15px; 
-            flex-wrap: wrap; 
-            justify-content: center; 
-        }
+        .quick-actions { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center; }
         .quick-action-btn {
-            padding: 12px 24px; 
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px); 
-            border: 1px solid var(--glass-border);
-            border-radius: 20px; 
-            color: var(--text-primary); 
-            font-size: 1rem;
-            font-weight: 500; 
-            cursor: pointer; 
-            transition: all 0.3s ease;
+            padding: 12px 24px; background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px); border: 1px solid var(--glass-border);
+            border-radius: 20px; color: var(--text-primary); font-size: 1rem;
+            font-weight: 500; cursor: pointer; transition: all 0.3s ease;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
-        .quick-action-btn:hover { 
-            transform: translateY(-3px); 
-            background: white; 
-            box-shadow: var(--shadow-glass); 
-        }
+        .quick-action-btn:hover { transform: translateY(-3px); background: white; box-shadow: var(--shadow-glass); }
 
         .time-modal {
-            display: none; 
-            position: fixed; 
-            top: 50%; 
-            left: 50%;
-            transform: translate(-50%, -50%); 
-            background: var(--form-bg);
-            backdrop-filter: blur(25px); 
-            border: 1px solid var(--glass-border);
-            border-radius: 25px; 
-            padding: 35px; 
-            color: var(--text-primary);
-            z-index: 1000; 
-            box-shadow: 0 25px 60px rgba(0,0,0,0.2);
-            width: 90%;
-            max-width: 400px;
+            display: none; position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); background: var(--form-bg);
+            backdrop-filter: blur(25px); border: 1px solid var(--glass-border);
+            border-radius: 25px; padding: 35px; color: var(--text-primary);
+            z-index: 1000; box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+            width: 400px;
         }
         .time-modal.show { display: block; }
-        .modal-title { 
-            font-size: 1.3rem; 
-            font-weight: 400; 
-            margin-bottom: 20px; 
-            text-align: center; 
-            color: var(--text-primary); 
-        }
+        .modal-title { font-size: 1.3rem; font-weight: 400; margin-bottom: 20px; text-align: center; color: var(--text-primary); }
         .time-input-group { margin-bottom: 20px; }
-        .time-input-group label { 
-            display: block; 
-            margin-bottom: 8px; 
-            color: var(--text-secondary); 
-            font-size: 0.95rem; 
-            font-weight: 400; 
-        }
+        .time-input-group label { display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.95rem; font-weight: 400; }
         .time-input {
-            width: 100%; 
-            padding: 15px; 
-            background: var(--input-bg);
-            border: 1px solid var(--glass-border); 
-            border-radius: 15px;
-            color: var(--text-primary); 
-            font-size: 1rem; 
-            transition: all 0.3s ease;
+            width: 100%; padding: 15px; background: var(--input-bg);
+            border: 1px solid var(--glass-border); border-radius: 15px;
+            color: var(--text-primary); font-size: 1rem; transition: all 0.3s ease;
         }
         .time-input:focus { 
-            outline: none; 
-            border-color: rgba(212, 160, 23, 0.6); 
-            background: rgba(212, 160, 23, 0.3); 
-            box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.2); 
+            outline: none; border-color: rgba(212, 160, 23, 0.6); 
+            background: rgba(212, 160, 23, 0.3); box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.2); 
         }
-        .modal-buttons { 
-            display: flex; 
-            gap: 15px; 
-            justify-content: center; 
-            flex-wrap: wrap;
-        }
+        .modal-buttons { display: flex; gap: 15px; justify-content: center; }
         .modal-btn { 
-            padding: 12px 25px; 
-            border: 1px solid var(--glass-border); 
-            border-radius: 15px; 
-            font-size: 1rem; 
-            font-weight: 300; 
-            cursor: pointer; 
-            transition: all 0.3s ease;
-            flex: 1;
-            min-width: 120px;
+            padding: 12px 25px; border: 1px solid var(--glass-border); 
+            border-radius: 15px; font-size: 1rem; font-weight: 300; 
+            cursor: pointer; transition: all 0.3s ease; 
         }
         .modal-btn.confirm { 
-            background: var(--secondary-gradient); 
-            color: white; 
+            background: var(--secondary-gradient); color: white; 
             box-shadow: 0 15px 35px rgba(212, 160, 23, 0.5); 
         }
-        .modal-btn.cancel { 
-            background: rgba(255, 255, 255, 0.1); 
-            color: var(--text-primary); 
-        }
-        .modal-btn:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 15px 35px rgba(212, 160, 23, 0.5); 
-        }
+        .modal-btn.cancel { background: rgba(255, 255, 255, 0.1); color: var(--text-primary); }
+        .modal-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(212, 160, 23, 0.5); }
         
         .input-area {
-            background: var(--form-bg); 
-            backdrop-filter: blur(25px);
-            border: 1px solid var(--glass-border); 
-            border-radius: 10px 10px 25px 25px;
-            padding: 20px; 
-            display: flex; 
-            align-items: flex-end; 
-            gap: 15px;
+            background: var(--form-bg); backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border); border-radius: 10px 10px 25px 25px;
+            padding: 20px; display: flex; align-items: flex-end; gap: 15px;
             box-shadow: var(--shadow-glass);
         }
         .message-input {
-            flex: 1; 
-            background: var(--input-bg); 
-            border: 1px solid var(--glass-border);
-            border-radius: 20px; 
-            padding: 15px 20px; 
-            color: var(--text-primary);
-            font-size: 1rem; 
-            resize: none; 
-            min-height: 50px;
-            max-height: 120px; 
-            transition: all 0.3s ease;
+            flex: 1; background: var(--input-bg); border: 1px solid var(--glass-border);
+            border-radius: 20px; padding: 15px 20px; color: var(--text-primary);
+            font-size: 1rem; resize: none; min-height: 50px;
+            max-height: 120px; transition: all 0.3s ease;
         }
         .message-input:focus { 
-            outline: none; 
-            border-color: rgba(212, 160, 23, 0.6); 
-            background: rgba(255, 204, 0, 0.3); 
-            box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.2); 
+            outline: none; border-color: rgba(212, 160, 23, 0.6); 
+            background: rgba(255, 204, 0, 0.3); box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.2); 
         }
         .send-btn {
-            width: 50px; 
-            height: 50px; 
-            background: var(--secondary-gradient);
-            border: 1px solid var(--glass-border); 
-            border-radius: 50%;
-            color: white; 
-            cursor: pointer; 
-            transition: all 0.3s ease;
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            flex-shrink: 0; 
-            box-shadow: 0 15px 35px rgba(212, 160, 23, 0.5);
+            width: 50px; height: 50px; background: var(--secondary-gradient);
+            border: 1px solid var(--glass-border); border-radius: 50%;
+            color: white; cursor: pointer; transition: all 0.3s ease;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; box-shadow: 0 15px 35px rgba(212, 160, 23, 0.5);
         }
         .send-btn:hover { transform: scale(1.1); }
         .send-btn i { font-size: 18px; }
@@ -351,202 +245,11 @@
         .messages-area::-webkit-scrollbar { width: 8px; }
         .messages-area::-webkit-scrollbar-track { background: rgba(30, 41, 59, 0.3); }
         .messages-area::-webkit-scrollbar-thumb { background: rgba(255, 204, 0, 0.2); border-radius: 10px; }
-
-        /* Mobile Optimization */
-        @media (max-width: 768px) {
-            /* Hide sidebar and resize handle on mobile */
-            .chat-list-container,
-            .resize-handle {
-                display: none !important;
-            }
-
-            /* Full width for chat area */
-            .chat-area-container {
-                flex: 1;
-                width: 100%;
-                max-width: 100%;
-            }
-
-            /* Adjust header for mobile */
-            .header-bar {
-                padding: 10px 15px;
-                border-bottom: 1px solid var(--glass-border);
-            }
-
-            .back-btn {
-                width: 40px;
-                height: 40px;
-                margin-right: 15px;
-            }
-
-            .contact-avatar {
-                width: 45px;
-                height: 45px;
-                margin-right: 10px;
-            }
-
-            .contact-details h2 {
-                font-size: 1.1rem;
-                line-height: 1.2;
-            }
-
-            .ride-info {
-                font-size: 0.8rem;
-                flex-wrap: wrap;
-            }
-
-            /* Optimize chat container for mobile */
-            .chat-container {
-                height: calc(100vh - 120px);
-                padding: 0 10px 10px 10px;
-            }
-
-            .messages-area {
-                padding: 15px;
-                border-radius: 20px 20px 10px 10px;
-                gap: 10px;
-            }
-
-            /* Adjust message bubbles for mobile */
-            .message {
-                max-width: 85%;
-            }
-
-            .message-bubble {
-                padding: 12px 16px;
-                border-radius: 18px;
-            }
-
-            .message.sent .message-bubble {
-                border-radius: 18px 18px 4px 18px;
-            }
-
-            .message.received .message-bubble {
-                border-radius: 18px 18px 18px 4px;
-            }
-
-            .message-text {
-                font-size: 0.95rem;
-                line-height: 1.3;
-            }
-
-            /* Optimize input area for mobile */
-            .input-area {
-                padding: 15px;
-                gap: 10px;
-                border-radius: 10px 10px 20px 20px;
-            }
-
-            .message-input {
-                padding: 12px 16px;
-                font-size: 0.95rem;
-                border-radius: 18px;
-            }
-
-            .send-btn {
-                width: 45px;
-                height: 45px;
-            }
-
-            .send-btn i {
-                font-size: 16px;
-            }
-
-            /* Optimize quick actions for mobile */
-            .quick-actions {
-                margin-bottom: 10px;
-                gap: 8px;
-            }
-
-            .quick-action-btn {
-                padding: 10px 16px;
-                font-size: 0.9rem;
-                border-radius: 16px;
-                text-align: center;
-                width: 100%;
-            }
-
-            /* Optimize modal for mobile */
-            .time-modal {
-                width: 95%;
-                max-width: 350px;
-                padding: 25px;
-                border-radius: 20px;
-            }
-
-            .modal-title {
-                font-size: 1.2rem;
-                margin-bottom: 15px;
-            }
-
-            .time-input-group {
-                margin-bottom: 15px;
-            }
-
-            .time-input {
-                padding: 12px;
-                font-size: 0.95rem;
-            }
-
-            .modal-buttons {
-                gap: 10px;
-                flex-direction: column;
-            }
-
-            .modal-btn {
-                padding: 12px 20px;
-                font-size: 0.95rem;
-                flex: none;
-                width: 100%;
-            }
-
-            /* Hide scrollbar on mobile */
-            .messages-area::-webkit-scrollbar {
-                width: 0px;
-                background: transparent;
-            }
-        }
-
-        /* Extra small mobile devices */
-        @media (max-width: 480px) {
-            .header-bar {
-                padding: 8px 12px;
-            }
-
-            .contact-details h2 {
-                font-size: 1rem;
-            }
-
-            .ride-info {
-                font-size: 0.75rem;
-            }
-
-            .chat-container {
-                padding: 0 8px 8px 8px;
-            }
-
-            .messages-area {
-                padding: 12px;
-            }
-
-            .message-bubble {
-                padding: 10px 14px;
-            }
-
-            .input-area {
-                padding: 12px;
-            }
-
-            .quick-action-btn {
-                padding: 8px 14px;
-                font-size: 0.85rem;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="page-container">
-        <!-- Left Column: Chat List (Hidden on Mobile) -->
+        <!-- Left Column: Chat List -->
         <div class="chat-list-container" id="chatList">
             <div class="chat-list-header"><h3>Chats</h3></div>
             <ul class="chat-list">
@@ -560,10 +263,10 @@
             </ul>
         </div>
 
-        <!-- Draggable Resize Handle (Hidden on Mobile) -->
+        <!-- Draggable Resize Handle -->
         <div class="resize-handle" id="resizeHandle"></div>
 
-        <!-- Right Column: The Main Chat Area (Full Width on Mobile) -->
+        <!-- Right Column: The Main Chat Area -->
         <div class="chat-area-container">
             <header class="header-bar">
                 <button class="back-btn" onclick="window.location.href='/my_rides.html'">
@@ -817,10 +520,7 @@
                 this.elements.confirmTimeBtn.addEventListener('click', () => this.confirmTimeUpdate());
                 this.elements.cancelTimeBtn.addEventListener('click', () => this.closeTimeModal());
 
-                // Only bind resize handle on desktop
-                if (window.innerWidth > 768) {
-                    this.bindResizeHandle();
-                }
+                this.bindResizeHandle();
             }
 
             autoResizeTextarea() {
