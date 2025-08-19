@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RideShare - Home</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Profile Menu Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1000;
+        }
+        .profile-menu {
+            position: relative;
+            display: none; /* Will be shown when authenticated */
+            z-index: 10000;
+        }
+        .profile-button {
+            background: rgba(255, 215, 0, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            cursor: pointer;
+            padding: 0.75rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        .profile-button:hover {
+            background: rgba(255, 215, 0, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+        .profile-icon {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+        }
+        
+        /* Enhanced Dropdown Menu Styling */
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 16px;
+            box-shadow: var(--shadow-glass);
+            border: 1px solid var(--glass-border);
+            padding: 0.5rem 0;
+            min-width: 160px;
+            width: max-content;
+            max-width: 220px;
+            white-space: nowrap;
+            display: none;
+            z-index: 999999 !important;
+            margin-top: 0.5rem;
+            animation: dropdownFadeIn 0.3s ease-out;
+        }
+        
+        @keyframes dropdownFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .dropdown-menu.show {
+            display: block !important;
+        }
+        
+        .dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .user-info {
+            font-weight: 700;
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--glass-border);
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 235, 153, 0.05));
+            margin: 0.5rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            text-align: center;
+            white-space: nowrap;
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        
+        .dropdown-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .dropdown-item:hover::before {
+            left: 100%;
+        }
+        
+        .dropdown-item:hover {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 235, 153, 0.1));
+            color: #B8860B;
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+        }
+        
+        .dropdown-item:active {
+            transform: translateX(2px) scale(0.98);
+        }
+        
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .dropdown-item:hover i {
+            transform: scale(1.1);
+            color: #FFD700;
+        }
+        
+        /* Special styling for logout button */
+        .dropdown-item:last-child {
+            border-top: 1px solid var(--glass-border);
+            margin-top: 0.5rem;
+            padding-top: 1rem;
+        }
+        
+        .dropdown-item:last-child:hover {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(248, 215, 218, 0.05));
+            color: #dc3545;
+        }
+        
+        .dropdown-item:last-child:hover i {
+            color: #dc3545;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #FFD700 0%, #FFEB99 50%, #FFF8DC 100%);
+            --secondary-gradient: linear-gradient(135deg, #FFC107 0%, #FFD54F 100%);
+            --glass-bg: rgba(255, 250, 205, 0.85);
+            --glass-border: rgba(255, 215, 0, 0.3);
+            --card-bg: rgba(255, 255, 224, 0.8);
+            --input-bg: rgba(255, 248, 220, 0.9);
+            --text-primary: #4E342E;
+            --text-secondary: rgba(78, 52, 46, 0.8);
+            --shadow-glass: 0 8px 32px 0 rgba(255, 215, 0, 0.4);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #FFF8DC 0%, #FFECB3 25%, #FFD700 50%, #FFC107 75%, #ffffff 100%);
+            min-height: 100vh;
+            padding: 1rem;
+            overflow-x: hidden;
+            color: var(--text-primary);
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .glass-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 20px;
+            box-shadow: var(--shadow-glass);
+            border: 1px solid var(--glass-border);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        .glass-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        }
+        .glass-section h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.875rem;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo-section { display: flex; align-items: center; gap: 1rem; }
+        .logo-icon { font-size: 2rem; color: var(--warning-color); text-shadow: 0 0 20px rgba(255, 193, 7, 0.4); }
+        .logo-text h1 { font-size: 1.5rem; font-weight: 700; }
+        .logo-text p { font-size: 0.875rem; color: var(--text-secondary); }
+        .auth-buttons .btn {
+            display: none; /* Controlled by JS */
+        }
+        .profile-menu {
+            display: none; /* Will be shown when authenticated */
+            z-index: 10000;
+        }
+        .auth-buttons { display: flex; gap: 1rem; }
+        
+        .profile-menu { position: relative; }
+        .hamburger-btn {
+            background: rgba(255, 193, 7, 0.2); border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 50%; width: 48px; height: 48px; display: flex;
+            align-items: center; justify-content: center; color: #FFB300;
+            cursor: pointer; transition: all 0.3s ease;
+        }
+        .hamburger-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3); }
+        .dropdown-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--glass-border); font-weight: bold; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1.5rem; position: relative; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.875rem; text-transform: uppercase; }
+        .input-wrapper { position: relative; }
+        .form-group input {
+            width: 100%; padding: 1rem 1.25rem; border: 1px solid var(--glass-border);
+            border-radius: 16px; font-size: 1rem; transition: all 0.3s ease;
+            background: var(--input-bg); color: var(--text-primary);
+        }
+        .form-group input:focus {
+            outline: none; border-color: var(--warning-color);
+            box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.3);
+        }
+        .input-icon { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary); pointer-events: none; }
+        
+        .form-control {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            padding-right: 2.5rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            background: var(--input-bg);
+            font-size: 1rem;
+            color: var(--text-primary);
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--warning-color);
+            box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.3);
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem; border: none; border-radius: 16px; font-size: 1rem;
+            font-weight: 600; cursor: pointer; transition: all 0.3s ease;
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+            text-decoration: none;
+        }
+        .btn.primary {
+            background: var(--secondary-gradient); color: white;
+            box-shadow: 0 8px 25px rgba(255, 193, 7, 0.3);
+        }
+        .btn.primary:hover { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(255, 193, 7, 0.4); }
+        .btn.full-width { width: 100%; padding: 1rem 1.5rem; }
+        /* Ride Cards and Content Grids */
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+        .ride-card, .destination-card {
+            background: var(--card-bg); border-radius: 16px; padding: 1.5rem;
+            border: 1px solid var(--glass-border); transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .ride-card:hover, .destination-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-glass); }
+        .ride-card h3, .destination-card h4 { margin-bottom: 0.75rem; font-weight: 700; }
+        .ride-card p { margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 0.9rem; }
+        .ride-card .btn { margin-top: 1rem; width: 100%; }
+        .destination-card p { color: var(--text-secondary); }
+        #searchResultsContainer { display: none; }
+
+        /* Helper container for the persistent create button under results */
+        .create-new-wrapper {
+            display: flex; justify-content: center; margin-top: 1.25rem;
+        }
+
+        @media (max-width: 640px) {
+            body { padding: 0.5rem; }
+            .glass-section, .header { padding: 1.5rem; }
+            .logo-text h1 { font-size: 1.25rem; }
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+            .dropdown-menu {
+                min-width: 140px;
+                max-width: 200px;
+                right: -10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Move dropdown outside of all containers -->
+    <div id="profileDropdown" class="dropdown-menu">
+        <div class="dropdown-item user-info" id="userName">Loading...</div>
+        <a href="my_rides.html" class="dropdown-item">
+            <i class="fas fa-car"></i>My Rides
+        </a>
+        <a href="edit_profile.html" class="dropdown-item">
+            <i class="fas fa-user-edit"></i>Edit Profile
+        </a>
+        <a href="#" class="dropdown-item" id="logoutButton">
+            <i class="fas fa-sign-out-alt"></i>Logout
+        </a>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="glass-section header">
+            <div class="logo-section">
+                <i class="fas fa-car logo-icon"></i>
+                <div class="logo-text"><h1>RideShare</h1><p>Connect. Share. Save.</p></div>
+            </div>
+            <div class="profile-menu" id="userMenu">
+                <button class="profile-button" id="profileButton">
+                    <i class="fas fa-user-circle profile-icon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Search Section -->
+        <section class="glass-section">
+            <h2>Find Your Ride</h2>
+            <form id="searchForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="searchFrom">From</label>
+                        <div class="input-wrapper">
+                            <select id="searchFrom" class="form-control">
+                                <option value="">Select starting point</option>
+                            </select>
+                            <i class="fas fa-map-marker-alt input-icon"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="searchTo">To</label>
+                        <div class="input-wrapper">
+                            <select id="searchTo" class="form-control" disabled>
+                                <option value="">Select destination</option>
+                            </select>
+                            <i class="fas fa-flag-checkered input-icon"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group full-width">
+                    <label for="searchDate">Travel Date</label>
+                    <div class="input-wrapper">
+                        <input type="date" id="searchDate">
+                    </div>
+                </div>
+                <button type="submit" class="btn primary full-width">
+                    <i class="fas fa-search"></i><span>Search Rides</span>
+                </button>
+            </form>
+        </section>
+
+        <!-- Search Results Section (hidden by default) -->
+        <section class="glass-section" id="searchResultsContainer">
+            <h2>Search Results</h2>
+            <div id="searchResults" class="grid-container"></div>
+
+            <!-- No rides message -->
+            <div id="noRidesFound" style="display: none; text-align: center; padding: 2rem;">
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 1.1rem;">
+                    No rides found matching your criteria.
+                </p>
+            </div>
+
+            <!-- Always show: Create a New Ride button under results -->
+            <div class="create-new-wrapper">
+                <button onclick="window.location.href='/create_ride.html'" class="btn primary" style="max-width: 300px;">
+                    <i class="fas fa-plus"></i> Create a New Ride
+                </button>
+            </div>
+
+            <!-- Optional prompt section (kept, but we won’t rely on it for the button) -->
+            <div id="createRidePrompt" class="glass-section" style="display: none; text-align: center; margin-top: 2rem; padding: 1.5rem;">
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                    Don't see a ride that works for you?
+                </p>
+                <button onclick="window.location.href='/create_ride.html'" class="btn primary" style="max-width: 300px; margin: 0 auto;">
+                    <i class="fas fa-plus"></i> Create Your Own Ride
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+
+        function checkAuthStatus() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                loadUserProfile();
+                loadStartingLocations();
+            } else {
+                window.location.href = '/index.html';
+            }
+        }
+
+        async function loadStartingLocations() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                const response = await fetch(`${API_BASE}/locations/starting-points`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load locations');
+                }
+
+                const locations = await response.json();
+                const fromSelect = document.getElementById('searchFrom');
+                fromSelect.innerHTML = '<option value="">Select starting point</option>';
+                
+                if (Array.isArray(locations) && locations.length > 0) {
+                    locations.forEach(location => {
+                        fromSelect.innerHTML += `<option value="${location.name}">${location.name} (${location.type})</option>`;
+                    });
+                }
+
+                const toSelect = document.getElementById('searchTo');
+                toSelect.innerHTML = '<option value="">Select destination</option>';
+                toSelect.disabled = true;
+                
+            } catch (error) {
+                console.error('Error loading starting locations:', error);
+                alert('Error loading locations. Please try again.');
+            }
+        }
+
+        async function loadDestinations(fromLocation) {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/index.html';
+                    return;
+                }
+
+                const toSelect = document.getElementById('searchTo');
+                
+                if (!fromLocation) {
+                    toSelect.innerHTML = '<option value="">Select destination</option>';
+                    toSelect.disabled = true;
+                    return;
+                }
+
+                const response = await fetch(`${API_BASE}/locations/destinations?fromLocation=${encodeURIComponent(fromLocation)}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const locations = await response.json();
+                toSelect.innerHTML = '<option value="">Select destination</option>';
+                
+                locations.forEach(location => {
+                    toSelect.innerHTML += `<option value="${location.name}">${location.name} (${location.type})</option>`;
+                });
+                
+                toSelect.disabled = false;
+            } catch (error) {
+                console.error('Error loading destinations:', error);
+                const toSelect = document.getElementById('searchTo');
+                toSelect.innerHTML = '<option value="">Error loading destinations</option>';
+                toSelect.disabled = true;
+                alert('Error loading destinations. Please try again.');
+            }
+        }
+
+        // Event listener for the From dropdown
+        document.getElementById('searchFrom').addEventListener('change', (e) => {
+            const fromLocation = e.target.value;
+            if (fromLocation) {
+                loadDestinations(fromLocation);
+            } else {
+                const toSelect = document.getElementById('searchTo');
+                toSelect.innerHTML = '<option value="">Select destination</option>';
+                toSelect.disabled = true;
+            }
+        });
+
+        async function loadUserProfile() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/me`, { 
+                    method: 'GET',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const responseText = await response.text();
+                
+                if (response.status === 401 || response.status === 403) {
+                    localStorage.removeItem('token');
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to load user profile: ${response.status} - ${responseText}`);
+                }
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                    const user = data.user || data;
+                    if (!user.name) {
+                        throw new Error('Invalid profile data received');
+                    }
+
+                    const userName = document.getElementById('userName');
+                    if (userName) {
+                        userName.textContent = `Hi, ${user.name.split(' ')[0]}!`;
+                    }
+
+                    const profileMenu = document.querySelector('.profile-menu');
+                    if (profileMenu) {
+                        profileMenu.style.display = 'block';
+                    }
+                } catch (e) {
+                    console.error('Failed to parse response:', e);
+                    throw new Error('Invalid response format');
+                }
+            } catch (error) { 
+                console.error('Error loading user profile:', error);
+                localStorage.removeItem('token');
+                window.location.href = 'index.html';
+            }
+        }
+
+        async function searchRides() {
+            const from = document.getElementById('searchFrom')?.value || '';
+            const to = document.getElementById('searchTo')?.value || '';
+            const date = document.getElementById('searchDate')?.value || '';
+            const token = localStorage.getItem('token');
+            if (!token) { alert('Please login to search rides'); return; }
+            
+            try {
+                const params = new URLSearchParams({ from, to, date, limit: '10' });
+                const response = await fetch(`${API_BASE}/rides/search?${params}`, { headers: { 'Authorization': `Bearer ${token}` }});
+                
+                const resultsContainer = document.getElementById('searchResultsContainer');
+                const resultsDiv = document.getElementById('searchResults');
+                const noRidesFound = document.getElementById('noRidesFound');
+                const createRidePrompt = document.getElementById('createRidePrompt');
+
+                resultsContainer.style.display = 'block';
+
+                if (response.ok) {
+                    const rides = await response.json();
+                    displaySearchResults(rides);
+                    // Show or hide the "no rides" message based on results,
+                    // but keep the Create button always visible below
+                    if (rides.length === 0) {
+                        noRidesFound.style.display = 'block';
+                        createRidePrompt.style.display = 'none';
+                    } else {
+                        noRidesFound.style.display = 'none';
+                        createRidePrompt.style.display = 'none';
+                    }
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Search failed');
+                    // Still reveal the section and allow creating a ride
+                    resultsDiv.innerHTML = '';
+                    noRidesFound.style.display = 'block';
+                    createRidePrompt.style.display = 'none';
+                }
+
+                resultsContainer.scrollIntoView({ behavior: 'smooth' });
+            } catch (error) { 
+                console.error('Error searching rides:', error);
+                // On error, still show container and the create button
+                const resultsContainer = document.getElementById('searchResultsContainer');
+                const resultsDiv = document.getElementById('searchResults');
+                const noRidesFound = document.getElementById('noRidesFound');
+                resultsContainer.style.display = 'block';
+                resultsDiv.innerHTML = '';
+                noRidesFound.style.display = 'block';
+                resultsContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function displaySearchResults(rides) {
+            const resultsContainer = document.getElementById('searchResultsContainer');
+            const resultsDiv = document.getElementById('searchResults');
+            const noRidesFound = document.getElementById('noRidesFound');
+            const createRidePrompt = document.getElementById('createRidePrompt');
+            
+            resultsContainer.style.display = 'block';
+            
+            if (rides.length === 0) {
+                resultsDiv.innerHTML = '';
+                noRidesFound.style.display = 'block';
+                createRidePrompt.style.display = 'none'; // keep hidden; the dedicated button below results is always shown
+                resultsContainer.scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+
+            resultsDiv.innerHTML = rides.map(ride => `
+                <div class="ride-card">
+                    <h3>${ride.fromLocation} → ${ride.toLocation}</h3>
+                    <p><strong>Driver:</strong> ${ride.creatorName}</p>
+                    <p><strong>Time:</strong> ${new Date(ride.dateTime).toLocaleString()}</p>
+                    <p><strong>Seats:</strong> ${ride.availableSeats}</p>
+                    <p><strong>Gender:</strong> ${ride.preferredGender}</p>
+                    <div>
+                        ${ride.luggageSpace ? '<span class="feature-tag"><i class="fas fa-suitcase"></i> Luggage Space</span><br>' : ''}
+                        ${ride.allowChat ? '<span class="feature-tag"><i class="fas fa-comments"></i> Chat Available</span><br>' : ''}
+                        ${ride.timeNegotiation ? '<span class="feature-tag"><i class="fas fa-handshake"></i> Flexible Timing</span><br>' : ''}
+                    </div>
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                        <button onclick="requestRide('${ride._id}')" class="btn primary" style="flex: 1">
+                            <i class="fas fa-hand-point-up"></i> Request
+                        </button>
+                    </div>
+                </div>`).join('');
+
+            noRidesFound.style.display = 'none';
+            createRidePrompt.style.display = 'none';
+            resultsContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function requestRide(rideId) {
+            const token = localStorage.getItem('token');
+            if (!token) { alert('Please login to request a ride'); return; }
+            try {
+                const response = await fetch(`${API_BASE}/rides/request`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ rideId })
+                });
+                const data = await response.json();
+                alert(data.message || (response.ok ? 'Ride requested successfully!' : 'Failed to request ride'));
+            } catch (error) { console.error('Error requesting ride:', error); }
+        }
+
+        async function loadData(endpoint, displayFunction, containerId) {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, { headers: { 'Authorization': `Bearer ${token}` }});
+                if (response.ok) {
+                    const data = await response.json();
+                    displayFunction(data, containerId);
+                }
+            } catch (error) { console.error(`Error loading ${endpoint}:`, error); }
+        }
+
+        function displayPopularDestinations(destinations, containerId) {
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.innerHTML = destinations.map(dest => `
+                    <div class="destination-card" onclick="searchByDestination('${dest.destination}')">
+                        <h4><i class="fas fa-city"></i> ${dest.destination}</h4>
+                        <p>${dest.count} rides available</p>
+                    </div>`).join('');
+            }
+        }
+
+        function displayRecentRides(rides, containerId) {
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.innerHTML = rides.map(ride => `
+                    <div class="ride-card">
+                        <h4>${ride.fromLocation} → ${ride.toLocation}</h4>
+                        <p><i class="fas fa-user-circle"></i> ${ride.creatorName}</p>
+                        <p><i class="fas fa-calendar-alt"></i> ${new Date(ride.dateTime).toLocaleDateString()}</p>
+                        <p><i class="fas fa-chair"></i> ${ride.availableSeats} seats left</p>
+                        <button onclick="requestRide('${ride._id}')" class="btn primary">Request</button>
+                    </div>`).join('');
+            }
+        }
+        
+        function searchByDestination(destination) {
+            document.getElementById('searchTo').value = destination;
+            document.getElementById('searchForm').requestSubmit();
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/index.html';
+        }
+        
+        function setupEventListeners() {
+            const profileButton = document.getElementById('profileButton');
+            const profileDropdown = document.getElementById('profileDropdown');
+            const logoutButton = document.getElementById('logoutButton');
+
+            if (profileButton && profileDropdown) {
+                // Toggle dropdown when profile button is clicked with dynamic positioning
+                profileButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    
+                    // Get button position
+                    const buttonRect = profileButton.getBoundingClientRect();
+                    
+                    // Position dropdown using fixed positioning
+                    profileDropdown.style.position = 'fixed';
+                    profileDropdown.style.top = `${buttonRect.bottom + 5}px`;
+                    profileDropdown.style.left = `${buttonRect.right - 160}px`; // Align right edge
+                    profileDropdown.style.zIndex = '999999';
+                    
+                    profileDropdown.classList.toggle('show');
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!profileButton.contains(e.target) && !profileDropdown.contains(e.target)) {
+                        profileDropdown.classList.remove('show');
+                    }
+                });
+
+                // Prevent dropdown from closing when clicking inside
+                profileDropdown.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+
+                // Handle logout
+                if (logoutButton) {
+                    logoutButton.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        localStorage.removeItem('token');
+                        window.location.href = 'index.html';
+                    });
+                }
+            }
+
+            // Search form setup
+            const searchForm = document.getElementById('searchForm');
+            if (searchForm) {
+                searchForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    searchRides();
+                });
+            }
+
+            // Set min date for date input
+            const searchDateInput = document.getElementById('searchDate');
+            if (searchDateInput) {
+                searchDateInput.min = new Date().toISOString().split('T')[0];
+            }
+        }
+
+        // Initialize Page
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                // First load the user profile and set up profile menu
+                await loadUserProfile();
+                
+                // Set up other event listeners
+                setupEventListeners();
+                
+                // Then load locations and other data in parallel
+                const loadingPromises = [
+                    loadStartingLocations(),
+                    loadData('/rides/popular-destinations', displayPopularDestinations, 'popularDestinations'),
+                    loadData('/rides/recent?limit=6', displayRecentRides, 'recentRides')
+                ];
+
+                try {
+                    await Promise.all(loadingPromises);
+                } catch (error) {
+                    console.error('Some data failed to load:', error);
+                }
+            } catch (error) {
+                console.error('Initialization error:', error);
+                if (error.message.includes('auth') || error.message.includes('token')) {
+                    alert('Please log in again.');
+                    localStorage.removeItem('token');
+                    window.location.href = 'index.html';
+                } else {
+                    alert('Some features may not be available. Please refresh the page to try again.');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

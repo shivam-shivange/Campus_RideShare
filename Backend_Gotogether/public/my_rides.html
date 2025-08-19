@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RideShare - My Rides</title>
+  <!-- Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #FFD700 0%, #FFEB99 50%, #FFF8DC 100%);
+      --secondary-gradient: linear-gradient(135deg, #FFC107 0%, #FFD54F 100%);
+      --glass-bg: rgba(255, 223, 0, 0.2);
+      --glass-border: rgba(255, 215, 0, 0.3);
+      --form-bg: rgba(255, 250, 205, 0.9);
+      --card-bg: rgba(255, 255, 224, 0.9);
+      --text-primary: #4E342E;
+      --text-secondary: rgba(78, 52, 46, 0.8);
+      --shadow-glass: 0 8px 32px 0 rgba(255, 215, 0, 0.4);
+      --success-color: #16a34a; --success-bg: rgba(34, 197, 94, 0.1);
+      --pending-color: #d97706; --pending-bg: rgba(245, 158, 11, 0.1);
+      --danger-color: #ef4444; --danger-bg: rgba(239, 68, 68, 0.08);
+      --info-bg: rgba(255,255,255,0.6);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #FFF8DC 0%, #FFECB3 25%, #FFD700 50%, #FFC107 75%, #ffffff 100%);
+      background-attachment: fixed; min-height: 100vh; padding: 1rem;
+    }
+    .container { max-width: 800px; margin: 0 auto; z-index: 1; }
+    .header {
+      background: var(--form-bg); backdrop-filter: blur(25px); border-radius: 20px;
+      box-shadow: var(--shadow-glass); border: 1px solid var(--glass-border);
+      padding: 2rem; margin-bottom: 2rem; position: relative; text-align: center;
+    }
+    .header h1 { color: var(--text-primary); font-size: 2rem; margin-bottom: 0.5rem; }
+    .header p { color: var(--text-secondary); font-size: 1rem; }
+    .back-btn {
+      position: absolute; top: 1rem; left: 1rem; background: rgba(255, 255, 255, 0.2);
+      border: 1px solid var(--glass-border); border-radius: 50%; width: 48px; height: 48px;
+      display: flex; align-items: center; justify-content: center; color: var(--text-primary);
+      cursor: pointer; transition: all 0.3s ease; z-index: 10;
+    }
+    .back-btn:hover { background: rgba(255, 255, 255, 0.4); }
+    .filter-section {
+      display: flex; background: rgba(255, 255, 255, 0.2); border-radius: 16px;
+      padding: 0.5rem; margin-bottom: 2rem; backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+    }
+    .filter-btn {
+      flex: 1; padding: 1rem; background: transparent; border: transparent;
+      border-radius: 12px; color: var(--text-secondary); font-weight: 600;
+      cursor: pointer; transition: all 0.3s ease;
+    }
+    .filter-btn.active {
+      background: var(--secondary-gradient); color: white; box-shadow: var(--shadow-glass);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+    }
+    .rides-container { display: flex; flex-direction: column; gap: 1.5rem; }
+    .ride-card {
+      background: var(--card-bg); backdrop-filter: blur(20px); border-radius: 20px;
+      box-shadow: var(--shadow-glass); border: 1px solid var(--glass-border);
+      padding: 1.25rem 1.25rem 1rem; transition: all 0.3s ease;
+    }
+    .ride-card:hover { transform: translateY(-2px); box-shadow: 0 12px 40px 0 rgba(255, 215, 0, 0.5); }
+    .ride-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; gap: 1rem; }
+    .route-info h3 { color: var(--text-primary); font-size: 1.1rem; margin-bottom: 0.25rem; }
+    .route-details { color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.55rem;
+      border-radius: 999px; border: 1px solid var(--glass-border); background: var(--info-bg);
+      color: var(--text-secondary); font-size: 0.75rem;
+    }
+    .status-badge { padding: 0.5rem 1rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600; border: 1px solid; white-space: nowrap; }
+    .status-confirmed { background: var(--success-bg); color: var(--success-color); border-color: var(--success-color); }
+    .status-pending { background: var(--pending-bg); color: var(--pending-color); border-color: var(--pending-color); }
+    .ride-actions { display: flex; gap: 0.6rem; margin: 0.25rem 0 0.75rem; flex-wrap: wrap; }
+    .btn {
+      padding: 0.6rem 1rem; border: none; border-radius: 12px; font-size: 0.9rem;
+      font-weight: 600; cursor: pointer; transition: all 0.3s ease;
+      display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none;
+    }
+    .btn-primary { background: var(--secondary-gradient); color: white; }
+    .btn-primary[disabled] { opacity: 0.6; cursor: not-allowed; }
+    .btn-secondary { background: rgba(255, 255, 255, 0.3); color: var(--text-primary); border: 1px solid var(--glass-border); }
+    .btn-danger { background: rgba(239, 68, 68, 0.9); color: white; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .companions-section { margin-top: 0.25rem; padding-top: 0.75rem; border-top: 1px solid var(--glass-border); }
+    .companions-list { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem; }
+    .companion-card {
+      background: rgba(255, 255, 255, 0.4); padding: 0.75rem; border-radius: 12px;
+      border: 1px solid var(--glass-border); flex: 1 1 240px; min-width: 220px;
+    }
+    .companion-name { color: var(--text-primary); font-weight: 600; margin-bottom: 0.25rem; }
+    .companion-details { color: var(--text-secondary); font-size: 0.85rem; }
+    .section-title { color: var(--text-primary); width: 100%; margin: 0.25rem 0 0.25rem; font-size: 0.95rem; }
+    .no-rides, .loading-spinner { text-align: center; padding: 40px 20px; color: var(--text-secondary); }
+    .notification {
+      position: fixed; top: 20px; right: 20px; background: var(--form-bg); border-radius: 16px;
+      border: 1px solid var(--glass-border); color: var(--text-primary); box-shadow: var(--shadow-glass);
+      padding: 1rem 1.5rem; z-index: 1000; display: flex; align-items: center; gap: 1rem;
+      animation: slideIn 0.3s ease;
+    }
+    .notification.success { border-left: 4px solid var(--success-color); }
+    .notification.error { border-left: 4px solid var(--danger-color); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <button class="back-btn" onclick="window.location.href='/home_page.html'"><i class="fas fa-arrow-left"></i></button>
+      <h1 id="userName">My Rides</h1>
+      <p>Manage your bookings and ride offers</p>
+    </header>
+    <div class="filter-section">
+      <button class="filter-btn active" data-filter="confirmed">Confirmed</button>
+      <button class="filter-btn" data-filter="pending">Pending</button>
+    </div>
+    <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+      <i class="fas fa-spinner fa-spin"></i> Loading your rides...
+    </div>
+    <div id="ridesContainer" class="rides-container"></div>
+  </div>
+  <script>
+    const API_BASE = 'http://localhost:5000/api';
+    let currentUser = null;
+    let allRides = [];
+    let currentFilter = 'confirmed';
+
+    // Helper: treat a ride as upcoming if its dateTime is in the future (by minute-level)
+    function isUpcoming(dt) {
+      const t = new Date(dt).getTime();
+      return Number.isFinite(t) && t >= Date.now();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      initializeFilters();
+    });
+
+    async function checkAuth() {
+      const token = localStorage.getItem('token');
+      if (!token) { window.location.href = '/index.html'; return; }
+      try {
+        const response = await fetch(`${API_BASE}/auth/me`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (response.ok) {
+          const data = await response.json();
+          currentUser = data.user;
+          document.getElementById('userName').textContent = `Welcome, ${currentUser.name.split(' ')[0]}`;
+          loadUserRides();
+        } else {
+          localStorage.removeItem('token');
+          window.location.href = '/index.html';
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+      }
+    }
+
+    function initializeFilters() {
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          currentFilter = e.target.dataset.filter;
+          displayRides();
+        });
+      });
+    }
+
+    async function loadUserRides() {
+      showLoading(true);
+      const container = document.getElementById('ridesContainer');
+      container.innerHTML = '';
+      try {
+        const response = await fetch(`${API_BASE}/rides/my-rides`, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        if (!response.ok) throw new Error('Failed to load rides');
+        allRides = await response.json();
+        displayRides();
+      } catch (error) {
+        showError('Failed to load rides');
+        container.innerHTML = `<div class="no-rides">${error.message}</div>`;
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function displayRides() {
+      const container = document.getElementById('ridesContainer');
+      const filteredRides = allRides
+        .filter(ride => {
+          // Role filter
+          const byRole =
+            (currentFilter === 'confirmed' && (ride.userRole === 'creator' || ride.userRole === 'confirmed')) ||
+            (currentFilter === 'pending' && ride.userRole === 'requested');
+          if (!byRole) return false;
+          // Only future rides not closed
+          const upcoming = isUpcoming(ride.dateTime);
+          const notClosed = ride.status !== 'CLOSED';
+          // Prefer strict time check; if time parsing fails, fall back to status flag
+          return upcoming && notClosed;
+        })
+        // Upcoming soonest first
+        .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+      if (filteredRides.length === 0) {
+        container.innerHTML = `<div class="no-rides">
+          <i class="fas fa-info-circle"></i>
+          <p>No ${currentFilter} rides found</p>
+          ${currentFilter === 'confirmed'
+            ? '<p class="sub-text">Confirmed rides include rides you created and rides where your request was accepted.</p>'
+            : '<p class="sub-text">Pending section shows rides where you have requested to join.</p>'}
+        </div>`;
+        return;
+      }
+      container.innerHTML = filteredRides.map(createRideCard).join('');
+    }
+
+    function createRideCard(ride) {
+      const rideDate = new Date(ride.dateTime);
+      const formattedDate = rideDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+      const formattedTime = rideDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+      const isCreator = ride.userRole === 'creator';
+      const isConfirmed = ride.userRole === 'confirmed';
+      const isPendingRole = ride.userRole === 'requested';
+
+      let statusBadge = '';
+      if (isConfirmed || isCreator) statusBadge = `<span class="status-badge status-confirmed"><i class="fas fa-check-circle"></i> Confirmed</span>`;
+      if (isPendingRole) statusBadge = `<span class="status-badge status-pending"><i class="fas fa-clock"></i> Pending</span>`;
+
+      const statusChip = `<span class="chip" title="Ride status"><i class="fas fa-info-circle"></i>${ride.status || 'OPEN'}</span>`;
+      const seatsChip = `<span class="chip" title="Available seats"><i class="fas fa-chair"></i>${ride.availableSeats ?? 'No'} Seats Available</span>`;
+
+      const confirmedList = ride.confirmedDetails || [];
+      const pendingList = ride.requestDetails || [];
+
+      const confirmedHTML = confirmedList.length > 0 ? `
+        <h4 class="section-title">Confirmed Companions (${confirmedList.length})</h4>
+        ${confirmedList.map(u => `
+          <div class="companion-card">
+            <div class="companion-name">${u.name || 'User'}</div>
+            <p class="companion-details">${u.email || ''}</p>
+          </div>
+        `).join('')}
+      ` : `<p class="companion-details">No confirmed companions yet.</p>`;
+
+      const disableAccept = isCreator && (ride.availableSeats !== undefined && ride.availableSeats <= 0);
+
+      const pendingHTML = pendingList.length > 0 ? `
+        <h4 class="section-title">Pending Requests (${pendingList.length})</h4>
+        ${pendingList.map(u => `
+          <div class="companion-card" style="display:flex; align-items:center; justify-content:space-between; gap:1rem;">
+            <div>
+              <div class="companion-name">${u.name || 'User'}</div>
+              <p class="companion-details">
+                ${u.email ? `<i class="fas fa-envelope"></i> ${u.email}` : ''}
+                ${u.phone ? ` &nbsp; <i class="fas fa-phone"></i> ${u.phone}` : ''}
+              </p>
+              ${u.department || u.year ? `<p class="companion-details"><i class="fas fa-id-card"></i> ${[u.department, u.year].filter(Boolean).join(' • ')}</p>` : ''}
+            </div>
+            ${isCreator ? `
+              <div style="display:flex; gap:0.5rem; flex-wrap: wrap;">
+                <button class="btn btn-primary" ${disableAccept ? 'disabled title="No seats left"' : ''} onclick="decideCompanion('${ride._id}', '${u.id}', 'accept')">
+                  <i class="fas fa-user-check"></i> Accept
+                </button>
+                <button class="btn btn-danger" onclick="decideCompanion('${ride._id}', '${u.id}', 'reject')">
+                  <i class="fas fa-user-times"></i> Reject
+                </button>
+              </div>` : ``}
+          </div>
+        `).join('')}
+      ` : '';
+
+      return `
+        <div class="ride-card" data-ride-id="${ride._id}">
+          <div class="ride-header">
+            <div class="route-info">
+              <h3>${ride.fromLocation} → ${ride.toLocation}</h3>
+              <div class="route-details">
+                <i class="fas fa-calendar-alt"></i>
+                <span>${formattedDate} at ${formattedTime}</span>
+                ${statusChip}
+                ${seatsChip}
+              </div>
+            </div>
+            ${statusBadge}
+          </div>
+          <div class="ride-actions">
+            ${ride.allowChat ? `<button onclick="openChat('${ride._id}')" class="btn btn-secondary"><i class="fas fa-comments"></i> Chat</button>` : ''}
+            ${isPendingRole ? `<button onclick="cancelRequest('${ride._id}')" class="btn btn-danger"><i class="fas fa-times"></i> Cancel Request</button>` : ''}
+          </div>
+          <div class="companions-section" id="companions-${ride._id}">
+            <div class="companions-list">
+              ${confirmedHTML}
+              ${pendingHTML}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Creator decides on a pending request
+    async function decideCompanion(rideId, userId, decision) {
+      try {
+        const res = await fetch(`${API_BASE}/rides/decide`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({ rideId, userId, decision })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          showError(data.message || 'Failed to update request');
+          return;
+        }
+        showSuccess(data.message || `Request ${decision}ed`);
+        await loadUserRides();
+      } catch (e) {
+        showError('Failed to update request');
+      }
+    }
+
+    // Pending requester cancels own request
+    async function cancelRequest(rideId) {
+      if (!confirm('Are you sure you want to cancel your ride request?')) return;
+      try {
+        const response = await fetch(`${API_BASE}/rides/cancel-request`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+          body: JSON.stringify({ rideId })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          showSuccess('Request cancelled successfully');
+          loadUserRides();
+        } else {
+          showError(data.message || 'Failed to cancel request');
+        }
+      } catch (error) {
+        showError('Failed to cancel request');
+      }
+    }
+
+    function openChat(rideId) {
+      window.open(`/Chat_Page.html?rideId=${rideId}`, '_self');
+    }
+
+    function showLoading(show) {
+      document.getElementById('loadingSpinner').style.display = show ? 'block' : 'none';
+    }
+    function showSuccess(message) { showNotification(message, 'success'); }
+    function showError(message) { showNotification(message, 'error'); }
+
+    function showNotification(message, type) {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i><span>${message}</span>`;
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 4000);
+    }
+  </script>
+</body>
+</html>

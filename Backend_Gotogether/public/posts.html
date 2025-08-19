@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RideShare - My Rides Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #FFD700 0%, #FFEB99 50%, #FFF8DC 100%);
+            --secondary-gradient: linear-gradient(135deg, #FFC107 0%, #FFD54F 100%);
+            --glass-bg: rgba(255, 250, 205, 0.7);
+            --glass-border: rgba(255, 215, 0, 0.3);
+            --card-bg: rgba(255, 255, 224, 0.85);
+            --input-bg: rgba(255, 248, 220, 0.9);
+            --text-primary: #4E342E;
+            --text-secondary: rgba(78, 52, 46, 0.8);
+            --shadow-glass: 0 8px 32px 0 rgba(255, 215, 0, 0.4);
+            --success-color: #16a34a; --success-bg: rgba(34, 197, 94, 0.2);
+            --danger-color: #dc2626; --danger-bg: rgba(239, 68, 68, 0.2);
+            --warning-color: #f59e0b; --warning-bg: rgba(245, 158, 11, 0.2);
+            --info-color: #0ea5e9; --info-bg: rgba(14, 165, 233, 0.2);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #FFF8DC 0%, #FFECB3 25%, #FFD700 50%, #FFC107 75%, #ffffff 100%);
+            background-attachment: fixed; min-height: 100vh; padding: 1rem;
+        }
+        .container { max-width: 800px; margin: 0 auto; padding-bottom: 100px; }
+        .glass-section {
+            background: var(--glass-bg); backdrop-filter: blur(25px); border-radius: 20px;
+            box-shadow: var(--shadow-glass); border: 1px solid var(--glass-border);
+            padding: 2rem; margin-bottom: 2rem; position: relative;
+        }
+        .glass-section h2 { text-align: center; margin-bottom: 1.5rem; color: var(--text-primary); font-size: 1.75rem; }
+
+        /* Header & Navigation */
+        .header { display: flex; align-items: center; justify-content: center; text-align: center; }
+        .back-btn {
+            position: absolute; top: 1.5rem; left: 1.5rem; background: rgba(255, 255, 255, 0.2);
+            border: 1px solid var(--glass-border); border-radius: 50%; width: 48px; height: 48px;
+            display: flex; align-items: center; justify-content: center; color: var(--text-primary);
+            cursor: pointer; transition: all 0.3s ease;
+        }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.4); }
+
+        /* Stats Section */
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.3); padding: 1rem; border-radius: 16px; text-align: center;
+            border: 1px solid var(--glass-border); transition: all 0.3s ease;
+        }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-glass); }
+        .stat-number { font-size: 2rem; font-weight: bold; color: var(--text-primary); }
+        .stat-label { color: var(--text-secondary); font-size: 0.9em; }
+
+        /* Filters Section */
+        .filters { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; justify-content: center; }
+        .filter-group { display: flex; flex-direction: column; gap: 0.5rem; flex: 1; min-width: 150px; }
+        .filter-group label { font-weight: 600; font-size: 0.8rem; color: var(--text-secondary); }
+        .filter-group input, .filter-group select {
+            width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--glass-border);
+            border-radius: 12px; font-size: 1rem; background: var(--input-bg); color: var(--text-primary);
+        }
+
+        /* Ride Card Styles */
+        .rides-container { display: flex; flex-direction: column; gap: 1.5rem; }
+        .ride-card {
+            background: var(--card-bg); backdrop-filter: blur(20px); border-radius: 20px;
+            box-shadow: var(--shadow-glass); border: 1px solid var(--glass-border);
+            padding: 1.5rem; transition: all 0.3s ease; overflow: hidden;
+        }
+        .ride-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
+        .ride-header h3 { margin: 0; color: var(--text-primary); font-size: 1.25rem; flex-basis: 100%; }
+        .ride-badges { display: flex; gap: 0.5rem; }
+        .badge {
+            padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem;
+            font-weight: bold; text-transform: uppercase; border: 1px solid transparent;
+        }
+        .status-open { background: var(--success-bg); color: var(--success-color); border-color: var(--success-color); }
+        .status-full { background: var(--warning-bg); color: #856404; border-color: var(--warning-color); }
+        .status-closed { background: var(--danger-bg); color: var(--danger-color); border-color: var(--danger-color); }
+        .role-creator { background: var(--info-bg); color: var(--info-color); border-color: var(--info-color); }
+        .role-requested { background: var(--warning-bg); color: var(--warning-color); border-color: var(--warning-color); }
+        .role-confirmed { background: var(--success-bg); color: var(--success-color); border-color: var(--success-color); }
+
+        .ride-details, .ride-features { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
+        .ride-details p, .feature { font-size: 0.9em; color: var(--text-secondary); }
+        .feature { background: rgba(0,0,0,0.05); padding: 0.25rem 0.5rem; border-radius: 8px; }
+
+        .ride-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+        .btn {
+            padding: 0.5rem 1rem; border: none; border-radius: 10px; cursor: pointer;
+            font-size: 0.9em; font-weight: 600; transition: all 0.2s;
+        }
+        .btn-primary { background: var(--secondary-gradient); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-glass); }
+        .btn-success { background: var(--success-color); color: white; }
+        .btn-danger { background: var(--danger-color); color: white; }
+        .btn-warning { background: var(--warning-color); color: var(--text-dark); }
+        .btn-outline { background: transparent; color: var(--text-primary); border: 1px solid var(--glass-border); }
+        .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.8em; }
+
+        .requests-section, .confirmed-section {
+            margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);
+        }
+        .requests-section h4, .confirmed-section h4 { margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 1em; }
+        .request-item { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; }
+        .passengers-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .passenger-badge { background: rgba(0,0,0,0.1); padding: 0.25rem 0.75rem; border-radius: 12px; }
+
+        .no-rides { text-align: center; padding: 40px 20px; }
+        .fab {
+            position: fixed; bottom: 2rem; right: 2rem; width: 64px; height: 64px; background: var(--secondary-gradient);
+            border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 50%; box-shadow: var(--shadow-glass); color: white;
+            font-size: 1.5rem; cursor: pointer; transition: all 0.3s ease; z-index: 1000;
+            display: flex; align-items: center; justify-content: center; text-decoration: none;
+        }
+        .fab:hover { transform: translateY(-3px) scale(1.05); }
+
+        .notification {
+            position: fixed; top: 20px; right: 20px; padding: 1rem 1.5rem; border-radius: 16px;
+            color: var(--text-primary); font-weight: bold; z-index: 1000;
+            background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
+            animation: slideIn 0.3s ease;
+        }
+        .notification.success { border-left: 4px solid var(--success-color); }
+        .notification.error { border-left: 4px solid var(--danger-color); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="glass-section header">
+            <a href="/index.html" class="back-btn" aria-label="Go Back"><i class="fas fa-arrow-left"></i></a>
+            <div>
+                <h2 id="userName">My Rides Dashboard</h2>
+                <p style="color: var(--text-secondary);">Manage your created rides and requests</p>
+            </div>
+        </header>
+
+        <section class="glass-section">
+            <div class="stats" id="statsContainer">
+                <div class="stat-card"><div class="stat-number" id="totalRides">0</div><div class="stat-label">Total Rides</div></div>
+                <div class="stat-card"><div class="stat-number" id="createdRides">0</div><div class="stat-label">Created</div></div>
+                <div class="stat-card"><div class="stat-number" id="requestedRides">0</div><div class="stat-label">Requested</div></div>
+                <div class="stat-card"><div class="stat-number" id="confirmedRides">0</div><div class="stat-label">Confirmed</div></div>
+            </div>
+        </section>
+
+        <section class="glass-section">
+            <div class="filters">
+                <div class="filter-group"><label for="searchInput">Search Location/Driver</label><input type="text" id="searchInput" onkeyup="searchPosts()" placeholder="e.g., Pune Station"></div>
+                <div class="filter-group"><label for="statusFilter">Ride Status</label><select id="statusFilter" onchange="filterRides()"><option value="all">All</option><option value="OPEN">Open</option><option value="FULL">Full</option><option value="CLOSED">Closed</option></select></div>
+                <div class="filter-group"><label for="typeFilter">My Role</label><select id="typeFilter" onchange="filterRides()"><option value="all">All Roles</option><option value="creator">As Creator</option><option value="passenger">As Passenger</option></select></div>
+            </div>
+        </section>
+        
+        <div class="rides-container" id="ridesContainer">
+            <!-- Rides will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <a href="/create-ride.html" class="fab" aria-label="Create New Ride">
+        <i class="fas fa-plus"></i>
+    </a>
+
+<script>
+    const API_BASE = 'http://localhost:5000/api';
+    let currentUser = null;
+    let allRides = [];
+
+    async function checkAuth() {
+        const token = localStorage.getItem('token');
+        if (!token) { window.location.href = '/index.html'; return; }
+        try {
+            const response = await fetch(`${API_BASE}/auth/me`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (response.ok) {
+                const data = await response.json();
+                currentUser = data.user;
+                document.getElementById('userName').textContent = `Welcome, ${currentUser.name.split(' ')[0]}`;
+                loadUserRides();
+            } else {
+                localStorage.removeItem('token');
+                window.location.href = '/index.html';
+            }
+        } catch (error) { console.error('Auth check failed:', error); }
+    }
+
+    async function loadUserRides() {
+        const status = document.getElementById('statusFilter').value;
+        const type = document.getElementById('typeFilter').value;
+        try {
+            const params = new URLSearchParams({ status, type });
+            const response = await fetch(`${API_BASE}/rides/my-rides?${params}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }});
+            if (response.ok) {
+                allRides = await response.json();
+                displayRides(allRides);
+                updateStats(allRides);
+            } else { showError('Failed to load rides'); }
+        } catch (error) { showError('Failed to load rides'); }
+    }
+
+    function displayRides(rides) {
+        const container = document.getElementById('ridesContainer');
+        if (rides.length === 0) {
+            container.innerHTML = `<div class="no-rides glass-section"><h3>No rides match your filters.</h3><p>Try creating a new ride!</p></div>`;
+            return;
+        }
+        container.innerHTML = rides.map(ride => `
+            <div class="ride-card" data-ride-id="${ride._id}">
+                <div class="ride-header">
+                    <h3>${ride.fromLocation} → ${ride.toLocation}</h3>
+                    <div class="ride-badges">
+                        <span class="badge status-${ride.status.toLowerCase()}">${ride.status}</span>
+                        <span class="badge role-${ride.userRole.toLowerCase()}">${ride.userRole}</span>
+                    </div>
+                </div>
+                <div class="ride-details">
+                    <p><strong><i class="fas fa-user-circle"></i> Driver:</strong> ${ride.creatorName}</p>
+                    <p><strong><i class="fas fa-calendar-alt"></i> Date:</strong> ${new Date(ride.dateTime).toLocaleDateString()}</p>
+                    <p><strong><i class="fas fa-clock"></i> Time:</strong> ${new Date(ride.dateTime).toLocaleTimeString()}</p>
+                </div>
+                <div class="ride-features">
+                    <span class="feature"><i class="fas fa-chair"></i> ${ride.availableSeats} Seats Left</span>
+                    ${ride.luggageSpace ? '<span class="feature"><i class="fas fa-suitcase"></i> Luggage Space</span>' : ''}
+                    ${ride.allowChat ? '<span class="feature"><i class="fas fa-comments"></i> Chat Enabled</span>' : ''}
+                </div>
+                ${ride.userRole === 'creator' ? createOwnerActions(ride) : createPassengerActions(ride)}
+                ${(ride.requestDetails.length > 0 && ride.userRole === 'creator') ? createRequestsSection(ride) : ''}
+                ${ride.confirmedDetails.length > 0 ? createConfirmedSection(ride) : ''}
+            </div>`).join('');
+    }
+
+    function createOwnerActions(ride) {
+        const canEdit = new Date(ride.dateTime) > new Date() && ride.status === 'OPEN';
+        return `<div class="ride-actions">
+                    ${canEdit ? `<button onclick="editRideTime('${ride._id}')" class="btn btn-outline">Edit Time</button>
+                                 <button onclick="closeRide('${ride._id}')" class="btn btn-warning">Close Ride</button>` : ''}
+                    ${ride.allowChat ? `<button onclick="openChat('${ride._id}')" class="btn btn-primary">Open Chat</button>` : ''}
+                </div>`;
+    }
+    function createPassengerActions(ride) {
+        return `<div class="ride-actions">
+                    ${ride.userRole === 'requested' ? `<button onclick="cancelRequest('${ride._id}')" class="btn btn-warning">Cancel Request</button>` : ''}
+                    ${ride.allowChat && (ride.userRole === 'confirmed' || ride.userRole === 'requested') ? `<button onclick="openChat('${ride._id}')" class="btn btn-primary">Open Chat</button>` : ''}
+                </div>`;
+    }
+    function createRequestsSection(ride) {
+        const requestsHTML = ride.requestDetails.map(user => `
+            <div class="request-item">
+                <span><i class="fas fa-user"></i> ${user.name}</span>
+                <div>
+                    <button onclick="decideRequest('${ride._id}', '${user.id}', 'accept')" class="btn btn-success btn-sm">Accept</button>
+                    <button onclick="decideRequest('${ride._id}', '${user.id}', 'reject')" class="btn btn-danger btn-sm">Reject</button>
+                </div>
+            </div>`).join('');
+        return `<div class="requests-section"><h4>Pending Requests (${ride.requestDetails.length})</h4>${requestsHTML}</div>`;
+    }
+    function createConfirmedSection(ride) {
+        const confirmedHTML = ride.confirmedDetails.map(user => `<span class="passenger-badge">${user.name}</span>`).join('');
+        return `<div class="confirmed-section"><h4>Confirmed Passengers (${ride.confirmedDetails.length})</h4><div class="passengers-list">${confirmedHTML}</div></div>`;
+    }
+
+    function filterRides() { loadUserRides(); }
+    
+    async function performAction(endpoint, rideId, body = {}) {
+        const options = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+            body: JSON.stringify({ rideId, ...body })
+        };
+        try {
+            const response = await fetch(`${API_BASE}${endpoint}`, options);
+            const data = await response.json();
+            if (response.ok) {
+                showNotification(data.message || 'Action successful!', 'success');
+                loadUserRides();
+            } else {
+                showError(data.message || 'Action failed');
+            }
+        } catch (error) { showError('An error occurred'); }
+    }
+
+    function cancelRequest(rideId) { if (confirm('Cancel your request?')) performAction('/rides/cancel-request', rideId); }
+    function closeRide(rideId) { if (confirm('Close this ride to new requests?')) performAction('/rides/close', rideId); }
+    function decideRequest(rideId, userId, decision) { performAction('/rides/decide', rideId, { userId, decision }); }
+    function editRideTime(rideId) {
+        const ride = allRides.find(r => r._id === rideId);
+        const newDateTime = prompt('Enter new date & time (YYYY-MM-DDTHH:MM):', new Date(ride.dateTime).toISOString().slice(0, 16));
+        if (newDateTime) performAction('/rides/update-time', rideId, { dateTime: newDateTime });
+    }
+    
+    function openChat(rideId) { window.open(`/chat.html?rideId=${rideId}`, '_self'); }
+
+    function updateStats() {
+        document.getElementById('totalRides').textContent = allRides.length;
+        document.getElementById('createdRides').textContent = allRides.filter(r => r.userRole === 'creator').length;
+        document.getElementById('requestedRides').textContent = allRides.filter(r => r.userRole === 'requested').length;
+        document.getElementById('confirmedRides').textContent = allRides.filter(r => r.userRole === 'confirmed').length;
+    }
+    
+    function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 4000);
+    }
+    function showError(message) { showNotification(message, 'error'); }
+    
+    function searchPosts() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = allRides.filter(ride => 
+            ride.fromLocation.toLowerCase().includes(query) ||
+            ride.toLocation.toLowerCase().includes(query) ||
+            ride.creatorName.toLowerCase().includes(query)
+        );
+        displayRides(filtered);
+    }
+
+    document.addEventListener('DOMContentLoaded', checkAuth);
+</script>
+</body>
+</html>

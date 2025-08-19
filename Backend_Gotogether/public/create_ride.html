@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RideShare - Create New Ride</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #FFD700 0%, #FFEB99 50%, #FFF8DC 100%);
+            --secondary-gradient: linear-gradient(135deg, #FFC107 0%, #FFD54F 100%);
+            --glass-bg: rgba(255, 223, 0, 0.2);
+            --glass-border: rgba(255, 215, 0, 0.3);
+            --form-bg: rgba(255, 250, 205, 0.9);
+            --card-bg: rgba(255, 255, 224, 0.9);
+            --input-bg: rgba(255, 248, 220, 0.9);
+            --success-color: #FFB300;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+            --text-primary: #4E342E;
+            --text-secondary: rgba(78, 52, 46, 0.8);
+            --text-dark: #3e2723;
+            --bg-light: rgba(255, 235, 59, 0.2);
+            --border-color: rgba(255, 215, 0, 0.3);
+            --shadow-glass: 0 8px 32px 0 rgba(255, 215, 0, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          background: linear-gradient(135deg,
+                #FFF8DC 0%, #FFECB3 25%, #FFD700 50%, #FFC107 75%, #ffffff 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-container {
+            background: var(--form-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 28px;
+            box-shadow: var(--shadow-glass);
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            position: relative;
+        }
+
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        }
+
+        .header {
+            text-align: center;
+            padding: 2.5rem 2rem 1.5rem;
+            background: var(--primary-gradient);
+            color: var(--text-primary);
+            position: relative;
+            border-bottom: 1px solid var(--glass-border);
+
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        }
+
+        .header-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            display: block;
+            color: var(--warning-color);
+            text-shadow: 0 0 20px rgba(255, 193,7, 0.4);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            letter-spacing: -0.025em;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            color: var(--text-primary);
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 400;
+            color: var(--text-secondary);
+        }
+
+        .form-section {
+            padding: 2rem;
+            background: rgba(225, 235, 94, 0.2);
+        }
+
+        .form-section h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+            font-size: 1.875rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--input-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+           color: var(--text-secondary);
+        }
+
+        .form-group select option {
+            background: #FFF8DC; 
+            color: var(--text-dark);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+             border-color: var(--warning-color);
+            box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.3);
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 1rem 1.25rem;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .toggle-label {
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 32px;
+             background: rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .toggle-switch.active {
+            background: var(--secondary-gradient); border-color: transparent; 
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(28px);
+            background: white;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+        }
+
+        .toggle-switch input[type="checkbox"] {
+            display: none;
+        }
+
+        .counter-group {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .counter-btn {
+            width: 48px;
+            height: 48px;
+            background: var(--secondary-gradient);
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .counter-btn:hover:not(:disabled) {
+             opacity: 0.8;
+        }
+
+        .counter-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .counter-display {
+            flex: 1;
+            text-align: center;
+            padding: 1rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .confirmation-group {
+           background: rgba(255, 255, 255, 0.3);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+        }
+
+        .confirmation-checkbox {
+            display: flex;
+            align-items: flex-start;
+            cursor: pointer;
+        }
+
+        .confirmation-checkbox input[type="checkbox"] {
+            width: auto !important;
+            margin-right: 1rem;
+            accent-color: var(--warning-color);
+            transform: scale(1.2);
+        }
+
+        .confirmation-text {
+            color: var(--text-secondary);
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1.25rem 1.5rem;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn.primary {
+            background: var(--secondary-gradient);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: var(--shadow-glass);
+        }
+
+        .btn.primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px ;
+            background:rgba(255, 215, 0, 0.5);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn.loading {
+            color: transparent;
+        }
+
+        .btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            top: 50%;
+            left: 50%;
+            margin-left: -12px;
+            margin-top: -12px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            display: block;
+            color: #ff6b6b;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            animation: shake 0.3s ease-in-out;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 640px) {
+            .container { padding: 0.5rem; }
+            .form-section { padding: 1.5rem; }
+            .header { padding: 2rem 1.5rem 1rem; }
+            .header h1 { font-size: 1.75rem; }
+            .header-icon { font-size: 2.5rem; }
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+            .counter-group { justify-content: center; }
+        }
+
+        .glass-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--form-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            color: var(--text-primary);
+            padding: 16px 20px;
+            border-radius: 16px;
+              border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-glass);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInRight 0.3s ease-out;
+            max-width: 300px;
+            font-weight: 500;
+        }
+
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <button class="back-btn" id="backBtn">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+
+            <div class="header">
+                <i class="fas fa-plus-circle header-icon"></i>
+                <h1>Create New Ride</h1>
+                <p>Share your journey with fellow students</p>
+            </div>
+
+            <div class="form-section">
+                <h2>Ride Details</h2>
+                <form id="createRideForm" novalidate>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fromLocation">From *</label>
+                            <div class="input-wrapper">
+                                <select id="fromLocation" name="fromLocation" class="form-control" required>
+                                    <option value="">Select starting point</option>
+                                </select>
+                                <i class="fas fa-map-marker-alt input-icon"></i>
+                            </div>
+                            <span class="error-message" id="fromLocationError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="toLocation">To *</label>
+                            <div class="input-wrapper">
+                                <select id="toLocation" name="toLocation" class="form-control" required disabled>
+                                    <option value="">Select destination</option>
+                                </select>
+                                <i class="fas fa-flag-checkered input-icon"></i>
+                            </div>
+                            <span class="error-message" id="toLocationError"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="genderAcceptance">Gender Preference *</label>
+                            <div class="input-wrapper">
+                                <select id="genderAcceptance" name="genderAcceptance" required>
+                                    <option value="">Select preference</option>
+                                    <option value="any">Any Gender</option>
+                                    <option value="male-only">Male Only</option>
+                                    <option value="female-only">Female Only</option>
+                                </select>
+                                <i class="fas fa-users input-icon"></i>
+                            </div>
+                            <span class="error-message" id="genderAcceptanceError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="timeSlot">Departure Time *</label>
+                            <div class="input-wrapper">
+                                <input type="datetime-local" id="timeSlot" name="timeSlot" required>
+                                
+                            </div>
+                            <span class="error-message" id="timeSlotError"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="seatsAvailable">Seats Available *</label>
+                        <div class="counter-group">
+                            <button type="button" class="counter-btn" id="decreaseSeats">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <div class="counter-display" id="seatsDisplay">1</div>
+                            <button type="button" class="counter-btn" id="increaseSeats">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <input type="hidden" id="seatsAvailable" name="seatsAvailable" value="1">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Luggage Space</label>
+                            <div class="toggle-group">
+                                <span class="toggle-label"><i class="fas fa-suitcase" style="margin-right: 8px;"></i>Luggage space</span>
+                                <div class="toggle-switch" id="luggageToggle">
+                                    <input type="checkbox" id="luggageSpace" name="luggageSpace">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- <div class="form-group">
+                            <label>Time Negotiation</label>
+                            <div class="toggle-group">
+                                <span class="toggle-label"><i class="fas fa-handshake" style="margin-right: 8px;"></i>Flexible timing</span>
+                                <div class="toggle-switch" id="timeNegotiationToggle">
+                                    <input type="checkbox" id="timeNegotiation" name="timeNegotiation">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                            </div>
+                        </div> -->
+                    </div>
+                    
+                    <div class="form-group full-width">
+                         <label>Passenger Communication</label>
+                         <div class="toggle-group">
+                             <span class="toggle-label">
+                                 <i class="fas fa-comments" style="margin-right: 8px;"></i>
+                                 Enable chat with passengers
+                             </span>
+                             <div class="toggle-switch active" id="allowChatToggle">
+                                 <input type="checkbox" id="allowChat" name="allowChat" checked>
+                                 <div class="toggle-slider"></div>
+                             </div>
+                         </div>
+                     </div>
+
+
+                    <div class="form-group full-width">
+                        <label for="additionalNotes">Additional Notes (Optional)</label>
+                        <textarea id="additionalNotes" name="additionalNotes" rows="3" placeholder="Any specific requirements, vehicle details, or instructions for passengers..."></textarea>
+                    </div>
+
+                    <div class="confirmation-group">
+                        <label class="confirmation-checkbox">
+                            <input type="checkbox" id="confirmationBox" name="confirmationBox" required>
+                            <div class="confirmation-text">
+                                I confirm that all the information provided is accurate. I understand that I am responsible for communicating with passengers and ensuring a safe ride. I agree to the terms and conditions of RideShare platform.
+                            </div>
+                        </label>
+                        <span class="error-message" id="confirmationBoxError"></span>
+                    </div>
+
+                    <button type="submit" id="postRideBtn" class="btn primary">
+                        <i class="fas fa-paper-plane" style="margin-right: 10px;"></i>
+                        Post Ride
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<script>
+    class RideCreator {
+        constructor() {
+            this.seatsCount = 1;
+            this.apiBaseUrl = 'http://localhost:5000/api';
+            this.init();
+        }
+
+        async loadStartingLocations() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/index.html';
+                    return;
+                }
+
+                const response = await fetch(`${this.apiBaseUrl}/locations/starting-points`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load locations');
+                }
+
+                const locations = await response.json();
+                console.log('Loaded starting locations:', locations);
+                
+                const fromSelect = document.getElementById('fromLocation');
+                fromSelect.innerHTML = '<option value="">Select starting point</option>';
+                
+                locations.forEach(location => {
+                    fromSelect.innerHTML += `<option value="${location.name}">${location.name} (${location.type})</option>`;
+                });
+            } catch (error) {
+                console.error('Error loading starting locations:', error);
+                this.showError('Error loading locations. Please try again.');
+            }
+        }
+
+        async loadDestinations(fromLocation) {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/index.html';
+                    return;
+                }
+
+                const toSelect = document.getElementById('toLocation');
+                
+                if (!fromLocation) {
+                    toSelect.innerHTML = '<option value="">Select destination</option>';
+                    toSelect.disabled = true;
+                    return;
+                }
+
+                const response = await fetch(`${this.apiBaseUrl}/locations/destinations?fromLocation=${encodeURIComponent(fromLocation)}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load destinations');
+                }
+
+                const locations = await response.json();
+                console.log('Loaded destinations for', fromLocation, ':', locations);
+                
+                toSelect.innerHTML = '<option value="">Select destination</option>';
+                
+                locations.forEach(location => {
+                    toSelect.innerHTML += `<option value="${location.name}">${location.name} (${location.type})</option>`;
+                });
+                
+                toSelect.disabled = false;
+            } catch (error) {
+                console.error('Error loading destinations:', error);
+                const toSelect = document.getElementById('toLocation');
+                toSelect.innerHTML = '<option value="">Error loading destinations</option>';
+                toSelect.disabled = true;
+                this.showError('Error loading destinations. Please try again.');
+            }
+        }
+
+        async loadStartingLocations() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/index.html';
+                    return;
+                }
+
+                const response = await fetch(`${this.apiBaseUrl}/locations/starting-points`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load locations');
+                }
+
+                const locations = await response.json();
+                console.log('Loaded starting locations:', locations);
+                
+                const fromSelect = document.getElementById('fromLocation');
+                fromSelect.innerHTML = '<option value="">Select starting point</option>';
+                
+                locations.forEach(location => {
+                    fromSelect.innerHTML += `<option value="${location.name}">${location.name} (${location.type})</option>`;
+                });
+            } catch (error) {
+                console.error('Error loading starting locations:', error);
+                this.showNotification('Error loading locations. Please try again.', false);
+            }
+        }
+
+        async loadDestinations(fromLocation) {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) return;
+
+                const toSelect = document.getElementById('toLocation');
+                
+                if (!fromLocation) {
+                    toSelect.innerHTML = '<option value="">Select destination</option>';
+                    toSelect.disabled = true;
+                    return;
+                }
+
+                const response = await fetch(`${this.apiBaseUrl}/locations/destinations?fromLocation=${encodeURIComponent(fromLocation)}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load destinations');
+                }
+
+                const locations = await response.json();
+                console.log('Loaded destinations for', fromLocation, ':', locations);
+                
+                toSelect.innerHTML = '<option value="">Select destination</option>';
+                
+                locations.forEach(location => {
+                    toSelect.innerHTML += `<option value="${location.name}">${location.name} (${location.type})</option>`;
+                });
+                
+                toSelect.disabled = false;
+            } catch (error) {
+                console.error('Error loading destinations:', error);
+                const toSelect = document.getElementById('toLocation');
+                toSelect.innerHTML = '<option value="">Error loading destinations</option>';
+                toSelect.disabled = true;
+                this.showNotification('Error loading destinations. Please try again.', false);
+            }
+        }
+
+        async loadStartingLocations() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/index.html';
+                    return;
+                }
+
+                const response = await fetch(`${this.apiBaseUrl}/locations/starting-points`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load locations');
+                }
+
+                const locations = await response.json();
+                console.log('Loaded starting locations:', locations);
+                
+                const fromSelect = document.getElementById('fromLocation');
+                fromSelect.innerHTML = '<option value="">Select starting point</option>';
+                
+                locations.forEach(location => {
+                    fromSelect.innerHTML += `<option value="${location.name}">${location.name} (${location.type})</option>`;
+                });
+            } catch (error) {
+                console.error('Error loading starting locations:', error);
+                this.showNotification('Error loading locations. Please try again.', false);
+            }
+        }
+
+        async loadDestinations(fromLocation) {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) return;
+
+                const toSelect = document.getElementById('toLocation');
+                
+                if (!fromLocation) {
+                    toSelect.innerHTML = '<option value="">Select destination</option>';
+                    toSelect.disabled = true;
+                    return;
+                }
+
+                const response = await fetch(`${this.apiBaseUrl}/locations/destinations?fromLocation=${encodeURIComponent(fromLocation)}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load destinations');
+                }
+
+                const locations = await response.json();
+                console.log('Loaded destinations for', fromLocation, ':', locations);
+                
+                toSelect.innerHTML = '<option value="">Select destination</option>';
+                
+                locations.forEach(location => {
+                    toSelect.innerHTML += `<option value="${location.name}">${location.name} (${location.type})</option>`;
+                });
+                
+                toSelect.disabled = false;
+            } catch (error) {
+                console.error('Error loading destinations:', error);
+                const toSelect = document.getElementById('toLocation');
+                toSelect.innerHTML = '<option value="">Error loading destinations</option>';
+                toSelect.disabled = true;
+                this.showNotification('Error loading destinations. Please try again.', false);
+            }
+        }
+
+        init() {
+            this.checkForAuth();
+            this.bindEvents();
+            this.setMinDateTime();
+            this.loadStartingLocations();
+        }
+
+        checkForAuth() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('You are not logged in. Redirecting to login page...');
+                window.location.href = '/index.html';
+            }
+        }
+
+        bindEvents() {
+            document.getElementById('backBtn').addEventListener('click', () => {
+                window.location.href = '/home_page.html';
+            });
+
+            document.getElementById('increaseSeats').addEventListener('click', () => this.updateSeats(1));
+            document.getElementById('decreaseSeats').addEventListener('click', () => this.updateSeats(-1));
+
+            document.getElementById('luggageToggle').addEventListener('click', () => this.toggleSwitch('luggageToggle', 'luggageSpace'));
+            // document.getElementById('timeNegotiationToggle').addEventListener('click', () => this.toggleSwitch('timeNegotiationToggle', 'timeNegotiation'));
+            document.getElementById('allowChatToggle').addEventListener('click', () => this.toggleSwitch('allowChatToggle', 'allowChat'));
+
+            document.getElementById('createRideForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleRideCreation();
+            });
+
+            const requiredFields = ['fromLocation', 'toLocation', 'genderAcceptance', 'timeSlot'];
+            requiredFields.forEach(field => {
+                document.getElementById(field).addEventListener('blur', () => this.validateField(field));
+            });
+            document.getElementById('confirmationBox').addEventListener('change', () => this.validateConfirmation());
+
+            // Add change event listener for the fromLocation dropdown
+            document.getElementById('fromLocation').addEventListener('change', (e) => {
+                this.loadDestinations(e.target.value);
+            });
+        }
+
+        setMinDateTime() {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('timeSlot').min = now.toISOString().slice(0, 16);
+        }
+
+        updateSeats(change) {
+            const newCount = this.seatsCount + change;
+            if (newCount >= 1 && newCount <= 8) {
+                this.seatsCount = newCount;
+                document.getElementById('seatsDisplay').textContent = this.seatsCount;
+                document.getElementById('seatsAvailable').value = this.seatsCount;
+                document.getElementById('decreaseSeats').disabled = this.seatsCount <= 1;
+                document.getElementById('increaseSeats').disabled = this.seatsCount >= 8;
+            }
+        }
+
+        toggleSwitch(toggleId, checkboxId) {
+            const toggle = document.getElementById(toggleId);
+            const checkbox = document.getElementById(checkboxId);
+            checkbox.checked = !checkbox.checked;
+            toggle.classList.toggle('active', checkbox.checked);
+        }
+
+        validateField(fieldName) {
+            const field = document.getElementById(fieldName);
+            const errorElement = document.getElementById(fieldName + 'Error');
+            errorElement.textContent = ''; 
+
+            if (!field.value.trim()) {
+                errorElement.textContent = `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1).replace(/([A-Z])/g, ' $1')} is required.`;
+                return false;
+            }
+            if (fieldName === 'timeSlot' && new Date(field.value) <= new Date()) {
+                errorElement.textContent = 'Please select a future date and time.';
+                return false;
+            }
+            if ((fieldName === 'fromLocation' || fieldName === 'toLocation') && field.value.length < 3) {
+                errorElement.textContent = 'Location must be at least 3 characters.';
+                return false;
+            }
+            return true;
+        }
+
+        validateConfirmation() {
+            const confirmation = document.getElementById('confirmationBox');
+            const errorElement = document.getElementById('confirmationBoxError');
+            if (!confirmation.checked) {
+                errorElement.textContent = 'Please agree to the terms to continue.';
+                return false;
+            }
+            errorElement.textContent = '';
+            return true;
+        }
+
+        validateAllFields() {
+            let isValid = true;
+            ['fromLocation', 'toLocation', 'genderAcceptance', 'timeSlot'].forEach(field => {
+                if (!this.validateField(field)) isValid = false;
+            });
+            if (!this.validateConfirmation()) isValid = false;
+
+            const from = document.getElementById('fromLocation').value.trim();
+            const to = document.getElementById('toLocation').value.trim();
+            if (from && to && from.toLowerCase() === to.toLowerCase()) {
+                document.getElementById('toLocationError').textContent = 'Destination must differ from the starting location.';
+                isValid = false;
+            }
+            return isValid;
+        }
+
+        showNotification(message, isSuccess = true) {
+            const notification = document.createElement('div');
+            notification.className = 'glass-notification';
+            const icon = isSuccess ? 'fa-check-circle' : 'fa-exclamation-circle';
+            if (!isSuccess) notification.style.borderColor = 'var(--error-color)';
+            notification.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-in forwards';
+                notification.addEventListener('animationend', () => notification.remove());
+            }, 3000);
+        }
+
+        async handleRideCreation() {
+            if (!this.validateAllFields()) return;
+
+            const token = localStorage.getItem('token');
+            if (!token) {
+                this.showNotification('Authentication error. Please log in again.', false);
+                return;
+            }
+
+            const postRideBtn = document.getElementById('postRideBtn');
+            const formData = new FormData(document.getElementById('createRideForm'));
+
+            const apiPayload = {
+                fromLocation: formData.get('fromLocation'),
+                toLocation: formData.get('toLocation'),
+                preferredGender: this.mapGender(formData.get('genderAcceptance')),
+                dateTime: formData.get('timeSlot'),
+                availableSeats: parseInt(this.seatsCount, 10),
+                luggageSpace: formData.has('luggageSpace'),
+                // timeNegotiation: formData.has('timeNegotiation'),
+                allowChat: formData.has('allowChat'),
+                additionalNotes: formData.get('additionalNotes') || ''
+            };
+
+            try {
+                postRideBtn.disabled = true;
+                postRideBtn.classList.add('loading');
+                postRideBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i>Posting Ride...';
+
+                const response = await fetch(`${this.apiBaseUrl}/rides`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(apiPayload)
+                });
+                
+                const result = await response.json();
+
+                if (!response.ok) throw new Error(result.message || 'Failed to post ride.');
+
+                this.showNotification('Ride posted successfully! Redirecting...');
+                setTimeout(() => window.location.href = '/my_rides.html', 1500);
+
+            } catch (error) {
+                this.showNotification(error.message, false);
+            } finally {
+                postRideBtn.disabled = false;
+                postRideBtn.classList.remove('loading');
+                postRideBtn.innerHTML = '<i class="fas fa-paper-plane" style="margin-right: 10px;"></i>Post Ride';
+            }
+        }
+
+        mapGender(formValue) {
+            switch (formValue) {
+                case 'any': return 'Any';
+                case 'male-only': return 'Male';
+                case 'female-only': return 'Female';
+                default: return 'Any';
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        new RideCreator();
+    });
+</script>
+</body>
+</html>

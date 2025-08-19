@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RideShare - Negotiation Chat</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #FFD700 0%, #FFEB99 50%, #FFF8DC 100%);
+            --secondary-gradient: linear-gradient(135deg, #FFC107 0%, #FFD54F 100%);
+            --glass-bg: rgba(255, 223, 0, 0.2);
+            --glass-border: rgba(255, 215, 0, 0.3);
+            --form-bg: rgba(255, 250, 205, 0.85);
+            --card-bg: rgba(255, 255, 224, 0.9);
+            --input-bg: rgba(255, 248, 220, 0.9);
+            --success-color: #FFB300;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+            --text-primary: #4E342E;
+            --text-secondary: rgba(78, 52, 46, 0.8);
+            --text-dark: #3e2723;
+            --bg-light: rgba(255, 235, 59, 0.2);
+            --border-color: rgba(255, 215, 0, 0.3);
+            --shadow-glass: 0 8px 32px 0 rgba(255, 215, 0, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #FFF8DC 0%, #FFECB3 25%, #FFD700 50%, #FFC107 75%, #ffffff 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        .page-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            background-color: var(--form-bg);
+        }
+
+        .chat-list-container {
+            flex: 0 0 320px;
+            min-width: 250px;
+            max-width: 500px;
+            background-color: rgba(255, 250, 205, 0.7);
+            border-right: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .chat-list-header {
+            padding: 25px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--glass-border);
+        }
+        
+        .chat-list { list-style-type: none; }
+        .chat-item { display: flex; align-items: center; padding: 15px 25px; cursor: pointer; transition: background-color 0.2s ease; }
+        .chat-item:hover { background-color: rgba(255, 255, 255, 0.4); }
+        .chat-item.active { background-color: rgba(255, 255, 255, 0.7); }
+        .chat-item .contact-avatar { width: 50px; height: 50px; box-shadow: none; }
+        .chat-details { flex-grow: 1; overflow: hidden; }
+        .chat-name { font-weight: 500; color: var(--text-primary); }
+        .chat-snippet { font-size: 0.9rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .resize-handle {
+            flex: 0 0 6px;
+            background: rgba(0,0,0,0.1);
+            cursor: col-resize;
+            transition: background-color 0.2s ease;
+        }
+        .resize-handle:hover { background: var(--warning-color); }
+
+        .chat-area-container { flex-grow: 1; display: flex; flex-direction: column; }
+
+        .header-bar {
+            background: var(--form-bg);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 20px;
+        }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.2); box-shadow: var(--shadow-glass); }
+        .back-btn i { color: var(--text-primary); font-size: 18px; }
+
+        .chat-header-info { display: flex; align-items: center; flex: 1; }
+        .contact-avatar {
+            width: 55px; height: 55px; border-radius: 50%;
+            background: var(--secondary-gradient); border: 2px solid var(--glass-border);
+            display: flex; align-items: center; justify-content: center;
+            margin-right: 15px; box-shadow: var(--shadow-glass);
+        }
+        .contact-avatar i { font-size: 24px; color: white; }
+        .contact-details h2 { color: var(--text-primary); font-size: 1.4rem; font-weight: 400; margin-bottom: 5px; }
+        .ride-info { color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+        .ride-info i { color: var(--text-secondary); }
+
+        .chat-container {
+            display: flex; flex-direction: column;
+            height: calc(100vh - 140px); flex-grow: 1;
+            padding: 0 20px 20px 20px;
+        }
+
+        .messages-area {
+            flex: 1; background: var(--form-bg);
+            backdrop-filter: blur(25px); border: 1px solid var(--glass-border);
+            border-radius: 25px 25px 10px 10px; padding: 25px;
+            overflow-y: auto; display: flex; flex-direction: column;
+            gap: 15px; margin-bottom: 5px; box-shadow: var(--shadow-glass);
+        }
+
+        .message { max-width: 75%; }
+        .message.sent { align-self: flex-end; }
+        .message.received { align-self: flex-start; }
+
+        .message-bubble {
+            padding: 15px 20px; border-radius: 20px;
+            backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
+            word-wrap: break-word;
+        }
+
+        .message.sent .message-bubble {
+            background: var(--secondary-gradient);
+            border-radius: 20px 20px 5px 20px;
+            color: white; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .message.received .message-bubble {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 20px 20px 20px 5px;
+        }
+
+        .message-text { font-size: 1rem; line-height: 1.4; margin-bottom: 8px; }
+        .message.sent .message-text { color: #fff; }
+        .message.received .message-text { color: var(--text-primary); }
+        .message-time { font-size: 0.8rem; text-align: right; }
+        .message.sent .message-time { color: rgba(255, 255, 255, 0.8); }
+        .message.received .message-time { color: var(--text-secondary); text-align: left; }
+        
+        .system-message { 
+            align-self: center; max-width: 90%; background: rgba(255, 255, 255, 0.4); 
+            border-radius: 15px; text-align: center; padding: 10px 15px; 
+            color: var(--text-secondary); border: 1px solid rgba(255, 255, 255, 0.5); 
+        }
+        .error-message { background: var(--error-color); color: white; }
+
+        .quick-actions { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center; }
+        .quick-action-btn {
+            padding: 12px 24px; background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px); border: 1px solid var(--glass-border);
+            border-radius: 20px; color: var(--text-primary); font-size: 1rem;
+            font-weight: 500; cursor: pointer; transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .quick-action-btn:hover { transform: translateY(-3px); background: white; box-shadow: var(--shadow-glass); }
+
+        .time-modal {
+            display: none; position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); background: var(--form-bg);
+            backdrop-filter: blur(25px); border: 1px solid var(--glass-border);
+            border-radius: 25px; padding: 35px; color: var(--text-primary);
+            z-index: 1000; box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+            width: 400px;
+        }
+        .time-modal.show { display: block; }
+        .modal-title { font-size: 1.3rem; font-weight: 400; margin-bottom: 20px; text-align: center; color: var(--text-primary); }
+        .time-input-group { margin-bottom: 20px; }
+        .time-input-group label { display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.95rem; font-weight: 400; }
+        .time-input {
+            width: 100%; padding: 15px; background: var(--input-bg);
+            border: 1px solid var(--glass-border); border-radius: 15px;
+            color: var(--text-primary); font-size: 1rem; transition: all 0.3s ease;
+        }
+        .time-input:focus { 
+            outline: none; border-color: rgba(212, 160, 23, 0.6); 
+            background: rgba(212, 160, 23, 0.3); box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.2); 
+        }
+        .modal-buttons { display: flex; gap: 15px; justify-content: center; }
+        .modal-btn { 
+            padding: 12px 25px; border: 1px solid var(--glass-border); 
+            border-radius: 15px; font-size: 1rem; font-weight: 300; 
+            cursor: pointer; transition: all 0.3s ease; 
+        }
+        .modal-btn.confirm { 
+            background: var(--secondary-gradient); color: white; 
+            box-shadow: 0 15px 35px rgba(212, 160, 23, 0.5); 
+        }
+        .modal-btn.cancel { background: rgba(255, 255, 255, 0.1); color: var(--text-primary); }
+        .modal-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(212, 160, 23, 0.5); }
+        
+        .input-area {
+            background: var(--form-bg); backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border); border-radius: 10px 10px 25px 25px;
+            padding: 20px; display: flex; align-items: flex-end; gap: 15px;
+            box-shadow: var(--shadow-glass);
+        }
+        .message-input {
+            flex: 1; background: var(--input-bg); border: 1px solid var(--glass-border);
+            border-radius: 20px; padding: 15px 20px; color: var(--text-primary);
+            font-size: 1rem; resize: none; min-height: 50px;
+            max-height: 120px; transition: all 0.3s ease;
+        }
+        .message-input:focus { 
+            outline: none; border-color: rgba(212, 160, 23, 0.6); 
+            background: rgba(255, 204, 0, 0.3); box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.2); 
+        }
+        .send-btn {
+            width: 50px; height: 50px; background: var(--secondary-gradient);
+            border: 1px solid var(--glass-border); border-radius: 50%;
+            color: white; cursor: pointer; transition: all 0.3s ease;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; box-shadow: 0 15px 35px rgba(212, 160, 23, 0.5);
+        }
+        .send-btn:hover { transform: scale(1.1); }
+        .send-btn i { font-size: 18px; }
+
+        .messages-area::-webkit-scrollbar { width: 8px; }
+        .messages-area::-webkit-scrollbar-track { background: rgba(30, 41, 59, 0.3); }
+        .messages-area::-webkit-scrollbar-thumb { background: rgba(255, 204, 0, 0.2); border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <!-- Left Column: Chat List -->
+        <div class="chat-list-container" id="chatList">
+            <div class="chat-list-header"><h3>Chats</h3></div>
+            <ul class="chat-list">
+                <li class="chat-item active">
+                    <div class="contact-avatar"><i class="fas fa-car"></i></div>
+                    <div class="chat-details">
+                        <div class="chat-name">Current Ride Chat</div>
+                        <div class="chat-snippet">Loading messages...</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Draggable Resize Handle -->
+        <div class="resize-handle" id="resizeHandle"></div>
+
+        <!-- Right Column: The Main Chat Area -->
+        <div class="chat-area-container">
+            <header class="header-bar">
+                <button class="back-btn" onclick="window.location.href='/my_rides.html'">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="chat-header-info">
+                    <div class="contact-avatar"><i class="fas fa-user-circle"></i></div>
+                    <div class="contact-details">
+                        <h2 id="rideDestination">Loading...</h2>
+                        <div class="ride-info" id="rideInfoDetails">
+                            <i class="fas fa-route"></i>
+                            <span>Loading ride details...</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="chat-container">
+                <div class="messages-area" id="messagesArea">
+                    <!-- Messages will be loaded here by JavaScript -->
+                </div>
+                <div id="error-container" style="display: none;"></div>
+                <div class="quick-actions">
+                    <button class="quick-action-btn" onclick="chatPage.openTimeModal()">
+                        <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                        Update Time & Confirm Ride
+                    </button>
+                </div>
+                <div class="input-area">
+                    <textarea class="message-input" id="messageInput" placeholder="Type your message here..." rows="1"></textarea>
+                    <button class="send-btn" id="sendButton"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Time Update Modal -->
+    <div class="time-modal" id="timeModal">
+        <div class="modal-title">Update Ride Time</div>
+        <div class="time-input-group">
+            <label for="newDate">Select Date:</label>
+            <input type="date" id="newDate" class="time-input">
+        </div>
+        <div class="time-input-group">
+            <label for="newTime">Select Time:</label>
+            <input type="time" id="newTime" class="time-input">
+        </div>
+        <div class="modal-buttons">
+            <button class="modal-btn confirm" id="confirmTimeBtn">
+                <i class="fas fa-check" style="margin-right: 8px;"></i> Confirm Ride
+            </button>
+            <button class="modal-btn cancel" id="cancelTimeBtn">
+                <i class="fas fa-times" style="margin-right: 8px;"></i> Cancel
+            </button>
+        </div>
+    </div>
+
+    <script>
+        class ChatPage {
+            constructor() {
+                this.API_BASE = 'http://localhost:5000/api';
+                this.SOCKET_URL = 'http://localhost:5000';
+
+                const params = new URLSearchParams(window.location.search);
+                this.rideId = params.get('rideId');
+                // Optional: target user to accept upon confirmation
+                this.targetUserId = params.get('userId') || null;
+
+                this.token = localStorage.getItem('token');
+                this.socket = null;
+                this.currentUser = null;
+                this.currentRide = null;
+
+                this.elements = {
+                    messagesArea: document.getElementById('messagesArea'),
+                    messageInput: document.getElementById('messageInput'),
+                    sendButton: document.getElementById('sendButton'),
+                    timeModal: document.getElementById('timeModal'),
+                    rideDestination: document.getElementById('rideDestination'),
+                    rideInfoText: document.getElementById('rideInfoDetails').querySelector('span'),
+                    confirmTimeBtn: document.getElementById('confirmTimeBtn'),
+                    cancelTimeBtn: document.getElementById('cancelTimeBtn'),
+                    newDate: document.getElementById('newDate'),
+                    newTime: document.getElementById('newTime'),
+                };
+
+                this.init();
+            }
+
+            init() {
+                if (!this.token || !this.rideId) {
+                    alert('Authentication error or missing Ride ID. Redirecting to login.');
+                    window.location.href = '/index.html';
+                    return;
+                }
+                this.fetchInitialData();
+                this.initializeSocket();
+                this.bindEvents();
+            }
+
+            async fetchInitialData() {
+                try {
+                    const [rideResponse, userResponse] = await Promise.all([
+                        fetch(`${this.API_BASE}/chat/ride?rideId=${this.rideId}`, {
+                            headers: { 'Authorization': `Bearer ${this.token}` }
+                        }),
+                        fetch(`${this.API_BASE}/auth/me`, {
+                            headers: { 'Authorization': `Bearer ${this.token}` }
+                        })
+                    ]);
+
+                    if (!rideResponse.ok) throw new Error(`Failed to load ride details: ${rideResponse.statusText}`);
+                    if (!userResponse.ok) throw new Error(`Failed to load user details: ${userResponse.statusText}`);
+
+                    const rideData = await rideResponse.json();
+                    const userData = await userResponse.json();
+
+                    this.currentUser = userData.user;
+                    this.currentRide = rideData.ride;
+
+                    this.updateHeader(this.currentRide);
+                } catch (error) {
+                    console.error('Error loading initial data:', error);
+                    this.showSystemMessage('Failed to load ride details. Please try again.', true);
+                }
+            }
+
+            initializeSocket() {
+                this.socket = io(this.SOCKET_URL, { auth: { token: this.token } });
+
+                this.socket.on('connect', () => {
+                    this.socket.emit('chat:join', { rideId: this.rideId });
+                });
+
+                this.socket.on('chat:joined', () => {
+                    this.loadMessages();
+                });
+
+                this.socket.on('chat:new', (messageData) => {
+                    this.addMessageToDOM(messageData);
+                    this.scrollToBottom();
+                });
+
+                this.socket.on('error', (error) => {
+                    console.error('Socket Error:', error);
+                    this.showSystemMessage(error.message || 'A connection error occurred.', true);
+                });
+
+                this.socket.on('disconnect', () => {
+                    // Optional: show a soft notice
+                });
+            }
+
+            async loadMessages() {
+                try {
+                    const response = await fetch(`${this.API_BASE}/chat/messages?rideId=${this.rideId}`, {
+                        headers: { 'Authorization': `Bearer ${this.token}` }
+                    });
+                    if (!response.ok) throw new Error('Failed to load messages');
+
+                    const data = await response.json();
+                    this.elements.messagesArea.innerHTML = '';
+                    (data.messages || []).forEach(message => this.addMessageToDOM(message));
+                    this.scrollToBottom();
+                } catch (error) {
+                    console.error('Error loading messages:', error);
+                    this.showSystemMessage('Failed to load previous messages.', true);
+                }
+            }
+
+            async sendMessage() {
+                const messageText = this.elements.messageInput.value.trim();
+                if (!messageText) return;
+
+                const payload = { rideId: this.rideId, message: messageText };
+
+                // WebSocket send for realtime
+                this.socket.emit('chat:send', payload);
+
+                // Persist via API
+                try {
+                    const response = await fetch(`${this.API_BASE}/chat/messages`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${this.token}`
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error('API failed to save message');
+                } catch (error) {
+                    console.error('Error persisting message:', error);
+                    this.showSystemMessage('Your message might not have been saved.', true);
+                }
+
+                this.elements.messageInput.value = '';
+                this.elements.messageInput.style.height = 'auto';
+            }
+
+            addMessageToDOM(msgData) {
+                if (!this.currentUser) return;
+
+                const senderId = msgData.userId || msgData.senderId;
+                const senderName = msgData.userName || msgData.senderName || 'Unknown';
+                const messageText = msgData.message || msgData.ciphertext || '[Message]';
+                const timestamp = new Date(msgData.sentAt || msgData.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                const isOwnMessage = senderId === this.currentUser.id;
+                const messageType = isOwnMessage ? 'sent' : 'received';
+
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${messageType}`;
+                messageDiv.innerHTML = `
+                    <div class="message-bubble">
+                        <div class="message-sender" style="font-weight: bold; margin-bottom: 5px; font-size: 0.9em; opacity: 0.8;">${senderName}</div>
+                        <div class="message-text">${this.escapeHTML(messageText)}</div>
+                        <div class="message-time">${timestamp}</div>
+                    </div>`;
+                this.elements.messagesArea.appendChild(messageDiv);
+            }
+
+            showSystemMessage(text, isError = false) {
+                const div = document.createElement('div');
+                div.className = `system-message${isError ? ' error-message' : ''}`;
+                div.textContent = text;
+                this.elements.messagesArea.appendChild(div);
+                this.scrollToBottom();
+            }
+
+            updateHeader(ride) {
+                // Fallbacks if your /chat/ride shape differs:
+                const to = ride.toLocation || ride.destination || 'Destination';
+                const from = ride.fromLocation || 'From';
+                const when = ride.dateTime ? new Date(ride.dateTime).toLocaleString() : '';
+                const driver = ride.creatorName || 'Driver';
+
+                document.getElementById('rideDestination').textContent = `${from} → ${to}`;
+                this.elements.rideInfoText.textContent = `${driver} | ${when}`;
+            }
+
+            bindEvents() {
+                this.elements.sendButton.addEventListener('click', () => this.sendMessage());
+                this.elements.messageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+                this.elements.messageInput.addEventListener('input', this.autoResizeTextarea);
+
+                this.elements.confirmTimeBtn.addEventListener('click', () => this.confirmTimeUpdate());
+                this.elements.cancelTimeBtn.addEventListener('click', () => this.closeTimeModal());
+
+                this.bindResizeHandle();
+            }
+
+            autoResizeTextarea() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            }
+
+            scrollToBottom() {
+                this.elements.messagesArea.scrollTop = this.elements.messagesArea.scrollHeight;
+            }
+
+            openTimeModal() {
+                // Pre-fill with current or next available time
+                const now = new Date();
+                const rideTime = this.currentRide?.dateTime ? new Date(this.currentRide.dateTime) : now;
+
+                const dateISO = (rideTime > now ? rideTime : now).toISOString().split('T')[0];
+                const minutes = rideTime.getMinutes().toString().padStart(2,'0');
+                const hours = rideTime.getHours().toString().padStart(2,'0');
+
+                this.elements.newDate.value = dateISO;
+                this.elements.newDate.min = new Date().toISOString().split('T')[0];
+                this.elements.newTime.value = `${hours}:${minutes}`;
+
+                this.elements.timeModal.classList.add('show');
+            }
+
+            closeTimeModal() {
+                this.elements.timeModal.classList.remove('show');
+            }
+
+            async confirmTimeUpdate() {
+                try {
+                    // 1) Compose ISO dateTime from modal inputs
+                    const date = this.elements.newDate.value;
+                    const time = this.elements.newTime.value;
+                    if (!date || !time) {
+                        this.showSystemMessage('Please select both date and time.', true);
+                        return;
+                    }
+                    const dateTimeLocal = new Date(`${date}T${time}`);
+                    if (isNaN(dateTimeLocal.getTime())) {
+                        this.showSystemMessage('Invalid date/time selected.', true);
+                        return;
+                    }
+                    const dateTimeISO = dateTimeLocal.toISOString();
+
+                    // 2) Update ride time
+                    const timeRes = await fetch(`${this.API_BASE}/rides/update-time`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${this.token}`
+                        },
+                        body: JSON.stringify({ rideId: this.rideId, dateTime: dateTimeISO })
+                    });
+                    const timeData = await timeRes.json();
+                    if (!timeRes.ok) {
+                        this.showSystemMessage(timeData.message || 'Failed to update ride time.', true);
+                        return;
+                    }
+
+                    // Update local ride state and header
+                    this.currentRide = timeData.ride || this.currentRide;
+                    if (this.currentRide) {
+                        this.currentRide.dateTime = dateTimeISO;
+                        this.updateHeader(this.currentRide);
+                    }
+
+                    // 3) If targetUserId is present, accept that user for the ride
+                    if (this.targetUserId) {
+                        const decideRes = await fetch(`${this.API_BASE}/rides/decide`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${this.token}`
+                            },
+                            body: JSON.stringify({ rideId: this.rideId, userId: this.targetUserId, decision: 'accept' })
+                        });
+                        const decideData = await decideRes.json();
+                        if (!decideRes.ok) {
+                            this.showSystemMessage(decideData.message || 'Time updated, but accepting the user failed.', true);
+                        } else {
+                            this.showSystemMessage(decideData.message || 'Ride time updated and user accepted.');
+                        }
+                    } else {
+                        this.showSystemMessage('Ride time updated.');
+                    }
+
+                    // 4) Broadcast a system note into chat
+                    const humanWhen = new Date(dateTimeISO).toLocaleString();
+                    this.socket.emit('chat:send', { rideId: this.rideId, message: `Ride time updated to ${humanWhen}.` });
+                    try {
+                        await fetch(`${this.API_BASE}/chat/messages`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${this.token}`
+                            },
+                            body: JSON.stringify({ rideId: this.rideId, message: `Ride time updated to ${humanWhen}.` })
+                        });
+                    } catch (_) { /* non-blocking */ }
+
+                    this.closeTimeModal();
+                } catch (err) {
+                    console.error('Error confirming time:', err);
+                    this.showSystemMessage('Failed to confirm time update.', true);
+                }
+            }
+
+            bindResizeHandle() {
+                const resizeHandle = document.getElementById('resizeHandle');
+                const chatList = document.getElementById('chatList');
+                let isResizing = false;
+
+                const handleMouseMove = (e) => {
+                    if (!isResizing) return;
+                    const containerLeft = chatList.parentElement.getBoundingClientRect().left;
+                    let newWidth = e.clientX - containerLeft;
+                    if (newWidth < 250) newWidth = 250;
+                    if (newWidth > 500) newWidth = 500;
+                    chatList.style.flexBasis = `${newWidth}px`;
+                };
+
+                const stopResize = () => {
+                    isResizing = false;
+                    document.body.style.userSelect = 'auto';
+                    document.body.style.pointerEvents = 'auto';
+                    window.removeEventListener('mousemove', handleMouseMove);
+                    window.removeEventListener('mouseup', stopResize);
+                };
+
+                resizeHandle.addEventListener('mousedown', () => {
+                    isResizing = true;
+                    document.body.style.userSelect = 'none';
+                    document.body.style.pointerEvents = 'none';
+                    window.addEventListener('mousemove', handleMouseMove);
+                    window.addEventListener('mouseup', stopResize);
+                });
+            }
+
+            escapeHTML(s) {
+                return String(s)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+            }
+        }
+
+        let chatPage;
+        document.addEventListener('DOMContentLoaded', () => {
+            chatPage = new ChatPage();
+        });
+    </script>
+</body>
+</html>

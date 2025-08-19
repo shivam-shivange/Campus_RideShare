@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RideShare - Edit Profile</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #FFD700 0%, #FFEB99 50%, #FFF8DC 100%);
+            --secondary-gradient: linear-gradient(135deg, #FFC107 0%, #FFD54F 100%);
+            --glass-bg: rgba(255, 250, 205, 0.7);
+            --glass-border: rgba(255, 215, 0, 0.3);
+            --card-bg: rgba(255, 255, 224, 0.85);
+            --input-bg: rgba(255, 248, 220, 0.9);
+            --text-primary: #4E342E;
+            --text-secondary: rgba(78, 52, 46, 0.8);
+            --shadow-glass: 0 8px 32px 0 rgba(255, 215, 0, 0.4);
+            --error-color: #dc2626;
+            --success-color: #16a34a;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #FFF8DC 0%, #FFECB3 25%, #FFD700 50%, #FFC107 75%, #ffffff 100%);
+            background-attachment: fixed; min-height: 100vh;
+        }
+        .header-bar {
+            background: var(--glass-bg); backdrop-filter: blur(25px); border: 1px solid var(--glass-border);
+            padding: 20px 25px; display: flex; align-items: center; box-shadow: var(--shadow-glass);
+            border-radius: 0 0 25px 25px; margin: 0 20px 30px;
+        }
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1); border: 1px solid var(--glass-border);
+            border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center;
+            justify-content: center; cursor: pointer; transition: all 0.3s ease; margin-right: 20px;
+        }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.2); }
+        .back-btn i { color: var(--text-primary); font-size: 18px; }
+        .header-title { flex: 1; text-align: center; }
+        .header-title h1 { color: var(--text-primary); font-size: 1.8rem; font-weight: 300; }
+        .main-container { max-width: 900px; margin: 0 auto; padding: 0 20px 40px; }
+        .profile-header {
+            background: var(--glass-bg); backdrop-filter: blur(25px); border: 1px solid var(--glass-border);
+            border-radius: 25px; padding: 40px; margin-bottom: 25px; text-align: center;
+            box-shadow: var(--shadow-glass);
+        }
+        .profile-name { color: var(--text-primary); font-size: 1.6rem; margin-bottom: 8px; }
+        .profile-email { color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 15px; }
+        .progress-container { margin-top: 20px; }
+        .progress-label { display: flex; justify-content: space-between; color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 5px; }
+        .progress-bar { width: 100%; height: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--secondary-gradient); border-radius: 4px; transition: width 0.5s ease; }
+        
+        .info-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
+        .info-card {
+            background: var(--glass-bg); backdrop-filter: blur(25px); border: 1px solid var(--glass-border);
+            border-radius: 20px; padding: 25px; box-shadow: var(--shadow-glass);
+        }
+        .card-header { display: flex; align-items: center; margin-bottom: 20px; }
+        .card-icon { width: 50px; height: 50px; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin-right: 15px; background: rgba(0,0,0, 0.05); }
+        .card-icon i { color: var(--text-primary); font-size: 20px; }
+        .card-title { color: var(--text-primary); font-size: 1.2rem; }
+        .card-content { display: flex; flex-direction: column; gap: 15px; }
+        .info-item { background: rgba(255, 255, 255, 0.2); border-radius: 15px; padding: 15px 20px; border: 1px solid transparent; }
+        .info-label { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 5px; }
+        .info-value { color: var(--text-primary); font-size: 1.1rem; display: flex; align-items: center; justify-content: space-between; }
+        .edit-icon { color: var(--text-secondary); cursor: pointer; transition: all 0.3s ease; }
+        .edit-icon:hover { color: var(--text-primary); transform: scale(1.1); }
+        .inline-edit-input, .inline-edit-select {
+            flex-grow: 1; background: var(--input-bg); border: 1px solid var(--glass-border);
+            border-radius: 8px; padding: 8px 12px; color: var(--text-primary); font-size: 1.1rem;
+        }
+        .inline-edit-controls { display: flex; gap: 10px; align-items: center; }
+        .control-btn { background: none; border: none; cursor: pointer; font-size: 18px; padding: 5px; }
+        .control-btn.save { color: var(--success-color); }
+        .control-btn.cancel { color: var(--error-color); }
+        
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-secondary); }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid var(--glass-border); border-radius: 12px; font-size: 1rem; background: var(--input-bg); }
+        .btn-primary {
+            padding: 12px 24px; border: none; border-radius: 12px; cursor: pointer; font-size: 1rem;
+            background: var(--secondary-gradient); color: white; transition: all 0.3s;
+        }
+        .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: var(--shadow-glass); }
+        .btn-primary.loading { pointer-events: none; }
+        .btn-primary.loading::after { content: ""; display: inline-block; width: 16px; height: 16px; border: 2px solid transparent; border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; margin-left: 10px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .notification {
+            position: fixed; top: 20px; right: 20px; background: var(--glass-bg); backdrop-filter: blur(20px);
+            color: var(--text-primary); padding: 16px 20px; border-radius: 16px; border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-glass); z-index: 1000; display: flex; align-items: center; gap: 10px;
+            animation: slideInRight 0.3s ease-out;
+        }
+        .notification.success { border-left: 4px solid var(--success-color); }
+        .notification.error { border-left: 4px solid var(--error-color); }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+    <header class="header-bar">
+        <button class="back-btn" onclick="window.location.href='/home_page.html'"><i class="fas fa-arrow-left"></i></button>
+        <div class="header-title"><h1>Profile Settings</h1></div>
+    </header>
+
+    <main class="main-container">
+        <div class="profile-header">
+            <div id="profileMessage" style="display: none;"></div>
+            <h2 class="profile-name" id="profileName">Loading...</h2>
+            <p class="profile-email" id="profileEmail">Loading...</p>
+            <div class="progress-container">
+                <div class="progress-label"><span>Profile Completion</span><span id="completionPercentage">0%</span></div>
+                <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            </div>
+        </div>
+
+        <div class="info-cards">
+            <!-- Personal Details Card -->
+            <div class="info-card">
+                <div class="card-header"><div class="card-icon"><i class="fas fa-user-edit"></i></div><div class="card-title">Personal Details</div></div>
+                <div class="card-content">
+                    <div class="info-item" data-field="name"><div class="info-label">Full Name</div><div class="info-value"><span class="info-text"></span><i class="fas fa-edit edit-icon" onclick="enableInlineEdit('name')"></i></div></div>
+                    <div class="info-item" data-field="phone"><div class="info-label">Phone Number</div><div class="info-value"><span class="info-text"></span><i class="fas fa-edit edit-icon" onclick="enableInlineEdit('phone')"></i></div></div>
+                </div>
+            </div>
+
+            <!-- Academic Details Card -->
+            <div class="info-card">
+                <div class="card-header"><div class="card-icon"><i class="fas fa-university"></i></div><div class="card-title">Academic Details</div></div>
+                <div class="card-content">
+                    <div class="info-item" data-field="department"><div class="info-label">Department</div><div class="info-value"><span class="info-text"></span><i class="fas fa-edit edit-icon" onclick="enableInlineEdit('department')"></i></div></div>
+                    <div class="info-item" data-field="year"><div class="info-label">Year of Study</div><div class="info-value"><span class="info-text"></span><i class="fas fa-edit edit-icon" onclick="enableInlineEdit('year')"></i></div></div>
+                </div>
+            </div>
+            
+            <!-- Security Card -->
+            <div class="info-card">
+                <div class="card-header"><div class="card-icon"><i class="fas fa-shield-alt"></i></div><div class="card-title">Security</div></div>
+                <div class="card-content">
+                    <form id="passwordForm">
+                        <div class="form-group"><label for="currentPassword">Current Password</label><input type="password" id="currentPassword" name="currentPassword" required></div>
+                        <div class="form-group"><label for="newPassword">New Password</label><input type="password" id="newPassword" name="newPassword" required></div>
+                        <div class="form-group"><label for="confirmPassword">Confirm New Password</label><input type="password" id="confirmPassword" name="confirmPassword" required></div>
+                        <button type="submit" class="btn-primary">Change Password</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+<script>
+    const API_BASE = 'http://localhost:5000/api';
+    let currentUser = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        checkAuth();
+        document.getElementById('passwordForm').addEventListener('submit', handlePasswordChange);
+    });
+
+    async function checkAuth() {
+        const token = localStorage.getItem('token');
+        if (!token) { window.location.href = '/index.html'; return; }
+        try {
+            const response = await fetch(`${API_BASE}/auth/me`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (response.ok) {
+                const data = await response.json();
+                currentUser = data.user;
+                populateProfile(currentUser);
+            } else {
+                localStorage.removeItem('token');
+                window.location.href = '/index.html';
+            }
+        } catch (error) { console.error('Auth check failed:', error); }
+    }
+
+    function populateProfile(user) {
+        document.getElementById('profileName').textContent = user.name || 'N/A';
+        document.getElementById('profileEmail').textContent = user.email || 'N/A';
+        
+        const fields = { name: user.name, phone: user.phone, department: user.department, year: user.year };
+        for (const [field, value] of Object.entries(fields)) {
+            const el = document.querySelector(`.info-item[data-field="${field}"] .info-text`);
+            if (el) el.textContent = value || 'Not set';
+        }
+        updateProfileStats();
+    }
+    
+    function enableInlineEdit(field) {
+        // Cancel any other open edits first
+        document.querySelectorAll('.inline-edit-controls').forEach(el => {
+            const parentField = el.closest('.info-item').dataset.field;
+            cancelInlineEdit(parentField);
+        });
+
+        const item = document.querySelector(`.info-item[data-field="${field}"]`);
+        const valueDiv = item.querySelector('.info-value');
+        const textSpan = item.querySelector('.info-text');
+        const originalValue = textSpan.textContent === 'Not set' ? '' : textSpan.textContent;
+
+        valueDiv.innerHTML = `
+            <input type="text" class="inline-edit-input" value="${originalValue}" placeholder="Enter new ${field}">
+            <div class="inline-edit-controls">
+                <button class="control-btn save" onclick="saveInlineEdit('${field}')"><i class="fas fa-check"></i></button>
+                <button class="control-btn cancel" onclick="cancelInlineEdit('${field}', '${originalValue}')"><i class="fas fa-times"></i></button>
+            </div>`;
+        valueDiv.querySelector('input').focus();
+    }
+
+    function cancelInlineEdit(field, originalValue) {
+        const item = document.querySelector(`.info-item[data-field="${field}"]`);
+        const valueDiv = item.querySelector('.info-value');
+        valueDiv.innerHTML = `
+            <span class="info-text">${originalValue || 'Not set'}</span>
+            <i class="fas fa-edit edit-icon" onclick="enableInlineEdit('${field}')"></i>`;
+    }
+
+    async function saveInlineEdit(field) {
+        const item = document.querySelector(`.info-item[data-field="${field}"]`);
+        const input = item.querySelector('.inline-edit-input');
+        const newValue = input.value.trim();
+
+        const payload = { [field]: newValue };
+
+        try {
+            const response = await fetch(`${API_BASE}/auth/profile`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            if (response.ok) {
+                currentUser = data.user;
+                showNotification('Profile updated successfully!', 'success');
+                cancelInlineEdit(field, newValue); // Revert UI to view mode with new value
+                populateProfile(currentUser); // Repopulate all fields to be safe
+            } else {
+                throw new Error(data.message || 'Failed to update.');
+            }
+        } catch (error) {
+            showNotification(error.message, 'error');
+            const originalValue = currentUser[field] || 'Not set';
+            cancelInlineEdit(field, originalValue); // Revert to original value on error
+        }
+    }
+
+    async function handlePasswordChange(e) {
+        e.preventDefault();
+        const form = e.target;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.classList.add('loading');
+
+        const passwordData = {
+            currentPassword: form.currentPassword.value,
+            newPassword: form.newPassword.value,
+            confirmPassword: form.confirmPassword.value
+        };
+
+        if (passwordData.newPassword !== passwordData.confirmPassword) {
+            showNotification('New passwords do not match.', 'error');
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('loading');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE}/auth/change-password`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                body: JSON.stringify(passwordData)
+            });
+            const data = await response.json();
+            if (response.ok) {
+                showNotification('Password changed successfully!', 'success');
+                form.reset();
+            } else {
+                throw new Error(data.message || 'Failed to change password.');
+            }
+        } catch (error) {
+            showNotification(error.message, 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('loading');
+        }
+    }
+
+    function updateProfileStats() {
+        if (!currentUser) return;
+        const fields = ['name', 'email', 'phone', 'department', 'year'];
+        const filledFields = fields.filter(field => currentUser[field] && currentUser[field] !== '').length;
+        const percentage = Math.round((filledFields / fields.length) * 100);
+        document.getElementById('completionPercentage').textContent = `${percentage}%`;
+        document.getElementById('progressFill').style.width = `${percentage}%`;
+    }
+
+    function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i><span>${message}</span>`;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 4000);
+    }
+</script>
+</body>
+</html>

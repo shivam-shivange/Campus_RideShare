@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RideShare - Join Your College Community</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #1e3a8a 0%, #1e1b4b 50%, #0f172a 100%);
+            --secondary-gradient: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            --glass-bg: rgba(0, 0, 0, 0.3);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --form-bg: rgba(15, 23, 42, 0.8);
+            --input-bg: rgba(30, 41, 59, 0.8);
+            --success-color: #3b82f6;
+            --error-color: #ef4444;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.8);
+            --shadow-glass: 0 8px 32px 0 rgba(30, 58, 138, 0.4);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e1b4b 25%, #0f172a 50%, #1e40af 75%, #ffffff 100%);
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            padding: 1rem; position: relative; overflow-x: hidden;
+        }
+        .container { width: 100%; max-width: 480px; position: relative; z-index: 1; }
+        .form-container {
+            background: var(--form-bg); backdrop-filter: blur(25px); border-radius: 28px;
+            box-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.6); overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .logo {
+            text-align: center; padding: 2.5rem 2rem 1.5rem; background: var(--primary-gradient);
+            color: white; border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .logo-icon { font-size: 3rem; margin-bottom: 0.5rem; display: block; }
+        .logo h1 { font-size: 2rem; font-weight: 700; }
+        .logo p { font-size: 1rem; opacity: 0.9; }
+        .form-section { padding: 2rem; display: none; animation: fadeIn 0.5s ease-out; }
+        .form-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .form-section h2 { text-align: center; margin-bottom: 2rem; color: var(--text-primary); font-size: 1.875rem; }
+        .form-group { margin-bottom: 1.5rem; position: relative; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary); font-size: 0.875rem; text-transform: uppercase; }
+        .input-wrapper { position: relative; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 1rem 1.25rem; border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px; font-size: 1rem; transition: all 0.3s ease;
+            background: var(--input-bg); backdrop-filter: blur(10px); color: var(--text-primary);
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none; border-color: rgba(59, 130, 246, 0.6);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .input-icon { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: rgba(255, 255, 255, 0.6); pointer-events: none; }
+        .btn {
+            width: 100%; padding: 1rem 1.5rem; border: none; border-radius: 16px;
+            font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;
+            margin-bottom: 0.75rem; position: relative;
+        }
+        .btn.primary { background: rgba(30, 58, 138, 0.6); color: white; border: 1px solid rgba(255, 255, 255, 0.2); }
+        .btn.primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(30, 58, 138, 0.4); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn.loading { color: transparent; }
+        .btn.loading::after {
+            content: ''; position: absolute; width: 20px; height: 20px; top: 50%; left: 50%;
+            margin-left: -10px; margin-top: -10px; border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%; border-top-color: white; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .form-footer { text-align: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+        .form-footer a { color: rgba(59, 130, 246, 0.9); text-decoration: none; font-weight: 600; }
+        .message {
+            padding: 1rem; margin-bottom: 1.5rem; border-radius: 12px; display: none;
+            text-align: center; animation: fadeIn 0.3s ease;
+        }
+        .message.error { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--error-color); }
+        .message.success { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); color: var(--success-color); }
+        .password-toggle { cursor: pointer; user-select: none; }
+
+        .terms-popup {
+        display: none;
+        position: fixed;
+        z-index: 999;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.6);
+        overflow-y: auto;
+    }
+    .terms-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #fff;
+        padding: 24px 28px;
+        width: 90vw;
+        max-width: 540px;
+        max-height: 80vh;
+        overflow-y: auto;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        color: #222;
+    }
+    .close-btn {
+        position: absolute;
+        top: 12px;
+        right: 14px;
+        font-size: 22px;
+        color: #888;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <div class="logo">
+                <i class="fas fa-car logo-icon"></i>
+                <h1>RideShare</h1>
+                <p>Connect. Share. Save.</p>
+            </div>
+
+            <div id="messageContainer" class="message"></div>
+
+            <!-- Login Form -->
+            <div id="loginSection" class="form-section active">
+                <h2>Welcome Back!</h2>
+                <form id="loginForm" novalidate>
+                    <div class="form-group"><label for="loginEmail">Email</label><div class="input-wrapper"><input type="email" id="loginEmail" name="email" required><i class="fas fa-envelope input-icon"></i></div></div>
+                    <div class="form-group"><label for="loginPassword">Password</label><div class="input-wrapper"><input type="password" id="loginPassword" name="password" required><i class="fas fa-lock input-icon password-toggle"></i></div></div>
+                    <button type="submit" class="btn primary"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+                </form>
+                <div class="form-footer"><p><a href="#" id="showForgotLink">Forgot Password?</a></p><p>New to RideShare? <a href="#" id="showSignupLink">Create Account</a></p></div>
+            </div>
+
+            <!-- Signup Form -->
+            <div id="signupSection" class="form-section">
+                <h2>Create Your Account</h2>
+                <form id="signupForm" novalidate>
+                    <div class="form-group"><label for="signupName">Full Name *</label><div class="input-wrapper"><input type="text" id="signupName" name="name" required><i class="fas fa-user input-icon"></i></div></div>
+                    <div class="form-group"><label for="signupEmail">Email *</label><div class="input-wrapper"><input type="email" id="signupEmail" name="email" required><i class="fas fa-envelope input-icon"></i></div></div>
+                    <div class="form-group"><label for="signupPassword">Password *</label><div class="input-wrapper"><input type="password" id="signupPassword" name="password" required><i class="fas fa-lock input-icon password-toggle"></i></div></div>
+                    <button type="submit" class="btn primary"><i class="fas fa-user-plus"></i> Create Account</button>
+                </form>
+                <div class="form-footer"><p>Already have an account? <a href="#" id="showLoginLink">Sign In</a></p></div>
+            </div>
+
+            <!-- Forgot Password Form -->
+            <div id="forgotSection" class="form-section">
+                <h2>Reset Password</h2>
+                <form id="forgotPasswordForm" novalidate>
+                    <div class="form-group"><label for="forgotEmail">Enter your Email</label><div class="input-wrapper"><input type="email" id="forgotEmail" name="email" required><i class="fas fa-envelope input-icon"></i></div></div>
+                    <button type="submit" class="btn primary"><i class="fas fa-paper-plane"></i> Send Reset Link</button>
+                </form>
+                <div class="form-footer"><p>Remembered your password? <a href="#" id="showLoginLinkFromForgot">Sign In</a></p></div>
+            </div>
+            
+             <!-- Reset Password Form -->
+            <div id="resetSection" class="form-section">
+                <h2>Create New Password</h2>
+                <form id="resetPasswordForm" novalidate>
+                    <input type="hidden" id="resetToken" name="token">
+                    <div class="form-group"><label for="resetPassword">New Password</label><div class="input-wrapper"><input type="password" id="resetPassword" name="password" required><i class="fas fa-lock input-icon password-toggle"></i></div></div>
+                    <button type="submit" class="btn primary"><i class="fas fa-save"></i> Save New Password</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="termsPopup" class="terms-popup" style="display:none;">
+            <div class="terms-content">
+                <span class="close-btn" id="closeTerms">&times;</span>
+                <h2 style="color: #1d4ed8;">Terms & Conditions</h2>
+                <p>
+                    Welcome to RideShare! By using our service, you agree to the following terms:
+                    <br><br>
+                    1. You are responsible for your account security.<br>
+                    2. We are not liable for disputes between riders/drivers.<br>
+                    3. All rides must comply with local laws.<br>
+                    4. Your data will be protected according to our policy.<br>
+                    5. Violation of terms can lead to account termination.
+                </p>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const API_BASE = 'http://localhost:5000/api';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            verifyTokenAndRedirect();
+        }
+        initializeEventListeners();
+    });
+
+    async function verifyTokenAndRedirect() {
+        try {
+            const response = await fetch(`${API_BASE}/auth/me`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+            if (response.ok) {
+                window.location.href = '/home_page.html'; // Adjust to your main page
+            } else {
+                localStorage.removeItem('token');
+            }
+        } catch (error) {
+            console.error('Token verification failed:', error);
+            localStorage.removeItem('token');
+        }
+    }
+
+    function initializeEventListeners() {
+        document.getElementById('loginForm').addEventListener('submit', handleLogin);
+        document.getElementById('signupForm').addEventListener('submit', handleSignup);
+        document.getElementById('forgotPasswordForm').addEventListener('submit', handleForgotPassword);
+        document.getElementById('resetPasswordForm').addEventListener('submit', handleResetPassword);
+        setupFormSwitching();
+        setupPasswordToggles();
+    }
+    
+    function setupFormSwitching() {
+        document.getElementById('showSignupLink').addEventListener('click', e => { e.preventDefault(); switchForm('signupSection'); });
+        document.getElementById('showLoginLink').addEventListener('click', e => { e.preventDefault(); switchForm('loginSection'); });
+        document.getElementById('showForgotLink').addEventListener('click', e => { e.preventDefault(); switchForm('forgotSection'); });
+        document.getElementById('showLoginLinkFromForgot').addEventListener('click', e => { e.preventDefault(); switchForm('loginSection'); });
+    }
+    
+    function setupPasswordToggles() {
+        document.querySelectorAll('.password-toggle').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const input = toggle.previousElementSibling;
+                const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                input.setAttribute('type', type);
+                toggle.classList.toggle('fa-lock');
+                toggle.classList.toggle('fa-unlock');
+            });
+        });
+    }
+
+    function switchForm(activeSectionId) {
+        document.querySelectorAll('.form-section').forEach(section => section.classList.remove('active'));
+        document.getElementById(activeSectionId).classList.add('active');
+        clearMessages();
+    }
+    
+    async function handleFormSubmit(e, endpoint, successCallback) {
+        e.preventDefault();
+        const form = e.target;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+        clearMessages();
+
+        try {
+            const response = await fetch(`${API_BASE}${endpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            if (response.ok) {
+                showMessage(result.message || 'Success!', 'success');
+                if (successCallback) successCallback(result);
+            } else {
+                throw new Error(result.message || 'An error occurred.');
+            }
+        } catch (error) {
+            showMessage(error.message, 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    }
+
+    function handleLogin(e) {
+        e.preventDefault();
+        const form = e.target;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+        clearMessages();
+
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        fetch(`${API_BASE}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.token) {
+                // Store the token
+                localStorage.setItem('token', result.token);
+                showMessage('Login successful! Redirecting...', 'success');
+                
+                // Verify the token is stored
+                console.log('Token stored:', localStorage.getItem('token'));
+                
+                // Redirect after a short delay
+                setTimeout(() => {
+                    window.location.href = 'home_page.html';
+                }, 1000);
+            } else {
+                throw new Error(result.message || 'Login failed');
+            }
+        })
+        .catch(error => {
+            showMessage(error.message || 'Login failed', 'error');
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        });
+    }
+
+    function handleSignup(e) {
+        handleFormSubmit(e, '/auth/signup', () => {
+            setTimeout(() => switchForm('loginSection'), 2000);
+        });
+    }
+
+    function handleForgotPassword(e) {
+        handleFormSubmit(e, '/auth/forgot-password', (result) => {
+            // If the backend sends a token directly (for demo/testing), pre-fill the reset form
+            if(result.token) {
+                document.getElementById('resetToken').value = result.token;
+                setTimeout(() => switchForm('resetSection'), 1000);
+            }
+        });
+    }
+
+   function handleResetPassword(e) {
+      handleFormSubmit(e, '/auth/reset-password', () => {
+          setTimeout(() => switchForm('loginSection'), 2000);
+       });
+   }
+
+   function validateForm(formData, requiredFields) {
+    const errors = [];
+    
+    requiredFields.forEach(field => {
+        if (!formData[field] || formData[field].trim() === '') {
+            errors.push(`${field} is required`);
+        }
+    });
+    
+    if (formData.email && !validateEmail(formData.email)) {
+        errors.push('Please enter a valid email address');
+    }
+    
+
+
+    if (formData.password && formData.password.length < 8) {
+        errors.push('Password must be at least 8 characters long');
+    }
+    
+    return errors;
+}
+
+
+function setLoadingState(button, isLoading) {
+    if (isLoading) {
+        button.disabled = true;
+        button.classList.add('loading');
+    } else {
+        button.disabled = false;
+        button.classList.remove('loading');
+    }
+}
+
+
+
+    function showMessage(message, type) {
+        const container = document.getElementById('messageContainer');
+        container.textContent = message;
+        container.className = `message ${type}`;
+        container.style.display = 'block';
+    }
+
+    function clearMessages() {
+        const container = document.getElementById('messageContainer');
+        container.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // If not already present in initializeEventListeners:
+        const signupSection = document.getElementById('signupSection');
+        if (signupSection) {
+            const checkboxLabel = signupSection.querySelector('.checkbox-label');
+            if (checkboxLabel && !document.getElementById('viewTerms')) {
+                // Add the "view terms" link if not already in markup
+                checkboxLabel.innerHTML = `
+                    <input type="checkbox" id="termsCheckbox" name="terms" required>
+                    <p>I agree to the <a href="#" id="viewTerms">Terms & Conditions</a></p>
+                `;
+            }
+        }
+
+        // Show popup
+        document.getElementById('viewTerms').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('termsPopup').style.display = 'block';
+        });
+
+        // Hide popup (close btn)
+        document.getElementById('closeTerms').addEventListener('click', function() {
+            document.getElementById('termsPopup').style.display = 'none';
+        });
+
+        // Hide popup (click outside)
+        window.addEventListener('click', function(event) {
+            const popup = document.getElementById('termsPopup');
+            if (event.target === popup) {
+                popup.style.display = 'none';
+            }
+        });
+    });
+
+</script>
+</body>
+</html>
