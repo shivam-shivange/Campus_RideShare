@@ -18,29 +18,43 @@ const rideSchema = new mongoose.Schema({
   expiresAt: { type: Date, index: { expireAfterSeconds: 0 } }
 }, { timestamps: true });
 
-// Auto-close expired rides after fetching - UPDATED: 6 hours after ride time
+// Auto-close expired rides after fetching - FIXED VERSION
 rideSchema.post("find", async function (docs) {
+  if (!docs || docs.length === 0) return;
+  
   const now = new Date();
   const SIX_HOURS = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
   
-  for (let doc of docs) {
-    const closeAfter = new Date(doc.dateTime.getTime() + SIX_HOURS);
-    if (now >= closeAfter && doc.status === "OPEN") {
-      doc.status = "CLOSED";
-      await doc.save();
-    }
+  // Find rides that need to be closed
+  const rideIdsToClose = docs
+    .filter(doc => {
+      const closeAfter = new Date(doc.dateTime.getTime() + SIX_HOURS);
+      return now >= closeAfter && doc.status === "OPEN";
+    })
+    .map(doc => doc._id);
+  
+  // Bulk update without calling save() on individual docs
+  if (rideIdsToClose.length > 0) {
+    await this.model.updateMany(
+      { _id: { $in: rideIdsToClose } },
+      { status: "CLOSED" }
+    );
   }
 });
 
 rideSchema.post("findOne", async function (doc) {
   if (!doc) return;
+  
   const now = new Date();
   const SIX_HOURS = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
   
   const closeAfter = new Date(doc.dateTime.getTime() + SIX_HOURS);
   if (now >= closeAfter && doc.status === "OPEN") {
-    doc.status = "CLOSED";
-    await doc.save();
+    // Use updateOne instead of save()
+    await this.model.updateOne(
+      { _id: doc._id },
+      { status: "CLOSED" }
+    );
   }
 });
 
