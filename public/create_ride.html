@@ -7,22 +7,24 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #FFD700 0%, #FFEB99 50%, #FFF8DC 100%);
-            --secondary-gradient: linear-gradient(135deg, #FFC107 0%, #FFD54F 100%);
-            --glass-bg: rgba(255, 223, 0, 0.2);
-            --glass-border: rgba(255, 215, 0, 0.3);
-            --form-bg: rgba(255, 250, 205, 0.9);
-            --card-bg: rgba(255, 255, 224, 0.9);
-            --input-bg: rgba(255, 248, 220, 0.9);
-            --success-color: #FFB300;
+            --primary-500: #2563eb;
+            --primary-600: #1d4ed8;
+            --primary-gradient: linear-gradient(180deg, var(--primary-500), var(--primary-600));
+            --secondary-gradient: linear-gradient(180deg, var(--primary-500), var(--primary-600));
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(15, 23, 42, 0.08);
+            --form-bg: rgba(255, 255, 255, 0.9);
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --input-bg: #ffffff;
+            --success-color: #16a34a;
             --error-color: #ef4444;
-            --warning-color: #f59e0b;
-            --text-primary: #4E342E;
-            --text-secondary: rgba(78, 52, 46, 0.8);
-            --text-dark: #3e2723;
-            --bg-light: rgba(255, 235, 59, 0.2);
-            --border-color: rgba(255, 215, 0, 0.3);
-            --shadow-glass: 0 8px 32px 0 rgba(255, 215, 0, 0.4);
+            --warning-color: #1d4ed8;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-dark: #0f172a;
+            --bg-light: rgba(219, 234, 254, 0.3);
+            --border-color: rgba(15, 23, 42, 0.08);
+            --shadow-glass: 0 10px 30px rgba(2, 6, 23, 0.08);
         }
 
         * {
@@ -33,8 +35,9 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          background: linear-gradient(135deg,
-                #FFF8DC 0%, #FFECB3 25%, #FFD700 50%, #FFC107 75%, #ffffff 100%);
+            background: radial-gradient(1200px 600px at 10% 10%, #e0e7ff 0%, transparent 60%),
+                        radial-gradient(1200px 600px at 90% 20%, #dbeafe 0%, transparent 60%),
+                        #f8fafc;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -634,7 +637,7 @@
     class RideCreator {
         constructor() {
             this.seatsCount = 1;
-            this.apiBaseUrl = 'https://campus-rideshare.onrender.com/api';
+            this.apiBaseUrl = 'http://campus-rideshare.onrender.com//api';
             this.init();
         }
 

@@ -8,24 +8,27 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
   <style>
     :root {
-      --primary-gradient: linear-gradient(135deg, #FFD700 0%, #FFEB99 50%, #FFF8DC 100%);
-      --secondary-gradient: linear-gradient(135deg, #FFC107 0%, #FFD54F 100%);
-      --glass-bg: rgba(255, 223, 0, 0.2);
-      --glass-border: rgba(255, 215, 0, 0.3);
-      --form-bg: rgba(255, 250, 205, 0.9);
-      --card-bg: rgba(255, 255, 224, 0.9);
-      --text-primary: #4E342E;
-      --text-secondary: rgba(78, 52, 46, 0.8);
-      --shadow-glass: 0 8px 32px 0 rgba(255, 215, 0, 0.4);
+      --primary-500: #2563eb;
+      --primary-600: #1d4ed8;
+      --secondary-gradient: linear-gradient(180deg, var(--primary-500), var(--primary-600));
+      --glass-bg: rgba(255, 255, 255, 0.85);
+      --glass-border: rgba(15, 23, 42, 0.08);
+      --form-bg: rgba(255, 255, 255, 0.9);
+      --card-bg: rgba(255, 255, 255, 0.9);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --shadow-glass: 0 10px 30px rgba(2, 6, 23, 0.08);
       --success-color: #16a34a; --success-bg: rgba(34, 197, 94, 0.1);
-      --pending-color: #d97706; --pending-bg: rgba(245, 158, 11, 0.1);
+      --pending-color: #1e40af; --pending-bg: rgba(30, 64, 175, 0.08);
       --danger-color: #ef4444; --danger-bg: rgba(239, 68, 68, 0.08);
       --info-bg: rgba(255,255,255,0.6);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #FFF8DC 0%, #FFECB3 25%, #FFD700 50%, #FFC107 75%, #ffffff 100%);
+      background: radial-gradient(1200px 600px at 10% 10%, #e0e7ff 0%, transparent 60%),
+                  radial-gradient(1200px 600px at 90% 20%, #dbeafe 0%, transparent 60%),
+                  #f8fafc;
       background-attachment: fixed; min-height: 100vh; padding: 1rem;
     }
     .container { max-width: 800px; margin: 0 auto; z-index: 1; }
@@ -123,7 +126,7 @@
     <div id="ridesContainer" class="rides-container"></div>
   </div>
   <script>
-    const API_BASE = 'https://campus-rideshare.onrender.com/api';
+    const API_BASE = 'http://campus-rideshare.onrender.com//api';
     let currentUser = null;
     let allRides = [];
     let currentFilter = 'confirmed';

@@ -3,12 +3,15 @@ import supabase from "../config/supabase.js";
 import { signToken } from "../utils/jwt.js";
 import Joi from "joi";
 import crypto from "crypto";
+import { sendEmail } from "../config/mailer.js";
 
 export const signupSchema = Joi.object({
     name: Joi.string().min(2).max(80).required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(8).max(72).required(),
-    phone: Joi.string().pattern(/^[0-9+\s-]{10,15}$/),
+    phone: Joi.string().pattern(/^[0-9+\s-]{10,15}$/).required(),
+    gender: Joi.string().valid('male', 'female', 'other').required(),
+    role: Joi.string().valid('student', 'professor', 'employee').required(),
     department: Joi.string().max(100),
     year: Joi.number().integer().min(1).max(4)
 });
@@ -32,7 +35,7 @@ export const getProfile = async (req, res) => {
     const { data: user, error } = await supabase
       .from('users')
       .select(`
-        id, name, email, phone, department, year,
+        id, name, email, phone, gender, department, year,
         college_id,
         role,
         colleges (
@@ -91,10 +94,12 @@ export const getCollegeLocations = async (req, res) => {
 
 export const signup = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, phone, gender, role, department, year } = req.body;
 
     // Validate email domain
     const emailDomain = email.split("@")[1]?.trim().toLowerCase();
+    console.log('Full email:', email);
+    console.log('Extracted domain:', emailDomain);
     console.log('Attempting to find college for domain:', emailDomain);
     
     const { data: college, error: collegeError } = await supabase
@@ -103,7 +108,14 @@ export const signup = async (req, res) => {
       .eq('email_domain', emailDomain)
       .single();
     
-    console.log('Query result:', college);
+    console.log('College query result:', college);
+    console.log('College query error:', collegeError);
+    
+    // Also check what colleges exist in the database
+    const { data: allColleges } = await supabase
+      .from('colleges')
+      .select('*');
+    console.log('All colleges in database:', allColleges);
    
     if (collegeError || !college) {
       return res.status(400).json({ 
@@ -115,11 +127,18 @@ export const signup = async (req, res) => {
     // Check if user already exists
     const { data: existingUser } = await supabase
       .from('users')
-      .select('id')
+      .select('id, is_verified')
       .eq('email', email)
       .single();
 
     if (existingUser) {
+      if (!existingUser.is_verified) {
+        return res.status(403).json({
+          message: "An account with this email exists but is not verified. Please verify your email or resend the verification.",
+          field: "email",
+          email
+        });
+      }
       return res.status(400).json({ 
         message: "User already exists with this email",
         field: "email"
@@ -128,13 +147,26 @@ export const signup = async (req, res) => {
 
     // Create user
     const hash = await bcrypt.hash(password, 12);
+
+    // Prepare verification token
+    const verifyToken = crypto.randomBytes(32).toString('hex');
+    const verifyExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
     const { data: user, error: insertError } = await supabase
       .from('users')
       .insert([{
         name,
         email,
         college_id: college.id,
-        password_hash: hash
+        password_hash: hash,
+        is_verified: false,
+        verify_token: verifyToken,
+        verify_expires: verifyExpires,
+        phone,
+        gender,
+        role,
+        department: department || null,
+        year: year || null
       }])
       .select('id, name, email, college_id, role')
       .single();
@@ -143,21 +175,36 @@ export const signup = async (req, res) => {
       throw insertError;
     }
 
-    const token = signToken({ 
-      id: user.id, 
-      collegeId: user.college_id, // Fixed: use college_id from database
-      role: user.role 
-    });
+    // Send verification email
+    const appUrl = process.env.APP_URL || `http://localhost:${process.env.PORT || 5000}`;
+    const verifyUrl = `${appUrl}/verify_email.html?token=${verifyToken}`;
+    try {
+      await sendEmail({
+        to: email,
+        subject: "Verify your GoTogether email",
+        html: `
+          <div style="font-family:Arial,sans-serif;line-height:1.6">
+            <h2>Welcome to GoTogether, ${name}!</h2>
+            <p>Please verify your email address to activate your account.</p>
+            <p><a href="${verifyUrl}" style="display:inline-block;padding:10px 16px;background:#4f46e5;color:#fff;text-decoration:none;border-radius:6px">Verify Email</a></p>
+            <p>Or copy and paste this URL into your browser:<br/>
+            <code>${verifyUrl}</code></p>
+            <p>This link expires in 15 minutes.</p>
+          </div>
+        `
+      });
+    } catch (mailError) {
+      console.error("Failed to send verification email:", mailError);
+    }
 
-    // Return user with college info
+    // Do not auto-login before verification. Return success message.
     res.status(201).json({ 
       user: {
         ...user,
-        collegeId: user.college_id, // Add this for consistency
+        collegeId: user.college_id,
         collegeName: college.name
-      }, 
-      token,
-      message: "Account created successfully!"
+      },
+      message: "Account created. Please check your email to verify your account."
     });
 
   } catch (error) {
@@ -173,7 +220,7 @@ export const login = async (req, res) => {
     const { data: users, error } = await supabase
       .from('users')
       .select(`
-        id, name, email, college_id, role, password_hash,
+        id, name, email, college_id, role, password_hash, is_verified,
         colleges (
           name
         )
@@ -194,6 +241,13 @@ export const login = async (req, res) => {
       return res.status(400).json({ 
         message: "Invalid email or password",
         field: "password"
+      });
+    }
+
+    if (!users.is_verified) {
+      return res.status(403).json({
+        message: "Please verify your email to continue",
+        field: "email"
       });
     }
 
@@ -279,6 +333,8 @@ export const changePassword = async (req, res) => {
 export const updateProfileSchema = Joi.object({
   name: Joi.string().min(2).max(80).optional(),
   phone: Joi.string().pattern(/^\+?[\d\s\-\(\)]+$/).min(10).max(15).optional(),
+  gender: Joi.string().valid('male', 'female', 'other').optional(),
+  role: Joi.string().valid('student', 'professor', 'employee').optional(),
   department: Joi.string().max(100).optional(),
   year: Joi.number().integer().min(1).max(5).optional()
 });
@@ -292,6 +348,8 @@ export const updateProfile = async (req, res) => {
     
     if (name) updateData.name = name;
     if (phone) updateData.phone = phone;
+    if (req.body.gender) updateData.gender = req.body.gender;
+    if (req.body.role) updateData.role = req.body.role;
     if (department) updateData.department = department;
     if (year) updateData.year = year;
     
@@ -303,7 +361,7 @@ export const updateProfile = async (req, res) => {
       .from('users')
       .update(updateData)
       .eq('id', req.user.id)
-      .select('id, name, email, phone, department, year, college_id, role')
+      .select('id, name, email, phone, gender, department, year, college_id, role')
       .single();
 
     if (error) {
@@ -408,5 +466,103 @@ export const resetPassword = async (req, res) => {
   } catch (error) {
     console.error("Reset password error:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const resendVerificationSchema = Joi.object({
+  email: Joi.string().email().required()
+});
+
+export const resendVerification = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('id, name, email, is_verified')
+      .eq('email', email)
+      .single();
+
+    if (error || !user) {
+      // Do not reveal if user exists
+      return res.json({ message: "If your account exists and is not verified, a new verification email has been sent." });
+    }
+
+    if (user.is_verified) {
+      return res.json({ message: "Email is already verified." });
+    }
+
+    const verifyToken = crypto.randomBytes(32).toString('hex');
+    const verifyExpires = new Date(Date.now() + 15 * 60 * 1000);
+
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ verify_token: verifyToken, verify_expires: verifyExpires })
+      .eq('id', user.id);
+
+    if (updateError) throw updateError;
+
+    const appUrl = process.env.APP_URL || `http://localhost:${process.env.PORT || 5000}`;
+    const verifyUrl = `${appUrl}/verify_email.html?token=${verifyToken}`;
+
+    try {
+      await sendEmail({
+        to: email,
+        subject: "Verify your GoTogether email",
+        html: `
+          <div style="font-family:Arial,sans-serif;line-height:1.6">
+            <p>Hello${user.name ? ` ${user.name}` : ''},</p>
+            <p>Please verify your email address to activate your account.</p>
+            <p><a href="${verifyUrl}" style="display:inline-block;padding:10px 16px;background:#4f46e5;color:#fff;text-decoration:none;border-radius:6px">Verify Email</a></p>
+            <p>Or copy and paste this URL into your browser:<br/>
+            <code>${verifyUrl}</code></p>
+            <p>This link expires in 15 minutes.</p>
+          </div>
+        `
+      });
+    } catch (mailError) {
+      console.error("Failed to send verification email:", mailError);
+    }
+
+    res.json({ message: "Verification email sent if the account is eligible." });
+  } catch (error) {
+    console.error("Resend verification error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const verifyEmail = async (req, res) => {
+  try {
+    const token = (req.query.token || req.body.token || '').trim();
+    if (!token) {
+      return res.status(400).send("Missing token");
+    }
+
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('id')
+      .eq('verify_token', token)
+      .gt('verify_expires', new Date().toISOString())
+      .single();
+
+    if (error || !user) {
+      return res.status(400).send("Invalid or expired verification link");
+    }
+
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ is_verified: true, verify_token: null, verify_expires: null })
+      .eq('id', user.id);
+
+    if (updateError) throw updateError;
+
+    const frontendUrl = process.env.FRONTEND_URL;
+    if (frontendUrl) {
+      return res.redirect(`${frontendUrl}?verified=1`);
+    }
+    res.send("Email verified successfully. You can close this window and log in.");
+  } catch (error) {
+    console.error("Verify email error:", error);
+    res.status(500).send("Internal server error");
   }
 };

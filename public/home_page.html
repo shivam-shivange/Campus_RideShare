@@ -175,20 +175,23 @@
         }
 
         :root {
-            --primary-gradient: linear-gradient(135deg, #FFD700 0%, #FFEB99 50%, #FFF8DC 100%);
-            --secondary-gradient: linear-gradient(135deg, #FFC107 0%, #FFD54F 100%);
-            --glass-bg: rgba(255, 250, 205, 0.85);
-            --glass-border: rgba(255, 215, 0, 0.3);
-            --card-bg: rgba(255, 255, 224, 0.8);
-            --input-bg: rgba(255, 248, 220, 0.9);
-            --text-primary: #4E342E;
-            --text-secondary: rgba(78, 52, 46, 0.8);
-            --shadow-glass: 0 8px 32px 0 rgba(255, 215, 0, 0.4);
+            --primary-500: #2563eb;
+            --primary-600: #1d4ed8;
+            --secondary-gradient: linear-gradient(180deg, var(--primary-500), var(--primary-600));
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(15, 23, 42, 0.08);
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --input-bg: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --shadow-glass: 0 10px 30px rgba(2, 6, 23, 0.08);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #FFF8DC 0%, #FFECB3 25%, #FFD700 50%, #FFC107 75%, #ffffff 100%);
+            background: radial-gradient(1200px 600px at 10% 10%, #e0e7ff 0%, transparent 60%),
+                        radial-gradient(1200px 600px at 90% 20%, #dbeafe 0%, transparent 60%),
+                        #f8fafc;
             min-height: 100vh;
             padding: 1rem;
             overflow-x: hidden;
@@ -236,7 +239,7 @@
             align-items: center;
         }
         .logo-section { display: flex; align-items: center; gap: 1rem; }
-        .logo-icon { font-size: 2rem; color: var(--warning-color); text-shadow: 0 0 20px rgba(255, 193, 7, 0.4); }
+        .logo-icon { font-size: 2rem; color: var(--primary-600); text-shadow: 0 0 20px rgba(37, 99, 235, 0.25); }
         .logo-text h1 { font-size: 1.5rem; font-weight: 700; }
         .logo-text p { font-size: 0.875rem; color: var(--text-secondary); }
         .auth-buttons .btn {
@@ -268,8 +271,8 @@
             background: var(--input-bg); color: var(--text-primary);
         }
         .form-group input:focus {
-            outline: none; border-color: var(--warning-color);
-            box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.3);
+            outline: none; border-color: var(--primary-600);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
         }
         .input-icon { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary); pointer-events: none; }
         
@@ -434,7 +437,7 @@
     </div>
 
     <script>
-        const API_BASE = 'https://campus-rideshare.onrender.com/api';
+        const API_BASE = 'http://campus-rideshare.onrender.com//api';
 
         function checkAuthStatus() {
             const token = localStorage.getItem('token');

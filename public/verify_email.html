@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verify Email - RideShare</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-500: #2563eb;
+      --primary-600: #1d4ed8;
+      --primary-gradient: linear-gradient(180deg, var(--primary-500), var(--primary-600));
+      --secondary-gradient: linear-gradient(180deg, var(--primary-500), var(--primary-600));
+      --glass-bg: rgba(255, 255, 255, 0.9);
+      --glass-border: rgba(15, 23, 42, 0.08);
+      --input-bg: #ffffff;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --success-color: #16a34a;
+      --error-color: #ef4444;
+      --shadow-glass: 0 10px 30px rgba(2, 6, 23, 0.08);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: radial-gradient(1200px 600px at 10% 10%, #e0e7ff 0%, transparent 60%),
+                  radial-gradient(1200px 600px at 90% 20%, #dbeafe 0%, transparent 60%),
+                  #f8fafc;
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      padding: 1rem; position: relative; overflow-x: hidden;
+    }
+    .container { width: 100%; max-width: 560px; position: relative; z-index: 1; }
+    .glass-card {
+      background: var(--glass-bg); backdrop-filter: blur(25px); border-radius: 20px;
+      box-shadow: var(--shadow-glass); border: 1px solid var(--glass-border);
+      overflow: hidden; color: var(--text-primary);
+    }
+    .header { text-align: center; padding: 2rem; background: var(--primary-gradient); color: #fff; }
+    .header .icon { font-size: 2.5rem; margin-bottom: 0.5rem; color: #fff; }
+    .content { padding: 2rem; }
+    .status { text-align: center; margin: 1rem 0 1.5rem; }
+    .status.success { color: var(--success-color); }
+    .status.error { color: var(--error-color); }
+    .btn { width: 100%; padding: 0.9rem 1.25rem; border: none; border-radius: 12px; cursor: pointer; font-weight: 700; }
+    .btn.primary { background: linear-gradient(180deg, var(--primary-500), var(--primary-600)); color: #fff; border: 1px solid rgba(37,99,235,0.35); }
+    .btn.primary:hover { transform: translateY(-1px); box-shadow: 0 12px 32px rgba(37,99,235,0.35); }
+    .muted { color: var(--text-secondary); font-size: 0.95rem; text-align: center; margin-top: 1rem; }
+    .input-group { margin: 1rem 0; }
+    .input-group input { width: 100%; padding: 0.9rem 1.1rem; border-radius: 12px; border: 1px solid #e5e7eb; background: var(--input-bg); color: var(--text-primary); }
+    .message { display:none; text-align:center; padding: 0.9rem; border-radius: 12px; margin-bottom: 1rem; }
+    .message.success { display:block; background: rgba(34,197,94,.12); border: 1px solid rgba(34,197,94,.35); color: var(--success-color); }
+    .message.error { display:block; background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.35); color: var(--error-color); }
+  </style>
+  <script>
+    const API_BASE = 'http://campus-rideshare.onrender.com//api';
+
+    async function verify() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('token');
+      const statusEl = document.getElementById('status');
+      const titleEl = document.getElementById('title');
+      const ctaBtn = document.getElementById('ctaBtn');
+      const resendBlock = document.getElementById('resendBlock');
+      const messageEl = document.getElementById('message');
+
+      if (!token) {
+        titleEl.textContent = 'Verification link is invalid';
+        statusEl.textContent = 'Missing token';
+        statusEl.className = 'status error';
+        resendBlock.style.display = 'block';
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/verify-email?token=${encodeURIComponent(token)}`, {
+          method: 'GET',
+          headers: { 'Accept': 'text/plain' }
+        });
+
+        const text = await res.text();
+        if (res.ok) {
+          titleEl.textContent = 'Email Verified';
+          statusEl.textContent = 'Your email has been verified successfully.';
+          statusEl.className = 'status success';
+          ctaBtn.textContent = 'Go to Sign In';
+          ctaBtn.onclick = () => window.location.href = '/index.html';
+          resendBlock.style.display = 'none';
+          messageEl.className = 'message success';
+          messageEl.textContent = 'You can now sign in to your account.';
+        } else {
+          titleEl.textContent = 'Verification failed';
+          statusEl.textContent = text || 'Invalid or expired verification link.';
+          statusEl.className = 'status error';
+          resendBlock.style.display = 'block';
+          messageEl.className = 'message error';
+          messageEl.textContent = 'You can request a new verification email below.';
+        }
+      } catch (e) {
+        titleEl.textContent = 'Something went wrong';
+        statusEl.textContent = 'Please try again later.';
+        statusEl.className = 'status error';
+        resendBlock.style.display = 'block';
+      }
+    }
+
+    async function resendVerification(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const btn = document.getElementById('resendBtn');
+      const msg = document.getElementById('resendMsg');
+      if (!email) { msg.className = 'message error'; msg.textContent = 'Please enter your email.'; return; }
+      btn.disabled = true; btn.textContent = 'Sending...'; msg.style.display = 'none';
+      try {
+        const res = await fetch(`${API_BASE}/auth/resend-verification`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json().catch(() => ({}));
+        msg.className = res.ok ? 'message success' : 'message error';
+        msg.textContent = data.message || (res.ok ? 'If your account is eligible, we have sent a verification email.' : 'Failed to send verification email.');
+      } catch (err) {
+        msg.className = 'message error';
+        msg.textContent = 'Network error. Please try again.';
+      } finally {
+        btn.disabled = false; btn.textContent = 'Resend Verification Email';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', verify);
+  </script>
+</head>
+<body>
+  <div class="container">
+    <div class="glass-card">
+      <div class="header">
+        <i class="fas fa-envelope-circle-check icon"></i>
+        <h2 id="title">Verifying your email...</h2>
+      </div>
+      <div class="content">
+        <div id="message" class="message" role="alert"></div>
+        <p id="status" class="status">Please wait while we confirm your email.</p>
+        <button id="ctaBtn" class="btn primary" onclick="window.location.href='/index.html'">
+          <i class="fas fa-home"></i> Back to Home
+        </button>
+
+        <div id="resendBlock" style="display:none; margin-top:1.5rem;">
+          <div class="input-group">
+            <label for="email" style="display:block; margin-bottom:.5rem; color:var(--text-secondary); text-transform:uppercase; font-size:.8rem; font-weight:700;">Email</label>
+            <input id="email" type="email" placeholder="your@email.com" />
+          </div>
+          <button id="resendBtn" class="btn primary" onclick="resendVerification(event)">
+            <i class="fas fa-paper-plane"></i> Resend Verification Email
+          </button>
+          <div id="resendMsg" class="message" style="margin-top:1rem;"></div>
+        </div>
+
+        <p class="muted">Didn’t receive the email? Check your spam folder or try resending.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
+

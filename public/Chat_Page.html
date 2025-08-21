@@ -8,22 +8,24 @@
     <script src="/socket.io/socket.io.js"></script>
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #FFD700 0%, #FFEB99 50%, #FFF8DC 100%);
-            --secondary-gradient: linear-gradient(135deg, #FFC107 0%, #FFD54F 100%);
-            --glass-bg: rgba(255, 223, 0, 0.2);
-            --glass-border: rgba(255, 215, 0, 0.3);
-            --form-bg: rgba(255, 250, 205, 0.85);
-            --card-bg: rgba(255, 255, 224, 0.9);
-            --input-bg: rgba(255, 248, 220, 0.9);
-            --success-color: #FFB300;
+            --primary-500: #2563eb;
+            --primary-600: #1d4ed8;
+            --primary-gradient: linear-gradient(180deg, var(--primary-500), var(--primary-600));
+            --secondary-gradient: linear-gradient(180deg, var(--primary-500), var(--primary-600));
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(15, 23, 42, 0.08);
+            --form-bg: rgba(255, 255, 255, 0.9);
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --input-bg: #ffffff;
+            --success-color: #16a34a;
             --error-color: #ef4444;
-            --warning-color: #f59e0b;
-            --text-primary: #4E342E;
-            --text-secondary: rgba(78, 52, 46, 0.8);
-            --text-dark: #3e2723;
-            --bg-light: rgba(255, 235, 59, 0.2);
-            --border-color: rgba(255, 215, 0, 0.3);
-            --shadow-glass: 0 8px 32px 0 rgba(255, 215, 0, 0.4);
+            --warning-color: #1d4ed8;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-dark: #0f172a;
+            --bg-light: rgba(219, 234, 254, 0.3);
+            --border-color: rgba(15, 23, 42, 0.08);
+            --shadow-glass: 0 10px 30px rgba(2, 6, 23, 0.08);
         }
 
         * {
@@ -34,7 +36,9 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #FFF8DC 0%, #FFECB3 25%, #FFD700 50%, #FFC107 75%, #ffffff 100%);
+            background: radial-gradient(1200px 600px at 10% 10%, #e0e7ff 0%, transparent 60%),
+                        radial-gradient(1200px 600px at 90% 20%, #dbeafe 0%, transparent 60%),
+                        #f8fafc;
             background-attachment: fixed;
             min-height: 100vh;
             color: var(--text-primary);
@@ -245,188 +249,6 @@
         .messages-area::-webkit-scrollbar { width: 8px; }
         .messages-area::-webkit-scrollbar-track { background: rgba(30, 41, 59, 0.3); }
         .messages-area::-webkit-scrollbar-thumb { background: rgba(255, 204, 0, 0.2); border-radius: 10px; }
-        
-
-        /* Mobile UI Optimizations - Add at the end of your existing CSS */
-
-        @media (max-width: 768px) {
-            /* Hide sidebar and resize handle on mobile */
-            .chat-list-container, 
-            .resize-handle {
-                display: none !important;
-            }
-
-            /* Full width chat area */
-            .chat-area-container {
-                flex: 1 1 100% !important;
-                max-width: 100% !important;
-            }
-
-            /* Compact header */
-            .header-bar {
-                padding: 10px 15px !important;
-            }
-
-            .back-btn {
-                width: 40px !important;
-                height: 40px !important;
-                margin-right: 15px !important;
-            }
-
-            .contact-avatar {
-                width: 45px !important;
-                height: 45px !important;
-                margin-right: 10px !important;
-            }
-
-            .contact-details h2 {
-                font-size: 1.1rem !important;
-                line-height: 1.2 !important;
-            }
-
-            .ride-info {
-                font-size: 0.8rem !important;
-                flex-wrap: wrap !important;
-            }
-
-            /* Chat container optimizations */
-            .chat-container {
-                height: calc(100vh - 120px) !important;
-                padding: 0 10px 10px 10px !important;
-            }
-
-            .messages-area {
-                padding: 15px !important;
-                gap: 10px !important;
-            }
-
-            /* Message bubbles */
-            .message {
-                max-width: 85% !important;
-            }
-
-            .message-bubble {
-                padding: 12px 16px !important;
-            }
-
-            .message.sent .message-bubble {
-                border-radius: 18px 18px 4px 18px !important;
-            }
-
-            .message.received .message-bubble {
-                border-radius: 18px 18px 18px 4px !important;
-            }
-
-            .message-text {
-                font-size: 0.95rem !important;
-                line-height: 1.3 !important;
-            }
-
-            /* Input area */
-            .input-area {
-                padding: 15px !important;
-                gap: 10px !important;
-            }
-
-            .message-input {
-                font-size: 0.95rem !important;
-                padding: 12px 16px !important;
-                border-radius: 18px !important;
-            }
-
-            .send-btn {
-                width: 45px !important;
-                height: 45px !important;
-            }
-
-            .send-btn i {
-                font-size: 16px !important;
-            }
-
-            /* Quick actions */
-            .quick-actions {
-                margin-bottom: 10px !important;
-                gap: 8px !important;
-            }
-
-            .quick-action-btn {
-                width: 100% !important;
-                font-size: 0.9rem !important;
-                padding: 10px 16px !important;
-                border-radius: 16px !important;
-            }
-
-            /* Modal adjustments */
-            .time-modal {
-                width: 95% !important;
-                max-width: 350px !important;
-                padding: 25px !important;
-                border-radius: 20px !important;
-            }
-
-            .modal-title {
-                font-size: 1.2rem !important;
-                margin-bottom: 15px !important;
-            }
-
-            .time-input {
-                padding: 12px !important;
-                font-size: 0.95rem !important;
-            }
-
-            .modal-buttons {
-                gap: 10px !important;
-                flex-direction: column !important;
-            }
-
-            .modal-btn {
-                width: 100% !important;
-                padding: 12px 20px !important;
-                font-size: 0.95rem !important;
-            }
-
-            /* Hide scrollbar on mobile */
-            .messages-area::-webkit-scrollbar {
-                width: 0px !important;
-                background: transparent !important;
-            }
-        }
-
-        /* Extra small mobile devices */
-        @media (max-width: 480px) {
-            .header-bar {
-                padding: 8px 12px !important;
-            }
-
-            .contact-details h2 {
-                font-size: 1rem !important;
-            }
-
-            .ride-info {
-                font-size: 0.75rem !important;
-            }
-
-            .chat-container {
-                padding: 0 8px 8px 8px !important;
-            }
-
-            .messages-area {
-                padding: 12px !important;
-            }
-
-            .message-bubble {
-                padding: 10px 14px !important;
-            }
-
-            .input-area {
-                padding: 12px !important;
-            }
-
-            .quick-action-btn {
-                font-size: 0.85rem !important;
-                padding: 8px 14px !important;
-            }
-        }
     </style>
 </head>
 <body>
@@ -509,8 +331,8 @@
     <script>
         class ChatPage {
             constructor() {
-                this.API_BASE = 'https://campus-rideshare.onrender.com/api';
-                this.SOCKET_URL = 'https://campus-rideshare.onrender.com';
+                this.API_BASE = 'http://campus-rideshare.onrender.com//api';
+                this.SOCKET_URL = 'http://campus-rideshare.onrender.com/';
 
                 const params = new URLSearchParams(window.location.search);
                 this.rideId = params.get('rideId');
