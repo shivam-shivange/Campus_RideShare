@@ -1,0 +1,20 @@
+name: Cleanup Unverified Users
+
+on:
+  schedule:
+    - cron: "0 0 * * *"   # every 24 hour
+  workflow_dispatch:      # manual run option
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Supabase cleanup function
+        run: |
+          curl -X POST "$SUPABASE_URL/rest/v1/rpc/cleanup_unverified_users" \
+            -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+            -H "Content-Type: application/json"
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
