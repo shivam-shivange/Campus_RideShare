@@ -331,8 +331,8 @@
     <script>
         class ChatPage {
             constructor() {
-                this.API_BASE = 'https://campus-rideshare.onrender.com/api';
-                this.SOCKET_URL = 'https://campus-rideshare.onrender.com/';
+                this.API_BASE = 'http://localhost:5000/api';
+                this.SOCKET_URL = 'http://localhost:5000/';
 
                 const params = new URLSearchParams(window.location.search);
                 this.rideId = params.get('rideId');

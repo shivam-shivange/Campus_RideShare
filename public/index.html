@@ -200,7 +200,7 @@
     </div>
 
 <script>
-    const API_BASE = 'https://campus-rideshare.onrender.com/api';
+    const API_BASE = 'http://localhost:5000/api';
 
     document.addEventListener('DOMContentLoaded', () => {
         const token = localStorage.getItem('token');
@@ -214,7 +214,7 @@
         try {
             const response = await fetch(`${API_BASE}/auth/me`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
             if (response.ok) {
-                window.location.href = '/home_page.html'; // Adjust to your main page
+                window.location.href = '/home_page.html';
             } else {
                 localStorage.removeItem('token');
             }
@@ -292,55 +292,87 @@
         }
     }
 
-    function handleLogin(e) {
+    // Email check function
+    async function checkEmailExists(email) {
+        try {
+            const response = await fetch(`${API_BASE}/auth/check-email`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to check email');
+            }
+            
+            const data = await response.json();
+            return data.exists;
+        } catch (error) {
+            console.error('Email check error:', error);
+            return true; // Assume email exists on error to avoid blocking login
+        }
+    }
+
+    // Enhanced login handler with email check
+    async function handleLogin(e) {
         e.preventDefault();
+        clearMessages();
+
         const form = e.target;
         const submitBtn = form.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
-        
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
-        clearMessages();
-
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
 
-        fetch(`${API_BASE}/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (result.token) {
-                // Store the token
+        if (!data.email || !data.password) {
+            showMessage('Please enter both email and password.', 'error');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+
+        try {
+            // First check if email exists
+            const emailExists = await checkEmailExists(data.email);
+            
+            if (!emailExists) {
+                showMessage('Email not found. Please create an account first.', 'error');
+                return;
+            }
+
+            // If email exists, proceed with login
+            const response = await fetch(`${API_BASE}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.token) {
                 localStorage.setItem('token', result.token);
                 showMessage('Login successful! Redirecting...', 'success');
                 
-                // Verify the token is stored
-                console.log('Token stored:', localStorage.getItem('token'));
-                
-                // Redirect after a short delay
                 setTimeout(() => {
                     window.location.href = 'home_page.html';
                 }, 1000);
             } else {
-                // If backend says not verified, show resend UI
+                // Handle verification or other login errors
                 if (result.message && result.message.toLowerCase().includes('verify')) {
                     showMessage(result.message, 'error');
-                    showResendVerification(result.email || document.getElementById('loginEmail').value);
+                    showResendVerification(result.email || data.email);
                 } else {
-                    throw new Error(result.message || 'Login failed');
+                    showMessage(result.message || 'Login failed', 'error');
                 }
             }
-        })
-        .catch(error => {
-            showMessage(error.message || 'Login failed', 'error');
-        })
-        .finally(() => {
+        } catch (error) {
+            console.error('Login error:', error);
+            showMessage('Login error: ' + error.message, 'error');
+        } finally {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;
-        });
+        }
     }
 
     function handleSignup(e) {
@@ -390,7 +422,6 @@
 
     function handleForgotPassword(e) {
         handleFormSubmit(e, '/auth/forgot-password', (result) => {
-            // If the backend sends a token directly (for demo/testing), pre-fill the reset form
             if(result.token) {
                 document.getElementById('resetToken').value = result.token;
                 setTimeout(() => switchForm('resetSection'), 1000);
@@ -460,8 +491,6 @@
     if (formData.email && !validateEmail(formData.email)) {
         errors.push('Please enter a valid email address');
     }
-    
-
 
     if (formData.password && formData.password.length < 8) {
         errors.push('Password must be at least 8 characters long');
@@ -469,7 +498,6 @@
     
     return errors;
 }
-
 
 function setLoadingState(button, isLoading) {
     if (isLoading) {
@@ -480,8 +508,6 @@ function setLoadingState(button, isLoading) {
         button.classList.remove('loading');
     }
 }
-
-
 
     function showMessage(message, type) {
         const container = document.getElementById('messageContainer');
@@ -496,18 +522,16 @@ function setLoadingState(button, isLoading) {
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-    // If not already present in initializeEventListeners:
+    // Terms popup functionality
     const signupSection = document.getElementById('signupSection');
     if (signupSection) {
         const checkboxLabel = signupSection.querySelector('.checkbox-label');
         if (checkboxLabel && !document.getElementById('viewTerms')) {
-            // Add the "view terms" link if not already in markup
             checkboxLabel.innerHTML = `
                 <input type="checkbox" id="termsCheckbox" name="terms" required>
                 <p>I agree to the <a href="#" id="viewTerms">Terms & Conditions</a></p>
             `;
             
-            // Add event listener AFTER creating the element
             const viewTermsLink = document.getElementById('viewTerms');
             if (viewTermsLink) {
                 viewTermsLink.addEventListener('click', function(e) {
@@ -518,7 +542,7 @@ function setLoadingState(button, isLoading) {
         }
     }
 
-    // Hide popup (close btn) - only if element exists
+    // Hide popup (close btn)
     const closeTermsBtn = document.getElementById('closeTerms');
     if (closeTermsBtn) {
         closeTermsBtn.addEventListener('click', function() {
@@ -526,7 +550,7 @@ function setLoadingState(button, isLoading) {
         });
     }
 
-    // Hide popup (click outside) - only if element exists
+    // Hide popup (click outside)
     const termsPopup = document.getElementById('termsPopup');
     if (termsPopup) {
         window.addEventListener('click', function(event) {

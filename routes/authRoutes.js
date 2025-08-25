@@ -3,7 +3,7 @@ import {
   signup, login, getProfile, updateProfile, changePassword, forgotPassword, resetPassword,
   signupSchema, loginSchema, updateProfileSchema, changePasswordSchema, 
   forgotPasswordSchema, resetPasswordSchema,
-  resendVerification, resendVerificationSchema, verifyEmail
+  resendVerification, resendVerificationSchema, verifyEmail, checkEmail // Add this
 } from "../controllers/authController.js";
 import { validate } from "../middleware/validate.js";
 import { protect } from "../middleware/authMiddleware.js";
@@ -12,6 +12,7 @@ const router = express.Router();
 
 router.post("/signup", validate(signupSchema), signup);
 router.post("/login", validate(loginSchema), login);
+router.post("/check-email", checkEmail); // Add this line
 router.post("/forgot-password", validate(forgotPasswordSchema), forgotPassword);
 router.post("/reset-password", validate(resetPasswordSchema), resetPassword);
 router.post("/resend-verification", validate(resendVerificationSchema), resendVerification);
