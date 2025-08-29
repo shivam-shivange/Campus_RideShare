@@ -172,15 +172,37 @@
             </div>
             
              <!-- Reset Password Form -->
-            <div id="resetSection" class="form-section">
-                <h2>Create New Password</h2>
-                <form id="resetPasswordForm" novalidate>
-                    <input type="hidden" id="resetToken" name="token">
-                    <div class="form-group"><label for="resetPassword">New Password</label><div class="input-wrapper"><input type="password" id="resetPassword" name="password" autocomplete="new-password" required><i class="fas fa-lock input-icon password-toggle"></i></div></div>
-                    <button type="submit" class="btn primary"><i class="fas fa-save"></i> Save New Password</button>
-                </form>
+            <!-- Reset Password Form -->
+<div id="resetSection" class="form-section">
+    <h2>Create New Password</h2>
+    <form id="resetPasswordForm" novalidate>
+        <!-- ✅ ADD HIDDEN USERNAME FIELD FOR ACCESSIBILITY -->
+        <input type="hidden" id="resetToken" name="token">
+        <input type="email" name="username" autocomplete="username" style="display: none;" tabindex="-1" aria-hidden="true">
+        
+        <div class="form-group">
+            <label for="resetPassword">New Password</label>
+            <div class="input-wrapper">
+                <input type="password" id="resetPassword" name="password" autocomplete="new-password" required>
+                <i class="fas fa-lock input-icon password-toggle"></i>
             </div>
         </div>
+        
+        <div class="form-group">
+            <label for="confirmPassword">Confirm New Password</label>
+            <div class="input-wrapper">
+                <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password" required>
+                <i class="fas fa-lock input-icon password-toggle"></i>
+            </div>
+        </div>
+
+        <button type="submit" class="btn primary">
+            <i class="fas fa-save"></i> Save New Password
+        </button>
+    </form>
+</div>
+
+</div>
 
         <div id="termsPopup" class="terms-popup" style="display:none;">
             <div class="terms-content">
@@ -200,29 +222,50 @@
     </div>
 
 <script>
-    const API_BASE = 'https://campus-rideshare.onrender.com/api';
+    const API_BASE = 'http://localhost:5000/api';
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            verifyTokenAndRedirect();
-        }
+document.addEventListener('DOMContentLoaded', () => {
+    const token = localStorage.getItem('token');
+    const currentPath = window.location.pathname;
+    const isOnLoginPage = currentPath.endsWith('index.html') || currentPath === '/' || currentPath === '';
+    
+    if (token) {
+        // If user has token, verify it and redirect to homepage
+        verifyTokenAndRedirect();
+    } else if (!isOnLoginPage) {
+        // If no token and not on login page, redirect to login
+        window.location.href = 'index.html';
+    } else {
+        // User is on login page without token - initialize login functionality
         initializeEventListeners();
-    });
-
-    async function verifyTokenAndRedirect() {
-        try {
-            const response = await fetch(`${API_BASE}/auth/me`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
-            if (response.ok) {
-                window.location.href = '/home_page.html'; // Adjust to your main page
-            } else {
-                localStorage.removeItem('token');
-            }
-        } catch (error) {
-            console.error('Token verification failed:', error);
-            localStorage.removeItem('token');
-        }
     }
+});
+
+
+async function verifyTokenAndRedirect() {
+    try {
+        const response = await fetch(`${API_BASE}/auth/me`, {
+            headers: { 
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Accept': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            // Token is valid, redirect to homepage
+            window.location.href = 'home_page.html';
+        } else {
+            // Token is invalid, remove it and stay on login page
+            localStorage.removeItem('token');
+            initializeEventListeners();
+        }
+    } catch (error) {
+        console.error('Token verification failed:', error);
+        localStorage.removeItem('token');
+        // Stay on login page and initialize login functionality
+        initializeEventListeners();
+    }
+}
 
     function initializeEventListeners() {
         document.getElementById('loginForm').addEventListener('submit', handleLogin);
@@ -292,56 +335,45 @@
         }
     }
 
-    function handleLogin(e) {
-        e.preventDefault();
-        const form = e.target;
-        const submitBtn = form.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
-        clearMessages();
+function handleLogin(e) {
+    e.preventDefault();
+    const form = e.target;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    clearMessages();
+    
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    
+    fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.token) {
+            localStorage.setItem('token', result.token);
+            // Direct redirect to homepage after successful login
+            window.location.href = 'home_page.html';
+        } else {
+            // Handle verification required or other messages
+            showMessage(result.message || 'Login failed', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Login error:', error);
+        showMessage('Login failed. Please try again.', 'error');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    });
+}
 
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
-
-        fetch(`${API_BASE}/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (result.token) {
-                // Store the token
-                localStorage.setItem('token', result.token);
-                showMessage('Login successful! Redirecting...', 'success');
-                
-                // Verify the token is stored
-                console.log('Token stored:', localStorage.getItem('token'));
-                
-                // Redirect after a short delay
-                setTimeout(() => {
-                    window.location.href = 'home_page.html';
-                }, 1000);
-            } else {
-                // If backend says not verified, show resend UI
-                if (result.message && result.message.toLowerCase().includes('verify')) {
-                    showMessage(result.message, 'error');
-                    showResendVerification(result.email || document.getElementById('loginEmail').value);
-                } else {
-                    throw new Error(result.message || 'Login failed');
-                }
-            }
-        })
-        .catch(error => {
-            showMessage(error.message || 'Login failed', 'error');
-        })
-        .finally(() => {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalText;
-        });
-    }
 
     function handleSignup(e) {
         e.preventDefault();
@@ -388,15 +420,72 @@
         });
     }
 
-    function handleForgotPassword(e) {
-        handleFormSubmit(e, '/auth/forgot-password', (result) => {
-            // If the backend sends a token directly (for demo/testing), pre-fill the reset form
-            if(result.token) {
-                document.getElementById('resetToken').value = result.token;
-                setTimeout(() => switchForm('resetSection'), 1000);
-            }
-        });
+// In your index.html - Enhanced forgot password handler
+function handleForgotPassword(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    const email = form.querySelector('input[name="email"]').value.trim();
+
+    if (!email) {
+        showMessage('Please enter your email address.', 'error');
+        return;
     }
+
+    if (!validateEmail(email)) {
+        showMessage('Please enter a valid email address.', 'error');
+        return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    clearMessages();
+
+    // Use async/await for better error handling
+    sendPasswordResetRequest(email, submitBtn, originalText, form);
+}
+
+async function sendPasswordResetRequest(email, submitBtn, originalText, form) {
+    try {
+        const response = await fetch(`${API_BASE}/auth/forgot-password`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            showMessage('If your email is registered, you\'ll receive a reset link shortly.', 'success');
+            form.reset();
+            
+            setTimeout(() => {
+                showMessage('Please check your email and click the reset link.', 'success');
+            }, 3000);
+        } else {
+            showMessage(result.message || 'Failed to send reset link. Please try again.', 'error');
+        }
+    } catch (error) {
+        console.error('Network error:', error);
+        showMessage('Network error. Please check your connection and try again.', 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    }
+}
+
+
+    // Email validation helper
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+
+
 
     // Resend verification helpers
     function showResendVerification(prefillEmail) {
@@ -495,47 +584,21 @@ function setLoadingState(button, isLoading) {
         container.style.display = 'none';
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-    // If not already present in initializeEventListeners:
-    const signupSection = document.getElementById('signupSection');
-    if (signupSection) {
-        const checkboxLabel = signupSection.querySelector('.checkbox-label');
-        if (checkboxLabel && !document.getElementById('viewTerms')) {
-            // Add the "view terms" link if not already in markup
-            checkboxLabel.innerHTML = `
-                <input type="checkbox" id="termsCheckbox" name="terms" required>
-                <p>I agree to the <a href="#" id="viewTerms">Terms & Conditions</a></p>
-            `;
-            
-            // Add event listener AFTER creating the element
-            const viewTermsLink = document.getElementById('viewTerms');
-            if (viewTermsLink) {
-                viewTermsLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    document.getElementById('termsPopup').style.display = 'block';
-                });
-            }
-        }
-    }
+document.addEventListener('DOMContentLoaded', () => {
+    const token = localStorage.getItem('token');
+    const isLoginPage = window.location.pathname.endsWith('index.html') || window.location.pathname === '/';
 
-    // Hide popup (close btn) - only if element exists
-    const closeTermsBtn = document.getElementById('closeTerms');
-    if (closeTermsBtn) {
-        closeTermsBtn.addEventListener('click', function() {
-            document.getElementById('termsPopup').style.display = 'none';
-        });
+    if (token && !isLoginPage) {
+        // Only verify token if NOT on login/index page
+        verifyTokenAndRedirect();
+    } else if (!token && !isLoginPage) {
+        // If there's no token and NOT on login, force login
+        window.location.href = 'index.html';
     }
-
-    // Hide popup (click outside) - only if element exists
-    const termsPopup = document.getElementById('termsPopup');
-    if (termsPopup) {
-        window.addEventListener('click', function(event) {
-            if (event.target === termsPopup) {
-                termsPopup.style.display = 'none';
-            }
-        });
-    }
+    // If on login page, don't verify token, let login code handle redirect
+    initializeEventListeners();
 });
+
 
 </script>
 </body>

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RideShare - Home</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         /* Profile Menu Styles */
         .header {
@@ -231,6 +232,74 @@
             font-weight: 700;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
+
+        /* Enhanced DateTime Picker Styling */
+        .flatpickr-calendar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border: 1px solid var(--glass-border) !important;
+            border-radius: 16px !important;
+            box-shadow: var(--shadow-glass) !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+        .flatpickr-calendar.open {
+            animation: slideInUp 0.3s ease-out;
+        }
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .flatpickr-day {
+            border-radius: 8px !important;
+            margin: 2px !important;
+            transition: all 0.2s ease !important;
+        }
+        .flatpickr-day:hover, .flatpickr-day:focus {
+            background: var(--primary-500) !important;
+            color: white !important;
+            transform: scale(1.05) !important;
+            border-color: var(--primary-500) !important;
+        }
+        .flatpickr-day.selected {
+            background: var(--secondary-gradient) !important;
+            border-color: var(--primary-600) !important;
+            color: white !important;
+        }
+        .flatpickr-time {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-top: 1px solid var(--glass-border) !important;
+        }
+        .flatpickr-am-pm, .numInputWrapper:hover, .flatpickr-time input:hover {
+            background: var(--primary-500) !important;
+            color: white !important;
+        }
+        .flatpickr-am-pm {
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+        }
+        .numInput {
+            background: rgba(255, 255, 255, 0.8) !important;
+            border: 1px solid var(--glass-border) !important;
+            border-radius: 6px !important;
+            color: var(--text-primary) !important;
+            font-weight: 500 !important;
+        }
+        .flatpickr-current-month .flatpickr-monthDropdown-months {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-radius: 8px !important;
+            color: var(--text-primary) !important;
+        }
+        .flatpickr-months .flatpickr-prev-month:hover svg,
+        .flatpickr-months .flatpickr-next-month:hover svg {
+            fill: var(--primary-600) !important;
+        }
+        @media (max-width: 640px) {
+            .flatpickr-calendar {
+                width: 90vw !important;
+                max-width: 350px !important;
+            }
+        }
         
         .header {
             padding: 1.5rem 2rem;
@@ -261,7 +330,7 @@
         .hamburger-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3); }
         .dropdown-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--glass-border); font-weight: bold; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
-        .form-group { margin-bottom: 1.5rem; position: relative; }
+        .form-group { margin-bottom: 1rem; position: relative; }
         .form-group.full-width { grid-column: 1 / -1; }
         .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.875rem; text-transform: uppercase; }
         .input-wrapper { position: relative; }
@@ -295,6 +364,37 @@
             border-color: var(--warning-color);
             box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.3);
         }
+
+        /* 2. NEW: Styles for Quick-Select Buttons */
+        .quick-select-container {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            justify-content: center;
+        }
+        .quick-select-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(5px);
+            color: var(--text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .quick-select-btn:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--primary-600);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        .quick-select-btn.active {
+            background: var(--secondary-gradient);
+            color: white;
+            border-color: var(--primary-600);
+            box-shadow: 0 5px 20px rgba(29, 78, 216, 0.3);
+        }
         
         .btn {
             padding: 0.75rem 1.5rem; border: none; border-radius: 16px; font-size: 1rem;
@@ -325,6 +425,42 @@
         /* Helper container for the persistent create button under results */
         .create-new-wrapper {
             display: flex; justify-content: center; margin-top: 1.25rem;
+        }
+
+        /* Enhanced hamburger menu styling */
+        .profile-button {
+            background: rgba(255, 215, 0, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            cursor: pointer;
+            padding: 0.75rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .profile-button:hover {
+            background: rgba(255, 215, 0, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+
+        /* Add animation for menu items */
+        .dropdown-item {
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-item:hover {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 235, 153, 0.1));
+            color: #B8860B;
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+        }
+
+        /* Special styling for logout */
+        .dropdown-item:last-child:hover {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(248, 215, 218, 0.05));
+            color: #dc3545;
         }
 
         @media (max-width: 640px) {
@@ -393,12 +529,22 @@
                         </div>
                     </div>
                 </div>
+                
                 <div class="form-group full-width">
-                    <label for="searchDate">Travel Date</label>
+                    <label for="searchDate">Travel Date & Time</label>
                     <div class="input-wrapper">
-                        <input type="date" id="searchDate">
+                        <input type="text" id="searchDate" class="form-control" placeholder="Select date and time">
+                        <i class="fas fa-calendar-alt input-icon"></i>
                     </div>
                 </div>
+
+                <!-- 1. NEW: Quick-Select Buttons HTML -->
+                <div class="quick-select-container">
+                    <button type="button" class="quick-select-btn" id="quick-select-today">Today</button>
+                    <button type="button" class="quick-select-btn" id="quick-select-tomorrow">Tomorrow</button>
+                    <button type="button" class="quick-select-btn" id="quick-select-weekend">This Weekend</button>
+                </div>
+
                 <button type="submit" class="btn primary full-width">
                     <i class="fas fa-search"></i><span>Search Rides</span>
                 </button>
@@ -436,421 +582,819 @@
         </section>
     </div>
 
-    <script>
-        const API_BASE = 'https://campus-rideshare.onrender.com/api';
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+const API_BASE = 'http://localhost:5000/api';
+// 3. NEW: A global variable to hold the Flatpickr instance
+let datePickerInstance;
 
-        function checkAuthStatus() {
-            const token = localStorage.getItem('token');
-            if (token) {
-                loadUserProfile();
-                loadStartingLocations();
-            } else {
-                window.location.href = '/index.html';
+// Single DOMContentLoaded handler
+document.addEventListener('DOMContentLoaded', () => {
+    const token = localStorage.getItem('token');
+    const currentPath = window.location.pathname;
+    const isOnLoginPage = currentPath.endsWith('index.html') || currentPath === '/' || currentPath === '';
+    
+    if (token && !isOnLoginPage) {
+        verifyTokenAndLoadPage();
+    } else if (!token && !isOnLoginPage) {
+        window.location.href = 'index.html';
+    } else if (token && isOnLoginPage) {
+        verifyTokenAndRedirect();
+    } else {
+        initializeEventListeners();
+    }
+});
+
+// For login page - verify token and redirect to homepage
+async function verifyTokenAndRedirect() {
+    console.log('Verifying token for redirect...');
+    try {
+        const response = await fetch(`${API_BASE}/auth/me`, {
+            headers: { 
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Accept': 'application/json'
             }
+        });
+        
+        if (response.ok) {
+            console.log('Token valid, redirecting to homepage');
+            window.location.href = 'homepage.html';
+        } else {
+            console.log('Token invalid, removing');
+            localStorage.removeItem('token');
+            initializeEventListeners();
         }
+    } catch (error) {
+        console.error('Token verification failed:', error);
+        localStorage.removeItem('token');
+        initializeEventListeners();
+    }
+}
 
-        async function loadStartingLocations() {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    window.location.href = 'index.html';
-                    return;
-                }
+// For homepage - verify token and load page content
+async function verifyTokenAndLoadPage() {
+    console.log('Verifying token and loading page...');
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+        window.location.href = 'index.html';
+        return;
+    }
 
-                const response = await fetch(`${API_BASE}/locations/starting-points`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to load locations');
-                }
-
-                const locations = await response.json();
-                const fromSelect = document.getElementById('searchFrom');
-                fromSelect.innerHTML = '<option value="">Select starting point</option>';
-                
-                if (Array.isArray(locations) && locations.length > 0) {
-                    locations.forEach(location => {
-                        fromSelect.innerHTML += `<option value="${location.name}">${location.name} (${location.type})</option>`;
-                    });
-                }
-
-                const toSelect = document.getElementById('searchTo');
-                toSelect.innerHTML = '<option value="">Select destination</option>';
-                toSelect.disabled = true;
-                
-            } catch (error) {
-                console.error('Error loading starting locations:', error);
-                alert('Error loading locations. Please try again.');
-            }
-        }
-
-        async function loadDestinations(fromLocation) {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    window.location.href = '/index.html';
-                    return;
-                }
-
-                const toSelect = document.getElementById('searchTo');
-                
-                if (!fromLocation) {
-                    toSelect.innerHTML = '<option value="">Select destination</option>';
-                    toSelect.disabled = true;
-                    return;
-                }
-
-                const response = await fetch(`${API_BASE}/locations/destinations?fromLocation=${encodeURIComponent(fromLocation)}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const locations = await response.json();
-                toSelect.innerHTML = '<option value="">Select destination</option>';
-                
-                locations.forEach(location => {
-                    toSelect.innerHTML += `<option value="${location.name}">${location.name} (${location.type})</option>`;
-                });
-                
-                toSelect.disabled = false;
-            } catch (error) {
-                console.error('Error loading destinations:', error);
-                const toSelect = document.getElementById('searchTo');
-                toSelect.innerHTML = '<option value="">Error loading destinations</option>';
-                toSelect.disabled = true;
-                alert('Error loading destinations. Please try again.');
-            }
-        }
-
-        // Event listener for the From dropdown
-        document.getElementById('searchFrom').addEventListener('change', (e) => {
-            const fromLocation = e.target.value;
-            if (fromLocation) {
-                loadDestinations(fromLocation);
-            } else {
-                const toSelect = document.getElementById('searchTo');
-                toSelect.innerHTML = '<option value="">Select destination</option>';
-                toSelect.disabled = true;
+    try {
+        // First verify token with user profile
+        const response = await fetch(`${API_BASE}/auth/me`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
         });
 
-        async function loadUserProfile() {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = 'index.html';
-                return;
-            }
+        const responseText = await response.text();
+        
+        // Only redirect on authentication errors
+        if (response.status === 401 || response.status === 403) {
+            console.log('Token invalid, removing and redirecting');
+            localStorage.removeItem('token');
+            window.location.href = 'index.html';
+            return;
+        }
 
-            try {
-                const response = await fetch(`${API_BASE}/auth/me`, { 
-                    method: 'GET',
-                    headers: { 
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    }
+        if (!response.ok) {
+            throw new Error(`Failed to load user profile: ${response.status}`);
+        }
+
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch (e) {
+            console.error('Failed to parse response:', e);
+            throw new Error('Invalid response format');
+        }
+
+        const user = data.user || data;
+        
+        if (!user || !user.name) {
+            throw new Error('Invalid profile data received');
+        }
+
+        // Update UI with user info
+        const userName = document.getElementById('userName');
+        if (userName) {
+            userName.textContent = `Hi, ${user.name.split(' ')[0]}!`;
+        }
+
+        const profileMenu = document.querySelector('.profile-menu');
+        if (profileMenu) {
+            profileMenu.style.display = 'block';
+        }
+
+        console.log('User profile loaded successfully');
+
+        // Set up event listeners FIRST before loading data
+        setupEventListeners();
+
+        // Then load other data (non-critical)
+        await loadOptionalData();
+
+    } catch (error) {
+        console.error('Error loading user profile:', error);
+        
+        // Only redirect if it's actually an auth error
+        if (error.message.includes('401') || error.message.includes('403') || 
+            error.message.includes('Invalid token') || error.message.includes('auth')) {
+            localStorage.removeItem('token');
+            window.location.href = 'index.html';
+        } else {
+            // For other errors, show a message but don't redirect
+            console.warn('Profile loading failed, but keeping user logged in');
+            setupEventListeners(); // Still set up basic functionality
+        }
+    }
+}
+
+// Load optional data without failing the whole app
+async function loadOptionalData() {
+    try {
+        // Load starting locations first (most important)
+        await loadStartingLocations();
+        
+        // Then load other optional data
+        const loadingPromises = [
+            loadPopularDestinations().catch(error => {
+                console.warn('Popular destinations failed to load:', error);
+            }),
+            loadRecentRides().catch(error => {
+                console.warn('Recent rides failed to load:', error);
+            })
+        ];
+
+        await Promise.allSettled(loadingPromises);
+        console.log('Optional data loading complete');
+    } catch (error) {
+        console.warn('Some data failed to load:', error);
+    }
+}
+
+// COMPLETE IMPLEMENTATION - Load starting locations for the user's college
+async function loadStartingLocations() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+        const response = await fetch(`${API_BASE}/locations/starting-points`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem('token');
+            window.location.href = 'index.html';
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const locations = await response.json();
+        const fromSelect = document.getElementById('searchFrom');
+        
+        if (fromSelect) {
+            fromSelect.innerHTML = '<option value="">Select starting point</option>';
+            
+            if (Array.isArray(locations) && locations.length > 0) {
+                locations.forEach(location => {
+                    fromSelect.innerHTML += `<option value="${location.name}">${location.name} (${location.type})</option>`;
                 });
-                
-                const responseText = await response.text();
-                
-                if (response.status === 401 || response.status === 403) {
-                    localStorage.removeItem('token');
-                    window.location.href = 'index.html';
-                    return;
-                }
-                
-                if (!response.ok) {
-                    throw new Error(`Failed to load user profile: ${response.status} - ${responseText}`);
-                }
-                
-                let data;
-                try {
-                    data = JSON.parse(responseText);
-                    const user = data.user || data;
-                    if (!user.name) {
-                        throw new Error('Invalid profile data received');
-                    }
+            }
+        }
 
-                    const userName = document.getElementById('userName');
-                    if (userName) {
-                        userName.textContent = `Hi, ${user.name.split(' ')[0]}!`;
-                    }
+        const toSelect = document.getElementById('searchTo');
+        if (toSelect) {
+            toSelect.innerHTML = '<option value="">Select destination</option>';
+            toSelect.disabled = true;
+        }
 
-                    const profileMenu = document.querySelector('.profile-menu');
-                    if (profileMenu) {
-                        profileMenu.style.display = 'block';
-                    }
-                } catch (e) {
-                    console.error('Failed to parse response:', e);
-                    throw new Error('Invalid response format');
-                }
-            } catch (error) { 
-                console.error('Error loading user profile:', error);
+        console.log('Starting locations loaded successfully');
+
+    } catch (error) {
+        console.warn('Error loading starting locations:', error);
+        // Don't redirect - just log the error and continue
+    }
+}
+
+// COMPLETE IMPLEMENTATION - Load destinations based on from location
+async function loadDestinations(fromLocation) {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const toSelect = document.getElementById('searchTo');
+    
+    if (!fromLocation) {
+        if (toSelect) {
+            toSelect.innerHTML = '<option value="">Select destination</option>';
+            toSelect.disabled = true;
+        }
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/locations/destinations?fromLocation=${encodeURIComponent(fromLocation)}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const locations = await response.json();
+        
+        if (toSelect) {
+            toSelect.innerHTML = '<option value="">Select destination</option>';
+            
+            locations.forEach(location => {
+                toSelect.innerHTML += `<option value="${location.name}">${location.name} (${location.type})</option>`;
+            });
+            
+            toSelect.disabled = false;
+        }
+        
+        console.log('Destinations loaded successfully for:', fromLocation);
+    } catch (error) {
+        console.error('Error loading destinations:', error);
+        if (toSelect) {
+            toSelect.innerHTML = '<option value="">Error loading destinations</option>';
+            toSelect.disabled = true;
+        }
+        alert('Error loading destinations. Please try again.');
+    }
+}
+
+// COMPLETE IMPLEMENTATION - Load popular destinations
+async function loadPopularDestinations() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    
+    try {
+        const response = await fetch(`${API_BASE}/rides/popular-destinations`, { 
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            displayPopularDestinations(data, 'popularDestinations');
+        }
+    } catch (error) { 
+        console.error('Error loading popular destinations:', error); 
+    }
+}
+
+// COMPLETE IMPLEMENTATION - Load recent rides
+async function loadRecentRides() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    
+    try {
+        const response = await fetch(`${API_BASE}/rides/recent?limit=6`, { 
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            displayRecentRides(data, 'recentRides');
+        }
+    } catch (error) { 
+        console.error('Error loading recent rides:', error); 
+    }
+}
+
+// Display functions
+function displayPopularDestinations(destinations, containerId) {
+    const container = document.getElementById(containerId);
+    if (container && Array.isArray(destinations)) {
+        container.innerHTML = destinations.map(dest => `
+            <div class="destination-card" onclick="searchByDestination('${dest.destination}')">
+                <h4><i class="fas fa-city"></i> ${dest.destination}</h4>
+                <p>${dest.count} rides available</p>
+            </div>`).join('');
+    }
+}
+
+function displayRecentRides(rides, containerId) {
+    const container = document.getElementById(containerId);
+    if (container && Array.isArray(rides)) {
+        container.innerHTML = rides.map(ride => `
+            <div class="ride-card">
+                <h4>${ride.fromLocation} → ${ride.toLocation}</h4>
+                <p><i class="fas fa-user-circle"></i> ${ride.creatorName}</p>
+                <p><i class="fas fa-calendar-alt"></i> ${new Date(ride.dateTime).toLocaleDateString()}</p>
+                <p><i class="fas fa-chair"></i> ${ride.availableSeats} seats left</p>
+                <button onclick="requestRide('${ride._id}')" class="btn primary">Request</button>
+            </div>`).join('');
+    }
+}
+
+function searchByDestination(destination) {
+    const searchTo = document.getElementById('searchTo');
+    const searchForm = document.getElementById('searchForm');
+    if (searchTo && searchForm) {
+        searchTo.value = destination;
+        searchForm.requestSubmit();
+    }
+}
+
+// CRITICAL - Setup event listeners for homepage functionality
+function setupEventListeners() {
+    console.log('Setting up event listeners...');
+    
+    // 3. UPDATED: Initialize Flatpickr and add listeners
+    const searchDateInput = document.getElementById('searchDate');
+    if (searchDateInput) {
+        // Store instance for programmatic control
+        datePickerInstance = flatpickr(searchDateInput, {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            altInput: true,
+            altFormat: "F j, Y at h:i K",
+            minDate: "today",
+            time_24hr: false,
+            // When user changes date manually, clear quick-select buttons
+            onChange: function() {
+                clearActiveQuickSelect();
+            }
+        });
+    }
+
+    // Add listeners for the new quick-select buttons
+    document.getElementById('quick-select-today').addEventListener('click', handleQuickSelect);
+    document.getElementById('quick-select-tomorrow').addEventListener('click', handleQuickSelect);
+    document.getElementById('quick-select-weekend').addEventListener('click', handleQuickSelect);
+    
+    // From dropdown change listener - KEY FUNCTIONALITY
+    const fromSelect = document.getElementById('searchFrom');
+    if (fromSelect) {
+        fromSelect.removeEventListener('change', handleFromLocationChange);
+        fromSelect.addEventListener('change', handleFromLocationChange);
+    }
+
+    // **ENHANCED Profile dropdown functionality**
+    const profileButton = document.getElementById('profileButton');
+    const profileDropdown = document.getElementById('profileDropdown');
+    const logoutButton = document.getElementById('logoutButton');
+
+    if (profileButton && profileDropdown) {
+        profileButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            
+            // Position the dropdown correctly
+            const buttonRect = profileButton.getBoundingClientRect();
+            profileDropdown.style.position = 'fixed';
+            profileDropdown.style.top = (buttonRect.bottom + 5) + 'px';
+            profileDropdown.style.left = (buttonRect.right - 160) + 'px';
+            profileDropdown.style.zIndex = '999999';
+            
+            // Toggle visibility
+            profileDropdown.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!profileButton.contains(e.target) && !profileDropdown.contains(e.target)) {
+                profileDropdown.classList.remove('show');
+            }
+        });
+
+        // Prevent dropdown from closing when clicking inside it
+        profileDropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+
+    // **ENHANCED Logout functionality**
+    if (logoutButton) {
+        logoutButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            // Show confirmation dialog
+            if (confirm('Are you sure you want to logout?')) {
+                // Clear authentication token
                 localStorage.removeItem('token');
+                
+                // Show logout message
+                console.log('User logged out successfully');
+                
+                // Redirect to login page
                 window.location.href = 'index.html';
             }
+        });
+    }
+
+    // **NEW: Add navigation handlers for menu items**
+    setupMenuNavigation();
+
+    // Rest of your existing event listeners...
+    const searchForm = document.getElementById('searchForm');
+    if (searchForm) {
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            searchRides();
+        });
+    }
+    
+    console.log('Event listeners set up successfully');
+}
+
+// 3. NEW: Functions to handle quick date selection
+function handleQuickSelect(e) {
+    const buttonId = e.target.id;
+    let targetDate = new Date();
+
+    if (buttonId === 'quick-select-tomorrow') {
+        targetDate.setDate(targetDate.getDate() + 1);
+    } else if (buttonId === 'quick-select-weekend') {
+        const day = targetDate.getDay(); // 0=Sun, 6=Sat
+        const daysUntilSaturday = (6 - day + 7) % 7; // Days to add to get to next Sat
+        targetDate.setDate(targetDate.getDate() + daysUntilSaturday);
+    }
+
+    // Set a default time (e.g., 9:00 AM)
+    targetDate.setHours(9, 0, 0, 0);
+
+    if (datePickerInstance) {
+        datePickerInstance.setDate(targetDate, true); // true triggers onChange
+    }
+
+    // Set active state
+    clearActiveQuickSelect();
+    e.target.classList.add('active');
+}
+
+function clearActiveQuickSelect() {
+    document.querySelectorAll('.quick-select-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+}
+
+
+// **NEW: Enhanced menu navigation function**
+function setupMenuNavigation() {
+    // Add click handlers for menu items that require special handling
+    const myRidesLink = document.querySelector('a[href="myRides.html"]');
+    const editProfileLink = document.querySelector('a[href="EditProfile.html"]');
+    
+    if (myRidesLink) {
+        myRidesLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('Navigating to My Rides...');
+            window.location.href = 'myRides.html';
+        });
+    }
+
+    if (editProfileLink) {
+        editProfileLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('Navigating to Edit Profile...');
+            window.location.href = 'EditProfile.html';
+        });
+    }
+}
+
+
+// Separate handler for from location change
+function handleFromLocationChange(e) {
+    const fromLocation = e.target.value;
+    if (fromLocation) {
+        loadDestinations(fromLocation);
+    } else {
+        const toSelect = document.getElementById('searchTo');
+        if (toSelect) {
+            toSelect.innerHTML = '<option value="">Select destination</option>';
+            toSelect.disabled = true;
         }
+    }
+}
 
-        async function searchRides() {
-            const from = document.getElementById('searchFrom')?.value || '';
-            const to = document.getElementById('searchTo')?.value || '';
-            const date = document.getElementById('searchDate')?.value || '';
-            const token = localStorage.getItem('token');
-            if (!token) { alert('Please login to search rides'); return; }
+// COMPLETE IMPLEMENTATION - Search rides functionality
+async function searchRides() {
+    const from = document.getElementById('searchFrom')?.value || '';
+    const to = document.getElementById('searchTo')?.value || '';
+    const date = document.getElementById('searchDate')?.value || '';
+    const token = localStorage.getItem('token');
+    
+    if (!token) { 
+        alert('Please login to search rides'); 
+        return; 
+    }
+    
+    try {
+        const params = new URLSearchParams({ from, to, date, limit: '10' });
+        const response = await fetch(`${API_BASE}/rides/search?${params}`, { 
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        const resultsContainer = document.getElementById('searchResultsContainer');
+        const resultsDiv = document.getElementById('searchResults');
+        const noRidesFound = document.getElementById('noRidesFound');
+        const createRidePrompt = document.getElementById('createRidePrompt');
+
+        if (resultsContainer) resultsContainer.style.display = 'block';
+
+        if (response.ok) {
+            const rides = await response.json();
+            displaySearchResults(rides);
             
-            try {
-                const params = new URLSearchParams({ from, to, date, limit: '10' });
-                const response = await fetch(`${API_BASE}/rides/search?${params}`, { headers: { 'Authorization': `Bearer ${token}` }});
-                
-                const resultsContainer = document.getElementById('searchResultsContainer');
-                const resultsDiv = document.getElementById('searchResults');
-                const noRidesFound = document.getElementById('noRidesFound');
-                const createRidePrompt = document.getElementById('createRidePrompt');
-
-                resultsContainer.style.display = 'block';
-
-                if (response.ok) {
-                    const rides = await response.json();
-                    displaySearchResults(rides);
-                    // Show or hide the "no rides" message based on results,
-                    // but keep the Create button always visible below
-                    if (rides.length === 0) {
-                        noRidesFound.style.display = 'block';
-                        createRidePrompt.style.display = 'none';
-                    } else {
-                        noRidesFound.style.display = 'none';
-                        createRidePrompt.style.display = 'none';
-                    }
-                } else {
-                    const error = await response.json();
-                    alert(error.message || 'Search failed');
-                    // Still reveal the section and allow creating a ride
-                    resultsDiv.innerHTML = '';
-                    noRidesFound.style.display = 'block';
-                    createRidePrompt.style.display = 'none';
-                }
-
-                resultsContainer.scrollIntoView({ behavior: 'smooth' });
-            } catch (error) { 
-                console.error('Error searching rides:', error);
-                // On error, still show container and the create button
-                const resultsContainer = document.getElementById('searchResultsContainer');
-                const resultsDiv = document.getElementById('searchResults');
-                const noRidesFound = document.getElementById('noRidesFound');
-                resultsContainer.style.display = 'block';
-                resultsDiv.innerHTML = '';
-                noRidesFound.style.display = 'block';
-                resultsContainer.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-
-        function displaySearchResults(rides) {
-            const resultsContainer = document.getElementById('searchResultsContainer');
-            const resultsDiv = document.getElementById('searchResults');
-            const noRidesFound = document.getElementById('noRidesFound');
-            const createRidePrompt = document.getElementById('createRidePrompt');
-            
-            resultsContainer.style.display = 'block';
-            
+            // Show or hide messages based on results
             if (rides.length === 0) {
-                resultsDiv.innerHTML = '';
-                noRidesFound.style.display = 'block';
-                createRidePrompt.style.display = 'none'; // keep hidden; the dedicated button below results is always shown
-                resultsContainer.scrollIntoView({ behavior: 'smooth' });
-                return;
+                if (noRidesFound) noRidesFound.style.display = 'block';
+                if (createRidePrompt) createRidePrompt.style.display = 'none';
+            } else {
+                if (noRidesFound) noRidesFound.style.display = 'none';
+                if (createRidePrompt) createRidePrompt.style.display = 'none';
             }
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Search failed');
+            if (resultsDiv) resultsDiv.innerHTML = '';
+            if (noRidesFound) noRidesFound.style.display = 'block';
+            if (createRidePrompt) createRidePrompt.style.display = 'none';
+        }
 
-            resultsDiv.innerHTML = rides.map(ride => `
-                <div class="ride-card">
-                    <h3>${ride.fromLocation} → ${ride.toLocation}</h3>
-                    <p><strong>Driver:</strong> ${ride.creatorName}</p>
-                    <p><strong>Time:</strong> ${new Date(ride.dateTime).toLocaleString()}</p>
-                    <p><strong>Seats:</strong> ${ride.availableSeats}</p>
-                    <p><strong>Gender:</strong> ${ride.preferredGender}</p>
-                    <div>
-                        ${ride.luggageSpace ? '<span class="feature-tag"><i class="fas fa-suitcase"></i> Luggage Space</span><br>' : ''}
-                        ${ride.allowChat ? '<span class="feature-tag"><i class="fas fa-comments"></i> Chat Available</span><br>' : ''}
-                        ${ride.timeNegotiation ? '<span class="feature-tag"><i class="fas fa-handshake"></i> Flexible Timing</span><br>' : ''}
-                    </div>
-                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                        <button onclick="requestRide('${ride._id}')" class="btn primary" style="flex: 1">
-                            <i class="fas fa-hand-point-up"></i> Request
-                        </button>
-                    </div>
-                </div>`).join('');
-
-            noRidesFound.style.display = 'none';
-            createRidePrompt.style.display = 'none';
+        if (resultsContainer) {
             resultsContainer.scrollIntoView({ behavior: 'smooth' });
         }
-
-        async function requestRide(rideId) {
-            const token = localStorage.getItem('token');
-            if (!token) { alert('Please login to request a ride'); return; }
-            try {
-                const response = await fetch(`${API_BASE}/rides/request`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ rideId })
-                });
-                const data = await response.json();
-                alert(data.message || (response.ok ? 'Ride requested successfully!' : 'Failed to request ride'));
-            } catch (error) { console.error('Error requesting ride:', error); }
-        }
-
-        async function loadData(endpoint, displayFunction, containerId) {
-            const token = localStorage.getItem('token');
-            if (!token) return;
-            try {
-                const response = await fetch(`${API_BASE}${endpoint}`, { headers: { 'Authorization': `Bearer ${token}` }});
-                if (response.ok) {
-                    const data = await response.json();
-                    displayFunction(data, containerId);
-                }
-            } catch (error) { console.error(`Error loading ${endpoint}:`, error); }
-        }
-
-        function displayPopularDestinations(destinations, containerId) {
-            const container = document.getElementById(containerId);
-            if (container) {
-                container.innerHTML = destinations.map(dest => `
-                    <div class="destination-card" onclick="searchByDestination('${dest.destination}')">
-                        <h4><i class="fas fa-city"></i> ${dest.destination}</h4>
-                        <p>${dest.count} rides available</p>
-                    </div>`).join('');
-            }
-        }
-
-        function displayRecentRides(rides, containerId) {
-            const container = document.getElementById(containerId);
-            if (container) {
-                container.innerHTML = rides.map(ride => `
-                    <div class="ride-card">
-                        <h4>${ride.fromLocation} → ${ride.toLocation}</h4>
-                        <p><i class="fas fa-user-circle"></i> ${ride.creatorName}</p>
-                        <p><i class="fas fa-calendar-alt"></i> ${new Date(ride.dateTime).toLocaleDateString()}</p>
-                        <p><i class="fas fa-chair"></i> ${ride.availableSeats} seats left</p>
-                        <button onclick="requestRide('${ride._id}')" class="btn primary">Request</button>
-                    </div>`).join('');
-            }
-        }
+    } catch (error) { 
+        console.error('Error searching rides:', error);
+        const resultsContainer = document.getElementById('searchResultsContainer');
+        const resultsDiv = document.getElementById('searchResults');
+        const noRidesFound = document.getElementById('noRidesFound');
         
-        function searchByDestination(destination) {
-            document.getElementById('searchTo').value = destination;
-            document.getElementById('searchForm').requestSubmit();
-        }
+        if (resultsContainer) resultsContainer.style.display = 'block';
+        if (resultsDiv) resultsDiv.innerHTML = '';
+        if (noRidesFound) noRidesFound.style.display = 'block';
+        if (resultsContainer) resultsContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+}
 
-        function logout() {
-            localStorage.removeItem('token');
-            window.location.href = '/index.html';
-        }
-        
-        function setupEventListeners() {
-            const profileButton = document.getElementById('profileButton');
-            const profileDropdown = document.getElementById('profileDropdown');
-            const logoutButton = document.getElementById('logoutButton');
+// Display search results with all ride features
+function displaySearchResults(rides) {
+    const resultsDiv = document.getElementById('searchResults');
+    const noRidesFound = document.getElementById('noRidesFound');
+    const createRidePrompt = document.getElementById('createRidePrompt');
+    
+    if (!resultsDiv) return;
+    
+    if (rides.length === 0) {
+        resultsDiv.innerHTML = '';
+        if (noRidesFound) noRidesFound.style.display = 'block';
+        if (createRidePrompt) createRidePrompt.style.display = 'none';
+        return;
+    }
 
-            if (profileButton && profileDropdown) {
-                // Toggle dropdown when profile button is clicked with dynamic positioning
-                profileButton.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    
-                    // Get button position
-                    const buttonRect = profileButton.getBoundingClientRect();
-                    
-                    // Position dropdown using fixed positioning
-                    profileDropdown.style.position = 'fixed';
-                    profileDropdown.style.top = `${buttonRect.bottom + 5}px`;
-                    profileDropdown.style.left = `${buttonRect.right - 160}px`; // Align right edge
-                    profileDropdown.style.zIndex = '999999';
-                    
-                    profileDropdown.classList.toggle('show');
-                });
+    resultsDiv.innerHTML = rides.map(ride => `
+        <div class="ride-card">
+            <h3>${ride.fromLocation} → ${ride.toLocation}</h3>
+            <p><strong>Driver:</strong> ${ride.creatorName}</p>
+            <p><strong>Time:</strong> ${new Date(ride.dateTime).toLocaleString()}</p>
+            <p><strong>Seats:</strong> ${ride.availableSeats}</p>
+            <p><strong>Gender:</strong> ${ride.preferredGender}</p>
+            <div>
+                ${ride.luggageSpace ? '<span class="feature-tag"><i class="fas fa-suitcase"></i> Luggage Space</span><br>' : ''}
+                ${ride.allowChat ? '<span class="feature-tag"><i class="fas fa-comments"></i> Chat Available</span><br>' : ''}
+                ${ride.timeNegotiation ? '<span class="feature-tag"><i class="fas fa-handshake"></i> Flexible Timing</span><br>' : ''}
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                <button onclick="requestRide('${ride._id}')" class="btn primary" style="flex: 1">
+                    <i class="fas fa-hand-point-up"></i> Request
+                </button>
+            </div>
+        </div>`).join('');
 
-                // Close dropdown when clicking outside
-                document.addEventListener('click', (e) => {
-                    if (!profileButton.contains(e.target) && !profileDropdown.contains(e.target)) {
-                        profileDropdown.classList.remove('show');
-                    }
-                });
+    if (noRidesFound) noRidesFound.style.display = 'none';
+    if (createRidePrompt) createRidePrompt.style.display = 'none';
+}
 
-                // Prevent dropdown from closing when clicking inside
-                profileDropdown.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                });
-
-                // Handle logout
-                if (logoutButton) {
-                    logoutButton.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        localStorage.removeItem('token');
-                        window.location.href = 'index.html';
-                    });
-                }
-            }
-
-            // Search form setup
-            const searchForm = document.getElementById('searchForm');
-            if (searchForm) {
-                searchForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    searchRides();
-                });
-            }
-
-            // Set min date for date input
-            const searchDateInput = document.getElementById('searchDate');
-            if (searchDateInput) {
-                searchDateInput.min = new Date().toISOString().split('T')[0];
-            }
-        }
-
-        // Initialize Page
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    window.location.href = 'index.html';
-                    return;
-                }
-
-                // First load the user profile and set up profile menu
-                await loadUserProfile();
-                
-                // Set up other event listeners
-                setupEventListeners();
-                
-                // Then load locations and other data in parallel
-                const loadingPromises = [
-                    loadStartingLocations(),
-                    loadData('/rides/popular-destinations', displayPopularDestinations, 'popularDestinations'),
-                    loadData('/rides/recent?limit=6', displayRecentRides, 'recentRides')
-                ];
-
-                try {
-                    await Promise.all(loadingPromises);
-                } catch (error) {
-                    console.error('Some data failed to load:', error);
-                }
-            } catch (error) {
-                console.error('Initialization error:', error);
-                if (error.message.includes('auth') || error.message.includes('token')) {
-                    alert('Please log in again.');
-                    localStorage.removeItem('token');
-                    window.location.href = 'index.html';
-                } else {
-                    alert('Some features may not be available. Please refresh the page to try again.');
-                }
-            }
+// Request ride functionality
+async function requestRide(rideId) {
+    const token = localStorage.getItem('token');
+    if (!token) { 
+        alert('Please login to request a ride'); 
+        return; 
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/rides/request`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify({ rideId })
         });
-    </script>
+        
+        const data = await response.json();
+        alert(data.message || (response.ok ? 'Ride requested successfully!' : 'Failed to request ride'));
+    } catch (error) { 
+        console.error('Error requesting ride:', error);
+        alert('Error requesting ride. Please try again.');
+    }
+}
+
+// LOGIN PAGE FUNCTIONS
+function initializeEventListeners() {
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    const forgotForm = document.getElementById('forgotPasswordForm');
+    const resetForm = document.getElementById('resetPasswordForm');
+
+    if (loginForm) loginForm.addEventListener('submit', handleLogin);
+    if (signupForm) signupForm.addEventListener('submit', handleSignup);
+    if (forgotForm) forgotForm.addEventListener('submit', handleForgotPassword);
+    if (resetForm) resetForm.addEventListener('submit', handleResetPassword);
+    
+    setupFormSwitching();
+    setupPasswordToggles();
+}
+
+function handleLogin(e) {
+    e.preventDefault();
+    const form = e.target;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    clearMessages();
+    
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    
+    fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.token) {
+            localStorage.setItem('token', result.token);
+            console.log('Login successful, redirecting to homepage');
+            window.location.href = 'homepage.html';
+        } else {
+            showMessage(result.message || 'Login failed', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Login error:', error);
+        showMessage('Login failed. Please try again.', 'error');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    });
+}
+
+function handleSignup(e) {
+    e.preventDefault();
+    const form = e.target;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    clearMessages();
+
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    fetch(`${API_BASE}/auth/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(async (response) => {
+        const result = await response.json().catch(() => ({}));
+        if (response.ok) {
+            showMessage(result.message || 'Account created. Please verify your email.', 'success');
+            setTimeout(() => switchForm('loginSection'), 2000);
+            return;
+        }
+
+        if (response.status === 403 && (result.message || '').toLowerCase().includes('verify')) {
+            showMessage(result.message, 'error');
+            switchForm('loginSection');
+            return;
+        }
+
+        throw new Error(result.message || 'Signup failed');
+    })
+    .catch((error) => {
+        showMessage(error.message || 'Signup failed', 'error');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    });
+}
+
+// Generic form submit handler - MISSING FUNCTION IMPLEMENTED
+async function handleFormSubmit(e, endpoint, successCallback) {
+    e.preventDefault();
+    const form = e.target;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    clearMessages();
+
+    try {
+        const response = await fetch(`${API_BASE}${endpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        if (response.ok) {
+            showMessage(result.message || 'Success!', 'success');
+            if (successCallback) successCallback(result);
+        } else {
+            throw new Error(result.message || 'An error occurred.');
+        }
+    } catch (error) {
+        showMessage(error.message, 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    }
+}
+
+function handleForgotPassword(e) {
+    handleFormSubmit(e, '/auth/forgot-password', (result) => {
+        if(result.token) {
+            document.getElementById('resetToken').value = result.token;
+            setTimeout(() => switchForm('resetSection'), 1000);
+        }
+    });
+}
+
+function handleResetPassword(e) {
+    handleFormSubmit(e, '/auth/reset-password', () => {
+        setTimeout(() => switchForm('loginSection'), 2000);
+    });
+}
+
+function setupFormSwitching() {
+    const showSignup = document.getElementById('showSignupLink');
+    const showLogin = document.getElementById('showLoginLink');
+    const showForgot = document.getElementById('showForgotLink');
+    const showLoginFromForgot = document.getElementById('showLoginLinkFromForgot');
+
+    if (showSignup) showSignup.addEventListener('click', e => { e.preventDefault(); switchForm('signupSection'); });
+    if (showLogin) showLogin.addEventListener('click', e => { e.preventDefault(); switchForm('loginSection'); });
+    if (showForgot) showForgot.addEventListener('click', e => { e.preventDefault(); switchForm('forgotSection'); });
+    if (showLoginFromForgot) showLoginFromForgot.addEventListener('click', e => { e.preventDefault(); switchForm('loginSection'); });
+}
+
+function setupPasswordToggles() {
+    document.querySelectorAll('.password-toggle').forEach(toggle => {
+        toggle.addEventListener('click', () => {
+            const input = toggle.previousElementSibling;
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+            toggle.classList.toggle('fa-lock');
+            toggle.classList.toggle('fa-unlock');
+        });
+    });
+}
+
+function switchForm(activeSectionId) {
+    document.querySelectorAll('.form-section').forEach(section => section.classList.remove('active'));
+    const activeSection = document.getElementById(activeSectionId);
+    if (activeSection) activeSection.classList.add('active');
+    clearMessages();
+}
+
+function showMessage(message, type) {
+    const container = document.getElementById('messageContainer');
+    if (container) {
+        container.textContent = message;
+        container.className = `message ${type}`;
+        container.style.display = 'block';
+    }
+}
+
+function clearMessages() {
+    const container = document.getElementById('messageContainer');
+    if (container) {
+        container.style.display = 'none';
+    }
+}
+</script>
+
 </body>
 </html>

@@ -637,161 +637,8 @@
     class RideCreator {
         constructor() {
             this.seatsCount = 1;
-            this.apiBaseUrl = 'https://campus-rideshare.onrender.com/api';
+            this.apiBaseUrl = 'http://localhost:5000/api';
             this.init();
-        }
-
-        async loadStartingLocations() {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    window.location.href = '/index.html';
-                    return;
-                }
-
-                const response = await fetch(`${this.apiBaseUrl}/locations/starting-points`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to load locations');
-                }
-
-                const locations = await response.json();
-                console.log('Loaded starting locations:', locations);
-                
-                const fromSelect = document.getElementById('fromLocation');
-                fromSelect.innerHTML = '<option value="">Select starting point</option>';
-                
-                locations.forEach(location => {
-                    fromSelect.innerHTML += `<option value="${location.name}">${location.name} (${location.type})</option>`;
-                });
-            } catch (error) {
-                console.error('Error loading starting locations:', error);
-                this.showError('Error loading locations. Please try again.');
-            }
-        }
-
-        async loadDestinations(fromLocation) {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    window.location.href = '/index.html';
-                    return;
-                }
-
-                const toSelect = document.getElementById('toLocation');
-                
-                if (!fromLocation) {
-                    toSelect.innerHTML = '<option value="">Select destination</option>';
-                    toSelect.disabled = true;
-                    return;
-                }
-
-                const response = await fetch(`${this.apiBaseUrl}/locations/destinations?fromLocation=${encodeURIComponent(fromLocation)}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to load destinations');
-                }
-
-                const locations = await response.json();
-                console.log('Loaded destinations for', fromLocation, ':', locations);
-                
-                toSelect.innerHTML = '<option value="">Select destination</option>';
-                
-                locations.forEach(location => {
-                    toSelect.innerHTML += `<option value="${location.name}">${location.name} (${location.type})</option>`;
-                });
-                
-                toSelect.disabled = false;
-            } catch (error) {
-                console.error('Error loading destinations:', error);
-                const toSelect = document.getElementById('toLocation');
-                toSelect.innerHTML = '<option value="">Error loading destinations</option>';
-                toSelect.disabled = true;
-                this.showError('Error loading destinations. Please try again.');
-            }
-        }
-
-        async loadStartingLocations() {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    window.location.href = '/index.html';
-                    return;
-                }
-
-                const response = await fetch(`${this.apiBaseUrl}/locations/starting-points`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to load locations');
-                }
-
-                const locations = await response.json();
-                console.log('Loaded starting locations:', locations);
-                
-                const fromSelect = document.getElementById('fromLocation');
-                fromSelect.innerHTML = '<option value="">Select starting point</option>';
-                
-                locations.forEach(location => {
-                    fromSelect.innerHTML += `<option value="${location.name}">${location.name} (${location.type})</option>`;
-                });
-            } catch (error) {
-                console.error('Error loading starting locations:', error);
-                this.showNotification('Error loading locations. Please try again.', false);
-            }
-        }
-
-        async loadDestinations(fromLocation) {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) return;
-
-                const toSelect = document.getElementById('toLocation');
-                
-                if (!fromLocation) {
-                    toSelect.innerHTML = '<option value="">Select destination</option>';
-                    toSelect.disabled = true;
-                    return;
-                }
-
-                const response = await fetch(`${this.apiBaseUrl}/locations/destinations?fromLocation=${encodeURIComponent(fromLocation)}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to load destinations');
-                }
-
-                const locations = await response.json();
-                console.log('Loaded destinations for', fromLocation, ':', locations);
-                
-                toSelect.innerHTML = '<option value="">Select destination</option>';
-                
-                locations.forEach(location => {
-                    toSelect.innerHTML += `<option value="${location.name}">${location.name} (${location.type})</option>`;
-                });
-                
-                toSelect.disabled = false;
-            } catch (error) {
-                console.error('Error loading destinations:', error);
-                const toSelect = document.getElementById('toLocation');
-                toSelect.innerHTML = '<option value="">Error loading destinations</option>';
-                toSelect.disabled = true;
-                this.showNotification('Error loading destinations. Please try again.', false);
-            }
         }
 
         async loadStartingLocations() {
@@ -893,7 +740,6 @@
             document.getElementById('decreaseSeats').addEventListener('click', () => this.updateSeats(-1));
 
             document.getElementById('luggageToggle').addEventListener('click', () => this.toggleSwitch('luggageToggle', 'luggageSpace'));
-            // document.getElementById('timeNegotiationToggle').addEventListener('click', () => this.toggleSwitch('timeNegotiationToggle', 'timeNegotiation'));
             document.getElementById('allowChatToggle').addEventListener('click', () => this.toggleSwitch('allowChatToggle', 'allowChat'));
 
             document.getElementById('createRideForm').addEventListener('submit', (e) => {
@@ -907,7 +753,6 @@
             });
             document.getElementById('confirmationBox').addEventListener('change', () => this.validateConfirmation());
 
-            // Add change event listener for the fromLocation dropdown
             document.getElementById('fromLocation').addEventListener('change', (e) => {
                 this.loadDestinations(e.target.value);
             });
@@ -940,7 +785,7 @@
         validateField(fieldName) {
             const field = document.getElementById(fieldName);
             const errorElement = document.getElementById(fieldName + 'Error');
-            errorElement.textContent = ''; 
+            errorElement.textContent = '';
 
             if (!field.value.trim()) {
                 errorElement.textContent = `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1).replace(/([A-Z])/g, ' $1')} is required.`;
@@ -1016,7 +861,6 @@
                 dateTime: formData.get('timeSlot'),
                 availableSeats: parseInt(this.seatsCount, 10),
                 luggageSpace: formData.has('luggageSpace'),
-                // timeNegotiation: formData.has('timeNegotiation'),
                 allowChat: formData.has('allowChat'),
                 additionalNotes: formData.get('additionalNotes') || ''
             };
@@ -1025,6 +869,8 @@
                 postRideBtn.disabled = true;
                 postRideBtn.classList.add('loading');
                 postRideBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i>Posting Ride...';
+
+                console.log('Sending ride data:', apiPayload); // Debug log
 
                 const response = await fetch(`${this.apiBaseUrl}/rides`, {
                     method: 'POST',
@@ -1036,6 +882,7 @@
                 });
                 
                 const result = await response.json();
+                console.log('Server response:', result); // Debug log
 
                 if (!response.ok) throw new Error(result.message || 'Failed to post ride.');
 
@@ -1043,6 +890,7 @@
                 setTimeout(() => window.location.href = '/my_rides.html', 1500);
 
             } catch (error) {
+                console.error('Error posting ride:', error);
                 this.showNotification(error.message, false);
             } finally {
                 postRideBtn.disabled = false;
@@ -1065,5 +913,6 @@
         new RideCreator();
     });
 </script>
+
 </body>
 </html>

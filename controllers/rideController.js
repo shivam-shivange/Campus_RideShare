@@ -1,7 +1,8 @@
 import Joi from "joi";
 import Ride from "../models/Ride.js";
-import { supabaseAdmin } from "../config/supabase.js"; // Changed from pg import
+import { supabaseAdmin } from "../config/supabase.js";
 
+// Schema exports
 export const createRideSchema = Joi.object({
   fromLocation: Joi.string().min(2).max(120).required(),
   toLocation: Joi.string().min(2).max(120).required(),
@@ -15,12 +16,45 @@ export const createRideSchema = Joi.object({
 });
 
 export const searchRidesSchema = Joi.object({
-  from: Joi.string().optional().allow(''),
-  to: Joi.string().optional().allow(''),
-  date: Joi.date().iso().optional(),
+  from: Joi.string().optional().allow('', null),
+  to: Joi.string().optional().allow('', null),
+  date: Joi.date().iso().optional().allow('', null),
   limit: Joi.number().integer().min(1).max(50).default(20)
 });
 
+export const getUserRidesSchema = Joi.object({
+  status: Joi.string().valid('all', 'open', 'full', 'closed').optional().default('all'),
+  type: Joi.string().valid('all', 'created', 'requested', 'confirmed').optional().default('all')
+});
+
+export const getRideDetailsSchema = Joi.object({
+  rideId: Joi.string().required()
+});
+
+export const requestRideSchema = Joi.object({
+  rideId: Joi.string().required()
+});
+
+export const cancelRequestSchema = Joi.object({
+  rideId: Joi.string().required()
+});
+
+export const decideRequestSchema = Joi.object({
+  rideId: Joi.string().required(),
+  userId: Joi.string().required(),
+  decision: Joi.string().valid("accept", "reject").required()
+});
+
+export const updateTimeSchema = Joi.object({
+  rideId: Joi.string().required(),
+  dateTime: Joi.date().iso().required()
+});
+
+export const closeRideSchema = Joi.object({
+  rideId: Joi.string().required()
+});
+
+// Controller functions
 export const createRide = async (req, res) => {
   try {
     const { 
@@ -107,7 +141,7 @@ export const listRides = async (req, res) => {
 
 export const searchRides = async (req, res) => {
   try {
-    const { from, to, date, limit } = req.query;
+    const { from, to, date, limit = 20 } = req.query;
     
     // Build search query
     let searchQuery = {
@@ -116,15 +150,16 @@ export const searchRides = async (req, res) => {
       dateTime: { $gte: new Date() } // Only future rides
     };
 
-    if (from && from.trim()) {
+    // Only add filters if values exist
+    if (from && from.trim() && from !== '') {
       searchQuery.fromLocation = { $regex: from.trim(), $options: 'i' };
     }
 
-    if (to && to.trim()) {
+    if (to && to.trim() && to !== '') {
       searchQuery.toLocation = { $regex: to.trim(), $options: 'i' };
     }
 
-    if (date) {
+    if (date && date !== '') {
       const searchDate = new Date(date);
       const nextDay = new Date(searchDate);
       nextDay.setDate(nextDay.getDate() + 1);
@@ -137,7 +172,7 @@ export const searchRides = async (req, res) => {
 
     const rides = await Ride.find(searchQuery)
       .sort({ dateTime: 1 })
-      .limit(parseInt(limit))
+      .limit(parseInt(limit) || 20)
       .lean();
 
     // Get creator names using Supabase
@@ -258,10 +293,6 @@ export const getRecentRides = async (req, res) => {
   }
 };
 
-export const requestRideSchema = Joi.object({
-  rideId: Joi.string().required()
-});
-
 export const requestRide = async (req, res) => {
   try {
     const { rideId } = req.body;
@@ -287,10 +318,6 @@ export const requestRide = async (req, res) => {
   }
 };
 
-export const cancelRequestSchema = Joi.object({
-  rideId: Joi.string().required()
-});
-
 export const cancelRequest = async (req, res) => {
   try {
     const { rideId } = req.body;
@@ -309,12 +336,6 @@ export const cancelRequest = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
-export const decideRequestSchema = Joi.object({
-  rideId: Joi.string().required(),
-  userId: Joi.string().required(),
-  decision: Joi.string().valid("accept", "reject").required()
-});
 
 export const decideRequest = async (req, res) => {
   try {
@@ -366,11 +387,6 @@ export const decideRequest = async (req, res) => {
   }
 };
 
-export const updateTimeSchema = Joi.object({
-  rideId: Joi.string().required(),
-  dateTime: Joi.date().iso().required()
-});
-
 export const updateRideTime = async (req, res) => {
   try {
     const { rideId, dateTime } = req.body;
@@ -392,11 +408,6 @@ export const updateRideTime = async (req, res) => {
   }
 };
 
-export const getUserRidesSchema = Joi.object({
-  status: Joi.string().valid('all', 'open', 'full', 'closed').optional().default('all'),
-  type: Joi.string().valid('all', 'created', 'requested', 'confirmed').optional().default('all')
-});
-
 export const getUserRides = async (req, res) => {
   try {
     const { status, type } = req.query;
@@ -414,20 +425,23 @@ export const getUserRides = async (req, res) => {
     if (type === 'created') {
       rideQuery.creatorId = req.user.id;
     } else if (type === 'requested') {
-      rideQuery.requests = { $in: [req.user.id] };
+      rideQuery.requests = { $elemMatch: { $eq: req.user.id } };
     } else if (type === 'confirmed') {
-      rideQuery.confirmedUsers = { $in: [req.user.id] };
+      rideQuery.confirmedUsers = { $elemMatch: { $eq: req.user.id } };
     } else if (type === 'all') {
       rideQuery.$or = [
         { creatorId: req.user.id },
-        { requests: { $in: [req.user.id] } },
-        { confirmedUsers: { $in: [req.user.id] } }
+        { requests: { $elemMatch: { $eq: req.user.id } } },
+        { confirmedUsers: { $elemMatch: { $eq: req.user.id } } }
       ];
     }
 
+    console.log('MongoDB Query:', JSON.stringify(rideQuery, null, 2));
+
     const rides = await Ride.find(rideQuery)
-      .sort({ dateTime: 1 })
-      .lean();
+      .sort({ dateTime: 1 });
+
+    console.log('Found rides:', rides.length);
 
     // Get complete user details for all participants using Supabase
     const allUserIds = new Set();
@@ -461,7 +475,7 @@ export const getUserRides = async (req, res) => {
                         ride.confirmedUsers.includes(req.user.id) ? 'confirmed' : 'none';
 
         return {
-          ...ride,
+          ...ride.toObject(),
           creatorName: userMap[ride.creatorId]?.name || 'Unknown',
           userRole,
           requestDetails: ride.requests.map(id => ({
@@ -492,10 +506,6 @@ export const getUserRides = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
-export const getRideDetailsSchema = Joi.object({
-  rideId: Joi.string().required()
-});
 
 export const getRideDetails = async (req, res) => {
   try {
@@ -561,10 +571,6 @@ export const getRideDetails = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
-export const closeRideSchema = Joi.object({
-  rideId: Joi.string().required()
-});
 
 export const closeRide = async (req, res) => {
   try {
