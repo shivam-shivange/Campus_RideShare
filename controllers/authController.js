@@ -502,7 +502,8 @@ export const resendVerification = async (req, res) => {
 
     if (updateError) throw updateError;
 
-    const appUrl = process.env.APP_URL || `http://localhost:${process.env.PORT || 5000}`;
+    // Updated code for your backend
+    const appUrl = process.env.APP_URL || process.env.RENDER_EXTERNAL_URL || `https://campus-rideshare.onrender.com`;
     const verifyUrl = `${appUrl}/verify_email.html?token=${verifyToken}`;
 
     try {
