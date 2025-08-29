@@ -322,8 +322,10 @@
         ${confirmedList.map(u => `
           <div class="companion-card">
             <div class="companion-name">${u.name || 'User'}</div>
-            <p class="companion-details">${u.email || ''}</p>
-            <p class="companion-details">${u.phone || ''}</p>
+            <p class="companion-details">
+              ${u.email ? '<i class="fas fa-envelope"></i> ' + u.email : ''}
+              ${u.phone ? ' &nbsp; <i class="fas fa-phone"></i> ' + u.phone : ''}
+            </p>
           </div>
         `).join('')}
       ` : '<p class="companion-details">No confirmed companions yet.</p>';
@@ -340,7 +342,6 @@
                 ${u.email ? '<i class="fas fa-envelope"></i> ' + u.email : ''}
                 ${u.phone ? ' &nbsp; <i class="fas fa-phone"></i> ' + u.phone : ''}
               </p>
-              ${u.department || u.year ? '<p class="companion-details"><i class="fas fa-id-card"></i> ' + [u.department, u.year].filter(Boolean).join(' • ') + '</p>' : ''}
             </div>
             ${isCreator ? `
               <div style="display:flex; gap:0.5rem; flex-wrap: wrap;">
