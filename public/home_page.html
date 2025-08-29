@@ -233,51 +233,108 @@
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        /* Enhanced DateTime Picker Styling - MOBILE FIXES */
+        /* MOBILE-OPTIMIZED FLATPICKR - SMALLER SIZE */
         .flatpickr-calendar {
             background: rgba(255, 255, 255, 0.95) !important;
             backdrop-filter: blur(20px) !important;
             -webkit-backdrop-filter: blur(20px) !important;
             border: 1px solid var(--glass-border) !important;
-            border-radius: 16px !important;
+            border-radius: 12px !important; /* Reduced from 16px */
             box-shadow: var(--shadow-glass) !important;
             font-family: 'Inter', sans-serif !important;
-            z-index: 99999 !important; /* Higher z-index for mobile */
-            position: fixed !important; /* Fixed positioning for mobile */
+            z-index: 99999 !important;
+            position: fixed !important;
+            transform: scale(0.85) !important; /* Makes entire calendar 85% of original size */
+            transform-origin: center center !important;
         }
+
         .flatpickr-calendar.open {
-            animation: slideInUp 0.3s ease-out;
+            animation: slideInUpSmall 0.3s ease-out;
         }
-        @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+
+        @keyframes slideInUpSmall {
+            from { opacity: 0; transform: scale(0.75) translateY(10px); }
+            to { opacity: 1; transform: scale(0.85) translateY(0); }
         }
+
+        /* Smaller day cells */
         .flatpickr-day {
-            border-radius: 8px !important;
-            margin: 2px !important;
+            border-radius: 6px !important; /* Reduced from 8px */
+            margin: 1px !important; /* Reduced from 2px */
             transition: all 0.2s ease !important;
-            font-size: 16px !important; /* Larger font for mobile */
-            min-height: 40px !important; /* Larger touch targets for mobile */
+            font-size: 14px !important; /* Reduced from 16px */
+            min-height: 32px !important; /* Reduced from 40px */
+            width: 32px !important; /* Explicit width */
         }
+
         .flatpickr-day:hover, .flatpickr-day:focus {
             background: var(--primary-500) !important;
             color: white !important;
-            transform: scale(1.05) !important;
+            transform: scale(1.1) !important; /* Slightly reduced scale */
             border-color: var(--primary-500) !important;
         }
+
         .flatpickr-day.selected {
             background: var(--secondary-gradient) !important;
             border-color: var(--primary-600) !important;
             color: white !important;
         }
+
+        /* Smaller month/year selectors */
         .flatpickr-current-month .flatpickr-monthDropdown-months {
             background: rgba(255, 255, 255, 0.9) !important;
-            border-radius: 8px !important;
+            border-radius: 6px !important;
             color: var(--text-primary) !important;
+            font-size: 14px !important;
         }
+
+        /* Smaller navigation arrows */
+        .flatpickr-months .flatpickr-prev-month,
+        .flatpickr-months .flatpickr-next-month {
+            width: 24px !important;
+            height: 24px !important;
+        }
+
         .flatpickr-months .flatpickr-prev-month:hover svg,
         .flatpickr-months .flatpickr-next-month:hover svg {
             fill: var(--primary-600) !important;
+        }
+
+        /* Smaller time picker (for create ride page) */
+        .flatpickr-time {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-top: 1px solid var(--glass-border) !important;
+            padding: 8px !important; /* Reduced from 10px */
+        }
+
+        .flatpickr-time input:hover,
+        .numInputWrapper:hover {
+            background: rgba(37, 99, 235, 0.1) !important;
+        }
+
+        .flatpickr-am-pm {
+            background: var(--primary-500) !important;
+            color: white !important;
+            border-radius: 6px !important;
+            font-weight: 600 !important;
+            min-height: 32px !important; /* Reduced from 40px */
+            font-size: 14px !important; /* Reduced from 16px */
+            padding: 0 8px !important;
+        }
+
+        .flatpickr-am-pm:hover {
+            background: var(--primary-600) !important;
+        }
+
+        .numInput {
+            background: rgba(255, 255, 255, 0.8) !important;
+            border: 1px solid var(--glass-border) !important;
+            border-radius: 4px !important;
+            color: var(--text-primary) !important;
+            font-weight: 500 !important;
+            min-height: 32px !important; /* Reduced from 40px */
+            font-size: 14px !important; /* Reduced from 16px */
+            width: 40px !important;
         }
         
         .header {
@@ -459,6 +516,7 @@
             pointer-events: none; /* Let clicks pass through to wrapper */
         }
 
+        /* Mobile specific smaller sizing */
         @media (max-width: 640px) {
             body { padding: 0.5rem; }
             .glass-section, .header { padding: 1.5rem; }
@@ -471,20 +529,40 @@
             }
             
             .flatpickr-calendar {
-                width: 95vw !important;
-                max-width: 380px !important;
+                width: 280px !important; /* Reduced from 380px */
+                max-width: 90vw !important;
                 left: 50% !important;
-                transform: translateX(-50%) !important;
                 top: 50% !important;
-                transform: translateX(-50%) translateY(-50%) !important;
+                transform: translateX(-50%) translateY(-50%) scale(0.8) !important; /* Even smaller on mobile */
             }
             
             .flatpickr-day {
-                min-height: 44px !important; /* Even larger for mobile */
-                font-size: 18px !important;
+                min-height: 36px !important; /* Slightly larger for touch but still smaller than before */
+                font-size: 15px !important;
+                width: 36px !important;
+            }
+            
+            .flatpickr-am-pm,
+            .numInput {
+                min-height: 36px !important;
+                font-size: 15px !important;
             }
         }
-    </style>
+
+        /* Even smaller for very small screens */
+        @media (max-width: 480px) {
+            .flatpickr-calendar {
+                width: 260px !important;
+                transform: translateX(-50%) translateY(-50%) scale(0.75) !important; /* 75% size on small phones */
+            }
+            
+            .flatpickr-day {
+                min-height: 34px !important;
+                width: 34px !important;
+                font-size: 14px !important;
+            }
+        }
+</style>
 </head>
 <body>
     <!-- Move dropdown outside of all containers -->
