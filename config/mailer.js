@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 
+
 dotenv.config();
 
 // Gmail SMTP configuration (use App Passwords)
@@ -10,6 +11,7 @@ const SMTP_USER = process.env.SMTP_USER; // your Gmail address
 const SMTP_PASS = process.env.SMTP_PASS; // your Gmail App Password
 
 if (!SMTP_USER || !SMTP_PASS) {
+    console.warn("⚠️  [Mailer] Missing SMTP_USER or SMTP_PASS. Configure Gmail SMTP credentials.");
     console.warn("⚠️  [Mailer] Missing SMTP_USER or SMTP_PASS. Configure Gmail SMTP credentials.");
 }
 

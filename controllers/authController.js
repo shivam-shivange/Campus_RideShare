@@ -975,7 +975,8 @@ export const resendVerification = async (req, res) => {
 
     if (updateError) throw updateError;
 
-    const appUrl = process.env.APP_URL || `http://localhost:${process.env.PORT || 5000}`;
+    // Updated code for your backend
+    const appUrl = process.env.APP_URL || process.env.RENDER_EXTERNAL_URL || `https://campus-rideshare.onrender.com`;
     const verifyUrl = `${appUrl}/verify_email.html?token=${verifyToken}`;
 
     try {
@@ -1037,5 +1038,33 @@ export const verifyEmail = async (req, res) => {
   } catch (error) {
     console.error("Verify email error:", error);
     res.status(500).send("Internal server error");
+  }
+};
+
+
+// Add this function to your existing authController.js
+export const checkEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Database error:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+
+    res.json({ exists: !!user });
+  } catch (err) {
+    console.error('Check email error:', err);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };

@@ -87,41 +87,41 @@
         .password-toggle { cursor: pointer; user-select: none; }
 
         .terms-popup {
-        display: none;
-        position: fixed;
-        z-index: 999;
-        left: 0;
-        top: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0,0,0,0.6);
-        overflow-y: auto;
-    }
-    .terms-content {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: #fff;
-        padding: 24px 28px;
-        width: 90vw;
-        max-width: 540px;
-        max-height: 80vh;
-        overflow-y: auto;
-        border-radius: 12px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-        color: #222;
-    }
-    .close-btn {
-        position: absolute;
-        top: 12px;
-        right: 14px;
-        font-size: 22px;
-        color: #888;
-        background: none;
-        border: none;
-        cursor: pointer;
-    }
+            display: none;
+            position: fixed;
+            z-index: 999;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.6);
+            overflow-y: auto;
+        }
+        .terms-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            padding: 24px 28px;
+            width: 90vw;
+            max-width: 540px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            color: #222;
+        }
+        .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            font-size: 22px;
+            color: #888;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -531,46 +531,41 @@ async function sendPasswordResetRequest(email, submitBtn, originalText, form) {
         }
     }
 
-   function handleResetPassword(e) {
-      handleFormSubmit(e, '/auth/reset-password', () => {
-          setTimeout(() => switchForm('loginSection'), 2000);
-       });
-   }
+    function handleResetPassword(e) {
+        handleFormSubmit(e, '/auth/reset-password', () => {
+            setTimeout(() => switchForm('loginSection'), 2000);
+        });
+    }
 
-   function validateForm(formData, requiredFields) {
-    const errors = [];
-    
-    requiredFields.forEach(field => {
-        if (!formData[field] || formData[field].trim() === '') {
-            errors.push(`${field} is required`);
+    function validateForm(formData, requiredFields) {
+        const errors = [];
+        
+        requiredFields.forEach(field => {
+            if (!formData[field] || formData[field].trim() === '') {
+                errors.push(`${field} is required`);
+            }
+        });
+        
+        if (formData.email && !validateEmail(formData.email)) {
+            errors.push('Please enter a valid email address');
         }
-    });
-    
-    if (formData.email && !validateEmail(formData.email)) {
-        errors.push('Please enter a valid email address');
+
+        if (formData.password && formData.password.length < 8) {
+            errors.push('Password must be at least 8 characters long');
+        }
+        
+        return errors;
     }
-    
 
-
-    if (formData.password && formData.password.length < 8) {
-        errors.push('Password must be at least 8 characters long');
+    function setLoadingState(button, isLoading) {
+        if (isLoading) {
+            button.disabled = true;
+            button.classList.add('loading');
+        } else {
+            button.disabled = false;
+            button.classList.remove('loading');
+        }
     }
-    
-    return errors;
-}
-
-
-function setLoadingState(button, isLoading) {
-    if (isLoading) {
-        button.disabled = true;
-        button.classList.add('loading');
-    } else {
-        button.disabled = false;
-        button.classList.remove('loading');
-    }
-}
-
-
 
     function showMessage(message, type) {
         const container = document.getElementById('messageContainer');
