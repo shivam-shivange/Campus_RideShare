@@ -233,7 +233,7 @@
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        /* Enhanced DateTime Picker Styling */
+        /* Enhanced DateTime Picker Styling - MOBILE FIXES */
         .flatpickr-calendar {
             background: rgba(255, 255, 255, 0.95) !important;
             backdrop-filter: blur(20px) !important;
@@ -242,6 +242,8 @@
             border-radius: 16px !important;
             box-shadow: var(--shadow-glass) !important;
             font-family: 'Inter', sans-serif !important;
+            z-index: 99999 !important; /* Higher z-index for mobile */
+            position: fixed !important; /* Fixed positioning for mobile */
         }
         .flatpickr-calendar.open {
             animation: slideInUp 0.3s ease-out;
@@ -254,6 +256,8 @@
             border-radius: 8px !important;
             margin: 2px !important;
             transition: all 0.2s ease !important;
+            font-size: 16px !important; /* Larger font for mobile */
+            min-height: 40px !important; /* Larger touch targets for mobile */
         }
         .flatpickr-day:hover, .flatpickr-day:focus {
             background: var(--primary-500) !important;
@@ -274,12 +278,6 @@
         .flatpickr-months .flatpickr-prev-month:hover svg,
         .flatpickr-months .flatpickr-next-month:hover svg {
             fill: var(--primary-600) !important;
-        }
-        @media (max-width: 640px) {
-            .flatpickr-calendar {
-                width: 90vw !important;
-                max-width: 350px !important;
-            }
         }
         
         .header {
@@ -444,6 +442,23 @@
             color: #dc3545;
         }
 
+        /* CUSTOM STYLES FOR CLICKABLE DATE PICKER - MOBILE FIXES */
+        .date-input-wrapper {
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .date-input-wrapper .form-control {
+            cursor: pointer;
+            caret-color: transparent; /* Hide text cursor */
+            font-size: 16px !important; /* Prevent zoom on iOS */
+        }
+        
+        .date-input-wrapper .input-icon {
+            pointer-events: none; /* Let clicks pass through to wrapper */
+        }
+
         @media (max-width: 640px) {
             body { padding: 0.5rem; }
             .glass-section, .header { padding: 1.5rem; }
@@ -454,22 +469,20 @@
                 max-width: 200px;
                 right: -10px;
             }
-        }
-
-        /* CUSTOM STYLES FOR CLICKABLE DATE PICKER */
-        .date-input-wrapper {
-            position: relative;
-            cursor: pointer;
-            user-select: none;
-        }
-        
-        .date-input-wrapper .form-control {
-            cursor: pointer;
-            caret-color: transparent; /* Hide text cursor */
-        }
-        
-        .date-input-wrapper .input-icon {
-            pointer-events: none; /* Let clicks pass through to wrapper */
+            
+            .flatpickr-calendar {
+                width: 95vw !important;
+                max-width: 380px !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                top: 50% !important;
+                transform: translateX(-50%) translateY(-50%) !important;
+            }
+            
+            .flatpickr-day {
+                min-height: 44px !important; /* Even larger for mobile */
+                font-size: 18px !important;
+            }
         }
     </style>
 </head>
@@ -905,7 +918,7 @@ function searchByDestination(destination) {
 function setupEventListeners() {
     console.log('Setting up event listeners...');
     
-    // UPDATED: Initialize Flatpickr for date only (no time) - MAKES ENTIRE DIV CLICKABLE
+    // MOBILE FIX: Initialize Flatpickr for date only (no time) with mobile support
     const searchDateInput = document.getElementById('searchDate');
     const dateInputWrapper = document.getElementById('dateInputWrapper');
     
@@ -917,19 +930,26 @@ function setupEventListeners() {
             altInput: true,
             altFormat: "F j, Y", // Display format without time
             minDate: "today",
-            allowInput: false, // CRITICAL: Prevent manual typing - forces calendar use
-            clickOpens: false, // Prevent default click behavior
+            allowInput: false, // Prevent manual typing
+            clickOpens: false, // We'll control opening manually
+            disableMobile: true, // CRITICAL: Force flatpickr UI on mobile instead of native
             // When user changes date manually, clear quick-select buttons
             onChange: function() {
                 clearActiveQuickSelect();
             }
         });
 
-        // CRITICAL: Make the entire input wrapper clickable to open calendar
+        // Make entire wrapper clickable to open calendar
         if (dateInputWrapper && datePickerInstance) {
             dateInputWrapper.addEventListener('click', function(event) {
                 event.preventDefault();
                 event.stopPropagation();
+                datePickerInstance.open();
+            });
+            
+            // MOBILE FIX: Also add touch events for better mobile support
+            dateInputWrapper.addEventListener('touchstart', function(event) {
+                event.preventDefault();
                 datePickerInstance.open();
             });
         }
@@ -1016,7 +1036,7 @@ function setupEventListeners() {
     console.log('Event listeners set up successfully');
 }
 
-// UPDATED: Functions to handle quick date selection (weekend option removed)
+// Functions to handle quick date selection (weekend option removed)
 function handleQuickSelect(e) {
     const buttonId = e.target.id;
     let targetDate = new Date();
@@ -1044,14 +1064,14 @@ function clearActiveQuickSelect() {
 // **NEW: Enhanced menu navigation function**
 function setupMenuNavigation() {
     // Add click handlers for menu items that require special handling
-    const myRidesLink = document.querySelector('a[href="myRides.html"]');
-    const editProfileLink = document.querySelector('a[href="EditProfile.html"]');
+    const myRidesLink = document.querySelector('a[href="my_rides.html"]');
+    const editProfileLink = document.querySelector('a[href="edit_profile.html"]');
     
     if (myRidesLink) {
         myRidesLink.addEventListener('click', (e) => {
             e.preventDefault();
             console.log('Navigating to My Rides...');
-            window.location.href = 'myRides.html';
+            window.location.href = 'my_rides.html';
         });
     }
 
@@ -1059,7 +1079,7 @@ function setupMenuNavigation() {
         editProfileLink.addEventListener('click', (e) => {
             e.preventDefault();
             console.log('Navigating to Edit Profile...');
-            window.location.href = 'EditProfile.html';
+            window.location.href = 'edit_profile.html';
         });
     }
 }
