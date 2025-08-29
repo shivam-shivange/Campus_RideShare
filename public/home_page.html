@@ -346,7 +346,7 @@
             box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.3);
         }
 
-        /* 2. NEW: Styles for Quick-Select Buttons */
+        /* Styles for Quick-Select Buttons */
         .quick-select-container {
             display: flex;
             gap: 0.75rem;
@@ -385,9 +385,9 @@
         }
         .btn.primary {
             background: var(--secondary-gradient); color: white;
-            box-shadow: 0 8px 25px rgba(117, 138, 197, 0.3);
+            box-shadow: 0 8px 25px rgba(255, 193, 7, 0.3);
         }
-        .btn.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(117, 138, 197, 0.4); }
+        .btn.primary:hover { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(255, 193, 7, 0.4); }
         .btn.full-width { width: 100%; padding: 1rem 1.5rem; }
         /* Ride Cards and Content Grids */
         .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
@@ -455,6 +455,22 @@
                 right: -10px;
             }
         }
+
+        /* CUSTOM STYLES FOR CLICKABLE DATE PICKER */
+        .date-input-wrapper {
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .date-input-wrapper .form-control {
+            cursor: pointer;
+            caret-color: transparent; /* Hide text cursor */
+        }
+        
+        .date-input-wrapper .input-icon {
+            pointer-events: none; /* Let clicks pass through to wrapper */
+        }
     </style>
 </head>
 <body>
@@ -513,13 +529,13 @@
                 
                 <div class="form-group full-width">
                     <label for="searchDate">Travel Date</label>
-                    <div class="input-wrapper">
-                        <input type="date" id="searchDate" class="form-control" placeholder="Select date">
+                    <div class="input-wrapper date-input-wrapper" id="dateInputWrapper">
+                        <input type="text" id="searchDate" class="form-control" placeholder="Select date" readonly>
                         <i class="fas fa-calendar-alt input-icon"></i>
                     </div>
                 </div>
 
-                <!-- UPDATED: Quick-Select Buttons HTML (removed weekend button) -->
+                <!-- Quick-Select Buttons HTML (removed weekend button) -->
                 <div class="quick-select-container">
                     <button type="button" class="quick-select-btn" id="quick-select-today">Today</button>
                     <button type="button" class="quick-select-btn" id="quick-select-tomorrow">Tomorrow</button>
@@ -565,7 +581,7 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
 const API_BASE = 'https://campus-rideshare.onrender.com/api';
-// 3. UPDATED: A global variable to hold the Flatpickr instance
+// Global variable to hold the Flatpickr instance
 let datePickerInstance;
 
 // Single DOMContentLoaded handler
@@ -889,39 +905,42 @@ function searchByDestination(destination) {
 function setupEventListeners() {
     console.log('Setting up event listeners...');
     
-    // UPDATED: Initialize Flatpickr for date only (no time)
+    // UPDATED: Initialize Flatpickr for date only (no time) - MAKES ENTIRE DIV CLICKABLE
     const searchDateInput = document.getElementById('searchDate');
+    const dateInputWrapper = document.getElementById('dateInputWrapper');
+    
     if (searchDateInput) {
         // Store instance for programmatic control
         datePickerInstance = flatpickr(searchDateInput, {
-            enableTime: false, // CHANGED: Disable time picker
-            dateFormat: "Y-m-d", // CHANGED: Date only format
+            enableTime: false, // Date only
+            dateFormat: "Y-m-d", // Date only format
             altInput: true,
-            altFormat: "F j, Y", // CHANGED: Display format without time
+            altFormat: "F j, Y", // Display format without time
             minDate: "today",
+            allowInput: false, // CRITICAL: Prevent manual typing - forces calendar use
+            clickOpens: false, // Prevent default click behavior
             // When user changes date manually, clear quick-select buttons
             onChange: function() {
                 clearActiveQuickSelect();
             }
         });
 
-        // NEW: Make the entire input wrapper clickable to open calendar
-        const dateWrapper = searchDateInput.parentElement;
-        if (dateWrapper && datePickerInstance) {
-            dateWrapper.style.cursor = 'pointer';
-            dateWrapper.addEventListener('click', function(event) {
-                // Only trigger if not clicking directly on the input field
-                if (event.target.id !== 'searchDate') {
-                    datePickerInstance.open();
-                    event.stopPropagation();
-                }
+        // CRITICAL: Make the entire input wrapper clickable to open calendar
+        if (dateInputWrapper && datePickerInstance) {
+            dateInputWrapper.addEventListener('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                datePickerInstance.open();
             });
         }
     }
 
-    // UPDATED: Add listeners for the remaining quick-select buttons (weekend removed)
-    document.getElementById('quick-select-today').addEventListener('click', handleQuickSelect);
-    document.getElementById('quick-select-tomorrow').addEventListener('click', handleQuickSelect);
+    // Add listeners for the remaining quick-select buttons (weekend removed)
+    const todayBtn = document.getElementById('quick-select-today');
+    const tomorrowBtn = document.getElementById('quick-select-tomorrow');
+    
+    if (todayBtn) todayBtn.addEventListener('click', handleQuickSelect);
+    if (tomorrowBtn) tomorrowBtn.addEventListener('click', handleQuickSelect);
     
     // From dropdown change listener - KEY FUNCTIONALITY
     const fromSelect = document.getElementById('searchFrom');
@@ -1138,9 +1157,8 @@ function displaySearchResults(rides) {
     resultsDiv.innerHTML = rides.map(ride => `
         <div class="ride-card">
             <h3>${ride.fromLocation} → ${ride.toLocation}</h3>
-            <p><strong>Creator:</strong> ${ride.creatorName}</p>
+            <p><strong>Driver:</strong> ${ride.creatorName}</p>
             <p><strong>Date:</strong> ${new Date(ride.dateTime).toLocaleDateString()}</p>
-            
             <p><strong>Seats:</strong> ${ride.availableSeats}</p>
             <p><strong>Gender:</strong> ${ride.preferredGender}</p>
             <div>
