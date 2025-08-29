@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RideShare - Create New Ride</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         :root {
             --primary-500: #2563eb;
@@ -79,10 +80,9 @@
             text-align: center;
             padding: 2.5rem 2rem 1.5rem;
             background: var(--primary-gradient);
-            color: var(--text-primary);
+            color: white;
             position: relative;
             border-bottom: 1px solid var(--glass-border);
-
         }
 
         .header::after {
@@ -100,8 +100,8 @@
             font-size: 3rem;
             margin-bottom: 0.5rem;
             display: block;
-            color: var(--warning-color);
-            text-shadow: 0 0 20px rgba(255, 193,7, 0.4);
+            color: white;
+            text-shadow: 0 0 20px rgba(37, 99, 235, 0.6);
         }
 
         .header h1 {
@@ -110,19 +110,19 @@
             margin-bottom: 0.25rem;
             letter-spacing: -0.025em;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            color: var(--text-primary);
+            color: white;
         }
 
         .header p {
             font-size: 1rem;
             opacity: 0.9;
             font-weight: 400;
-            color: var(--text-secondary);
+            color: rgba(255, 255, 255, 0.9);
         }
 
         .form-section {
             padding: 2rem;
-            background: rgba(225, 235, 94, 0.2);
+            background: var(--form-bg);
         }
 
         .form-section h2 {
@@ -132,7 +132,7 @@
             font-size: 1.875rem;
             font-weight: 700;
             letter-spacing: -0.025em;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .form-row {
@@ -159,7 +159,6 @@
             font-size: 0.875rem;
             text-transform: uppercase;
             letter-spacing: 0.025em;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
         .input-wrapper {
@@ -193,7 +192,7 @@
         }
 
         .form-group select option {
-            background: #FFF8DC; 
+            background: white;
             color: var(--text-dark);
         }
 
@@ -201,9 +200,9 @@
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
-             border-color: var(--warning-color);
-            box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.3);
-            background: rgba(255, 255, 255, 0.5);
+            border-color: var(--primary-600);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+            background: rgba(255, 255, 255, 0.95);
             transform: translateY(-1px);
         }
 
@@ -238,7 +237,7 @@
             position: relative;
             width: 60px;
             height: 32px;
-             background: rgba(0, 0, 0, 0.1);
+            background: rgba(0, 0, 0, 0.1);
             border-radius: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -246,7 +245,8 @@
         }
 
         .toggle-switch.active {
-            background: var(--secondary-gradient); border-color: transparent; 
+            background: var(--secondary-gradient);
+            border-color: transparent;
         }
 
         .toggle-slider {
@@ -264,7 +264,7 @@
         .toggle-switch.active .toggle-slider {
             transform: translateX(28px);
             background: white;
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
         }
 
         .toggle-switch input[type="checkbox"] {
@@ -298,7 +298,7 @@
         }
 
         .counter-btn:hover:not(:disabled) {
-             opacity: 0.8;
+            background: var(--primary-600);
         }
 
         .counter-btn:disabled {
@@ -334,7 +334,7 @@
         .confirmation-checkbox input[type="checkbox"] {
             width: auto !important;
             margin-right: 1rem;
-            accent-color: var(--warning-color);
+            accent-color: var(--primary-600);
             transform: scale(1.2);
         }
 
@@ -377,14 +377,14 @@
         .btn.primary {
             background: var(--secondary-gradient);
             color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: var(--shadow-glass);
+            border: 1px solid rgba(37, 99, 235, 0.4);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
         }
 
         .btn.primary:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 15px 35px ;
-            background:rgba(255, 215, 0, 0.5);
+            box-shadow: 0 15px 35px rgba(37, 99, 235, 0.4);
+            background: linear-gradient(180deg, #3b82f6, var(--primary-600));
         }
 
         .btn:disabled {
@@ -418,11 +418,10 @@
 
         .error-message {
             display: block;
-            color: #ff6b6b;
+            color: var(--error-color);
             font-size: 0.875rem;
             margin-top: 0.5rem;
             animation: shake 0.3s ease-in-out;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
 
         @keyframes shake {
@@ -445,15 +444,81 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--text-primary);
+            color: white;
             cursor: pointer;
             transition: all 0.3s ease;
             z-index: 10;
         }
 
         .back-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.3);
             transform: translateY(-1px);
+        }
+
+        /* Enhanced Date Picker Styling */
+        .flatpickr-calendar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border: 1px solid var(--glass-border) !important;
+            border-radius: 16px !important;
+            box-shadow: var(--shadow-glass) !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        .flatpickr-calendar.open {
+            animation: slideInUp 0.3s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .flatpickr-day {
+            border-radius: 8px !important;
+            margin: 2px !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .flatpickr-day:hover, .flatpickr-day:focus {
+            background: var(--primary-500) !important;
+            color: white !important;
+            transform: scale(1.05) !important;
+            border-color: var(--primary-500) !important;
+        }
+
+        .flatpickr-day.selected {
+            background: var(--secondary-gradient) !important;
+            border-color: var(--primary-600) !important;
+            color: white !important;
+        }
+
+        .flatpickr-current-month .flatpickr-monthDropdown-months {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-radius: 8px !important;
+            color: var(--text-primary) !important;
+        }
+
+        .flatpickr-months .flatpickr-prev-month:hover svg,
+        .flatpickr-months .flatpickr-next-month:hover svg {
+            fill: var(--primary-600) !important;
+        }
+
+        /* Date Input Wrapper for clickable area */
+        .date-input-wrapper {
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .date-input-wrapper .form-control {
+            cursor: pointer;
+            caret-color: transparent;
+        }
+        
+        .date-input-wrapper .input-icon {
+            pointer-events: none;
         }
 
         @media (max-width: 640px) {
@@ -464,6 +529,10 @@
             .header-icon { font-size: 2.5rem; }
             .form-row { grid-template-columns: 1fr; gap: 0; }
             .counter-group { justify-content: center; }
+            .flatpickr-calendar {
+                width: 90vw !important;
+                max-width: 350px !important;
+            }
         }
 
         .glass-notification {
@@ -476,7 +545,7 @@
             color: var(--text-primary);
             padding: 16px 20px;
             border-radius: 16px;
-              border: 1px solid var(--glass-border);
+            border: 1px solid var(--glass-border);
             box-shadow: var(--shadow-glass);
             z-index: 1000;
             display: flex;
@@ -547,12 +616,12 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="timeSlot">Departure Time *</label>
-                            <div class="input-wrapper">
-                                <input type="datetime-local" id="timeSlot" name="timeSlot" required>
-                                
+                            <label for="departureDate">Departure Date *</label>
+                            <div class="input-wrapper date-input-wrapper" id="dateInputWrapper">
+                                <input type="text" id="departureDate" name="departureDate" class="form-control" placeholder="Select date" readonly required>
+                                <i class="fas fa-calendar-alt input-icon"></i>
                             </div>
-                            <span class="error-message" id="timeSlotError"></span>
+                            <span class="error-message" id="departureDateError"></span>
                         </div>
                     </div>
 
@@ -581,17 +650,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- <div class="form-group">
-                            <label>Time Negotiation</label>
-                            <div class="toggle-group">
-                                <span class="toggle-label"><i class="fas fa-handshake" style="margin-right: 8px;"></i>Flexible timing</span>
-                                <div class="toggle-switch" id="timeNegotiationToggle">
-                                    <input type="checkbox" id="timeNegotiation" name="timeNegotiation">
-                                    <div class="toggle-slider"></div>
-                                </div>
-                            </div>
-                        </div> -->
                     </div>
                     
                     <div class="form-group full-width">
@@ -607,7 +665,6 @@
                              </div>
                          </div>
                      </div>
-
 
                     <div class="form-group full-width">
                         <label for="additionalNotes">Additional Notes (Optional)</label>
@@ -633,11 +690,13 @@
         </div>
     </div>
 
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
     class RideCreator {
         constructor() {
             this.seatsCount = 1;
             this.apiBaseUrl = 'https://campus-rideshare.onrender.com/api';
+            this.datePickerInstance = null;
             this.init();
         }
 
@@ -719,7 +778,7 @@
         init() {
             this.checkForAuth();
             this.bindEvents();
-            this.setMinDateTime();
+            this.initDatePicker();
             this.loadStartingLocations();
         }
 
@@ -728,6 +787,36 @@
             if (!token) {
                 alert('You are not logged in. Redirecting to login page...');
                 window.location.href = '/index.html';
+            }
+        }
+
+        initDatePicker() {
+            const dateInput = document.getElementById('departureDate');
+            const dateInputWrapper = document.getElementById('dateInputWrapper');
+            
+            if (dateInput) {
+                // Initialize Flatpickr with date-only selection
+                this.datePickerInstance = flatpickr(dateInput, {
+                    dateFormat: "Y-m-d",
+                    altInput: true,
+                    altFormat: "F j, Y",
+                    minDate: "today",
+                    allowInput: false, // Prevent manual typing
+                    clickOpens: false, // We'll control opening manually
+                    onChange: (selectedDates, dateStr) => {
+                        // Clear any previous errors when date is selected
+                        document.getElementById('departureDateError').textContent = '';
+                    }
+                });
+
+                // Make entire wrapper clickable
+                if (dateInputWrapper && this.datePickerInstance) {
+                    dateInputWrapper.addEventListener('click', (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        this.datePickerInstance.open();
+                    });
+                }
             }
         }
 
@@ -747,7 +836,7 @@
                 this.handleRideCreation();
             });
 
-            const requiredFields = ['fromLocation', 'toLocation', 'genderAcceptance', 'timeSlot'];
+            const requiredFields = ['fromLocation', 'toLocation', 'genderAcceptance', 'departureDate'];
             requiredFields.forEach(field => {
                 document.getElementById(field).addEventListener('blur', () => this.validateField(field));
             });
@@ -756,12 +845,6 @@
             document.getElementById('fromLocation').addEventListener('change', (e) => {
                 this.loadDestinations(e.target.value);
             });
-        }
-
-        setMinDateTime() {
-            const now = new Date();
-            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-            document.getElementById('timeSlot').min = now.toISOString().slice(0, 16);
         }
 
         updateSeats(change) {
@@ -791,8 +874,8 @@
                 errorElement.textContent = `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1).replace(/([A-Z])/g, ' $1')} is required.`;
                 return false;
             }
-            if (fieldName === 'timeSlot' && new Date(field.value) <= new Date()) {
-                errorElement.textContent = 'Please select a future date and time.';
+            if (fieldName === 'departureDate' && new Date(field.value) <= new Date()) {
+                errorElement.textContent = 'Please select a future date.';
                 return false;
             }
             if ((fieldName === 'fromLocation' || fieldName === 'toLocation') && field.value.length < 3) {
@@ -815,7 +898,7 @@
 
         validateAllFields() {
             let isValid = true;
-            ['fromLocation', 'toLocation', 'genderAcceptance', 'timeSlot'].forEach(field => {
+            ['fromLocation', 'toLocation', 'genderAcceptance', 'departureDate'].forEach(field => {
                 if (!this.validateField(field)) isValid = false;
             });
             if (!this.validateConfirmation()) isValid = false;
@@ -854,11 +937,15 @@
             const postRideBtn = document.getElementById('postRideBtn');
             const formData = new FormData(document.getElementById('createRideForm'));
 
+            // Create a complete datetime by appending default time (9:00 AM) to the date
+            const selectedDate = formData.get('departureDate');
+            const dateTime = `${selectedDate}T09:00:00`;
+
             const apiPayload = {
                 fromLocation: formData.get('fromLocation'),
                 toLocation: formData.get('toLocation'),
                 preferredGender: this.mapGender(formData.get('genderAcceptance')),
-                dateTime: formData.get('timeSlot'),
+                dateTime: dateTime,
                 availableSeats: parseInt(this.seatsCount, 10),
                 luggageSpace: formData.has('luggageSpace'),
                 allowChat: formData.has('allowChat'),
@@ -870,7 +957,7 @@
                 postRideBtn.classList.add('loading');
                 postRideBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i>Posting Ride...';
 
-                console.log('Sending ride data:', apiPayload); // Debug log
+                console.log('Sending ride data:', apiPayload);
 
                 const response = await fetch(`${this.apiBaseUrl}/rides`, {
                     method: 'POST',
@@ -882,7 +969,7 @@
                 });
                 
                 const result = await response.json();
-                console.log('Server response:', result); // Debug log
+                console.log('Server response:', result);
 
                 if (!response.ok) throw new Error(result.message || 'Failed to post ride.');
 
