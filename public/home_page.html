@@ -266,25 +266,6 @@
             border-color: var(--primary-600) !important;
             color: white !important;
         }
-        .flatpickr-time {
-            background: rgba(255, 255, 255, 0.9) !important;
-            border-top: 1px solid var(--glass-border) !important;
-        }
-        .flatpickr-am-pm, .numInputWrapper:hover, .flatpickr-time input:hover {
-            background: var(--primary-500) !important;
-            color: white !important;
-        }
-        .flatpickr-am-pm {
-            border-radius: 8px !important;
-            font-weight: 600 !important;
-        }
-        .numInput {
-            background: rgba(255, 255, 255, 0.8) !important;
-            border: 1px solid var(--glass-border) !important;
-            border-radius: 6px !important;
-            color: var(--text-primary) !important;
-            font-weight: 500 !important;
-        }
         .flatpickr-current-month .flatpickr-monthDropdown-months {
             background: rgba(255, 255, 255, 0.9) !important;
             border-radius: 8px !important;
@@ -531,18 +512,17 @@
                 </div>
                 
                 <div class="form-group full-width">
-                    <label for="searchDate">Travel Date & Time</label>
+                    <label for="searchDate">Travel Date</label>
                     <div class="input-wrapper">
-                        <input type="text" id="searchDate" class="form-control" placeholder="Select date and time">
+                        <input type="text" id="searchDate" class="form-control" placeholder="Select date">
                         <i class="fas fa-calendar-alt input-icon"></i>
                     </div>
                 </div>
 
-                <!-- 1. NEW: Quick-Select Buttons HTML -->
+                <!-- UPDATED: Quick-Select Buttons HTML (removed weekend button) -->
                 <div class="quick-select-container">
                     <button type="button" class="quick-select-btn" id="quick-select-today">Today</button>
                     <button type="button" class="quick-select-btn" id="quick-select-tomorrow">Tomorrow</button>
-                    <button type="button" class="quick-select-btn" id="quick-select-weekend">This Weekend</button>
                 </div>
 
                 <button type="submit" class="btn primary full-width">
@@ -570,7 +550,7 @@
                 </button>
             </div>
 
-            <!-- Optional prompt section (kept, but we won’t rely on it for the button) -->
+            <!-- Optional prompt section (kept, but we won't rely on it for the button) -->
             <div id="createRidePrompt" class="glass-section" style="display: none; text-align: center; margin-top: 2rem; padding: 1.5rem;">
                 <p style="color: var(--text-secondary); margin-bottom: 1rem;">
                     Don't see a ride that works for you?
@@ -585,7 +565,7 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
 const API_BASE = 'https://campus-rideshare.onrender.com/api';
-// 3. NEW: A global variable to hold the Flatpickr instance
+// 3. UPDATED: A global variable to hold the Flatpickr instance
 let datePickerInstance;
 
 // Single DOMContentLoaded handler
@@ -909,17 +889,16 @@ function searchByDestination(destination) {
 function setupEventListeners() {
     console.log('Setting up event listeners...');
     
-    // 3. UPDATED: Initialize Flatpickr and add listeners
+    // UPDATED: Initialize Flatpickr for date only (no time)
     const searchDateInput = document.getElementById('searchDate');
     if (searchDateInput) {
         // Store instance for programmatic control
         datePickerInstance = flatpickr(searchDateInput, {
-            enableTime: true,
-            dateFormat: "Y-m-d H:i",
+            enableTime: false, // CHANGED: Disable time picker
+            dateFormat: "Y-m-d", // CHANGED: Date only format
             altInput: true,
-            altFormat: "F j, Y at h:i K",
+            altFormat: "F j, Y", // CHANGED: Display format without time
             minDate: "today",
-            time_24hr: false,
             // When user changes date manually, clear quick-select buttons
             onChange: function() {
                 clearActiveQuickSelect();
@@ -927,10 +906,9 @@ function setupEventListeners() {
         });
     }
 
-    // Add listeners for the new quick-select buttons
+    // UPDATED: Add listeners for the remaining quick-select buttons (weekend removed)
     document.getElementById('quick-select-today').addEventListener('click', handleQuickSelect);
     document.getElementById('quick-select-tomorrow').addEventListener('click', handleQuickSelect);
-    document.getElementById('quick-select-weekend').addEventListener('click', handleQuickSelect);
     
     // From dropdown change listener - KEY FUNCTIONALITY
     const fromSelect = document.getElementById('searchFrom');
@@ -1006,21 +984,15 @@ function setupEventListeners() {
     console.log('Event listeners set up successfully');
 }
 
-// 3. NEW: Functions to handle quick date selection
+// UPDATED: Functions to handle quick date selection (weekend option removed)
 function handleQuickSelect(e) {
     const buttonId = e.target.id;
     let targetDate = new Date();
 
     if (buttonId === 'quick-select-tomorrow') {
         targetDate.setDate(targetDate.getDate() + 1);
-    } else if (buttonId === 'quick-select-weekend') {
-        const day = targetDate.getDay(); // 0=Sun, 6=Sat
-        const daysUntilSaturday = (6 - day + 7) % 7; // Days to add to get to next Sat
-        targetDate.setDate(targetDate.getDate() + daysUntilSaturday);
     }
-
-    // Set a default time (e.g., 9:00 AM)
-    targetDate.setHours(9, 0, 0, 0);
+    // Weekend option removed
 
     if (datePickerInstance) {
         datePickerInstance.setDate(targetDate, true); // true triggers onChange
@@ -1036,7 +1008,6 @@ function clearActiveQuickSelect() {
         btn.classList.remove('active');
     });
 }
-
 
 // **NEW: Enhanced menu navigation function**
 function setupMenuNavigation() {
@@ -1060,7 +1031,6 @@ function setupMenuNavigation() {
         });
     }
 }
-
 
 // Separate handler for from location change
 function handleFromLocationChange(e) {
@@ -1155,7 +1125,7 @@ function displaySearchResults(rides) {
     resultsDiv.innerHTML = rides.map(ride => `
         <div class="ride-card">
             <h3>${ride.fromLocation} → ${ride.toLocation}</h3>
-            <p><strong>Creator:</strong> ${ride.creatorName}</p>
+            <p><strong>Driver:</strong> ${ride.creatorName}</p>
             <p><strong>Time:</strong> ${new Date(ride.dateTime).toLocaleString()}</p>
             <p><strong>Seats:</strong> ${ride.availableSeats}</p>
             <p><strong>Gender:</strong> ${ride.preferredGender}</p>
