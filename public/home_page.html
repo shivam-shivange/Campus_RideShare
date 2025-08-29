@@ -671,7 +671,7 @@
             resultsDiv.innerHTML = rides.map(ride => `
                 <div class="ride-card">
                     <h3>${ride.fromLocation} → ${ride.toLocation}</h3>
-                    <p><strong>Driver:</strong> ${ride.creatorName}</p>
+                    <p><strong>Creator:</strong> ${ride.creatorName}</p>
                     <p><strong>Time:</strong> ${new Date(ride.dateTime).toLocaleString()}</p>
                     <p><strong>Seats:</strong> ${ride.availableSeats}</p>
                     <p><strong>Gender:</strong> ${ride.preferredGender}</p>
