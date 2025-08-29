@@ -904,6 +904,19 @@ function setupEventListeners() {
                 clearActiveQuickSelect();
             }
         });
+
+        // NEW: Make the entire input wrapper clickable to open calendar
+        const dateWrapper = searchDateInput.parentElement;
+        if (dateWrapper && datePickerInstance) {
+            dateWrapper.style.cursor = 'pointer';
+            dateWrapper.addEventListener('click', function(event) {
+                // Only trigger if not clicking directly on the input field
+                if (event.target.id !== 'searchDate') {
+                    datePickerInstance.open();
+                    event.stopPropagation();
+                }
+            });
+        }
     }
 
     // UPDATED: Add listeners for the remaining quick-select buttons (weekend removed)
