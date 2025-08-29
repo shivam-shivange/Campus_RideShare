@@ -684,6 +684,26 @@
         const API_BASE = 'https://campus-rideshare.onrender.com/api';
         let currentUser = null;
 
+        // Year mapping: integer (database) to display text (frontend)
+        const yearMapping = {
+            1: '1st Year',
+            2: '2nd Year', 
+            3: '3rd Year',
+            4: '4th Year',
+            5: 'Graduate',
+            6: 'Post Graduate'
+        };
+
+        // Reverse mapping: display text to integer
+        const yearReverseMapping = {
+            '1st Year': 1,
+            '2nd Year': 2,
+            '3rd Year': 3,
+            '4th Year': 4,
+            'Graduate': 5,
+            'Post Graduate': 6
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
             checkAuth();
         });
@@ -728,12 +748,20 @@
                 phone: user.phone, 
                 address: user.address,
                 department: user.department, 
-                year: user.year 
+                year: user.year // This will be an integer from backend
             };
             
             for (const [field, value] of Object.entries(fields)) {
                 const el = document.querySelector(`.info-item[data-field="${field}"] .info-text`);
-                if (el) el.textContent = value || 'Not set';
+                if (el) {
+                    if (field === 'year') {
+                        // Convert integer year to display text
+                        const displayValue = yearMapping[value] || 'Not set';
+                        el.textContent = displayValue;
+                    } else {
+                        el.textContent = value || 'Not set';
+                    }
+                }
             }
             updateProfileStats();
         }
@@ -755,12 +783,12 @@
                 inputElement = `
                     <select class="inline-edit-select">
                         <option value="">Select Year</option>
-                        <option value="1st Year" ${originalValue === '1st Year' ? 'selected' : ''}>1st Year</option>
-                        <option value="2nd Year" ${originalValue === '2nd Year' ? 'selected' : ''}>2nd Year</option>
-                        <option value="3rd Year" ${originalValue === '3rd Year' ? 'selected' : ''}>3rd Year</option>
-                        <option value="4th Year" ${originalValue === '4th Year' ? 'selected' : ''}>4th Year</option>
-                        <option value="Graduate" ${originalValue === 'Graduate' ? 'selected' : ''}>Graduate</option>
-                        <option value="Post Graduate" ${originalValue === 'Post Graduate' ? 'selected' : ''}>Post Graduate</option>
+                        <option value="1" ${originalValue === '1st Year' ? 'selected' : ''}>1st Year</option>
+                        <option value="2" ${originalValue === '2nd Year' ? 'selected' : ''}>2nd Year</option>
+                        <option value="3" ${originalValue === '3rd Year' ? 'selected' : ''}>3rd Year</option>
+                        <option value="4" ${originalValue === '4th Year' ? 'selected' : ''}>4th Year</option>
+                        <option value="5" ${originalValue === 'Graduate' ? 'selected' : ''}>Graduate</option>
+                        <option value="6" ${originalValue === 'Post Graduate' ? 'selected' : ''}>Post Graduate</option>
                     </select>`;
             } else if (field === 'address') {
                 inputElement = `<textarea class="inline-edit-input" rows="3" placeholder="Enter your ${field}">${originalValue}</textarea>`;
@@ -797,7 +825,12 @@
         async function saveInlineEdit(field) {
             const item = document.querySelector(`.info-item[data-field="${field}"]`);
             const input = item.querySelector('.inline-edit-input, .inline-edit-select');
-            const newValue = input.value.trim();
+            let newValue = input.value.trim();
+
+            // For year field, convert integer value to display text for frontend
+            if (field === 'year') {
+                newValue = parseInt(newValue); // Send integer to backend
+            }
 
             const payload = { [field]: newValue };
 
@@ -810,18 +843,33 @@
                     },
                     body: JSON.stringify(payload)
                 });
-                const data = await response.json();
-                if (response.ok) {
-                    currentUser = data.user;
-                    showNotification('Profile updated successfully!', 'success');
-                    cancelInlineEdit(field, newValue);
-                    populateProfile(currentUser);
-                } else {
-                    throw new Error(data.message || 'Failed to update.');
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `Failed to update ${field}.`);
                 }
+
+                const data = await response.json();
+                currentUser = data.user;
+                showNotification('Profile updated successfully!', 'success');
+                
+                // Update display with proper formatting
+                if (field === 'year') {
+                    const displayValue = yearMapping[newValue] || 'Not set';
+                    cancelInlineEdit(field, displayValue);
+                } else {
+                    cancelInlineEdit(field, newValue);
+                }
+                
+                populateProfile(currentUser);
             } catch (error) {
+                console.error('Update error:', error);
                 showNotification(error.message, 'error');
-                const originalValue = currentUser[field] || 'Not set';
+                
+                // Revert to original value
+                const originalValue = field === 'year' 
+                    ? (yearMapping[currentUser[field]] || 'Not set')
+                    : (currentUser[field] || 'Not set');
                 cancelInlineEdit(field, originalValue);
             }
         }
@@ -846,13 +894,49 @@
             formData.append('profilePicture', file);
 
             try {
-                const response = await fetch(`${API_BASE}/auth/profile-picture`, {
+                // Try the profile picture endpoint first
+                let response = await fetch(`${API_BASE}/auth/profile-picture`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     },
                     body: formData
                 });
+
+                // If profile picture endpoint doesn't exist, try uploading via profile endpoint
+                if (response.status === 404) {
+                    console.log('Profile picture endpoint not found, trying alternative method...');
+                    
+                    // Convert file to base64 and send via profile endpoint
+                    const reader = new FileReader();
+                    reader.onload = async function(e) {
+                        try {
+                            const profileResponse = await fetch(`${API_BASE}/auth/profile`, {
+                                method: 'PUT',
+                                headers: { 
+                                    'Content-Type': 'application/json', 
+                                    'Authorization': `Bearer ${localStorage.getItem('token')}` 
+                                },
+                                body: JSON.stringify({
+                                    profilePicture: e.target.result
+                                })
+                            });
+
+                            if (profileResponse.ok) {
+                                const data = await profileResponse.json();
+                                currentUser = data.user;
+                                showNotification('Profile picture updated successfully!', 'success');
+                                populateProfile(currentUser);
+                            } else {
+                                throw new Error('Failed to upload profile picture via profile endpoint');
+                            }
+                        } catch (error) {
+                            showNotification('Profile picture upload not supported', 'error');
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                    return;
+                }
 
                 const data = await response.json();
                 if (response.ok) {
@@ -863,7 +947,8 @@
                     throw new Error(data.message || 'Failed to upload profile picture.');
                 }
             } catch (error) {
-                showNotification(error.message, 'error');
+                console.error('Profile picture upload error:', error);
+                showNotification('Profile picture upload is not available', 'error');
             }
         }
 
