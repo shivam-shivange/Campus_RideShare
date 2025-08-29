@@ -87,41 +87,41 @@
         .password-toggle { cursor: pointer; user-select: none; }
 
         .terms-popup {
-        display: none;
-        position: fixed;
-        z-index: 999;
-        left: 0;
-        top: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0,0,0,0.6);
-        overflow-y: auto;
-    }
-    .terms-content {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: #fff;
-        padding: 24px 28px;
-        width: 90vw;
-        max-width: 540px;
-        max-height: 80vh;
-        overflow-y: auto;
-        border-radius: 12px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-        color: #222;
-    }
-    .close-btn {
-        position: absolute;
-        top: 12px;
-        right: 14px;
-        font-size: 22px;
-        color: #888;
-        background: none;
-        border: none;
-        cursor: pointer;
-    }
+            display: none;
+            position: fixed;
+            z-index: 999;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.6);
+            overflow-y: auto;
+        }
+        .terms-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            padding: 24px 28px;
+            width: 90vw;
+            max-width: 540px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            color: #222;
+        }
+        .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            font-size: 22px;
+            color: #888;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -171,13 +171,33 @@
                 <div class="form-footer"><p>Remembered your password? <a href="#" id="showLoginLinkFromForgot">Sign In</a></p></div>
             </div>
             
-             <!-- Reset Password Form -->
+            <!-- Reset Password Form -->
             <div id="resetSection" class="form-section">
                 <h2>Create New Password</h2>
                 <form id="resetPasswordForm" novalidate>
+                    <!-- ✅ ADD HIDDEN USERNAME FIELD FOR ACCESSIBILITY -->
                     <input type="hidden" id="resetToken" name="token">
-                    <div class="form-group"><label for="resetPassword">New Password</label><div class="input-wrapper"><input type="password" id="resetPassword" name="password" autocomplete="new-password" required><i class="fas fa-lock input-icon password-toggle"></i></div></div>
-                    <button type="submit" class="btn primary"><i class="fas fa-save"></i> Save New Password</button>
+                    <input type="email" name="username" autocomplete="username" style="display: none;" tabindex="-1" aria-hidden="true">
+                    
+                    <div class="form-group">
+                        <label for="resetPassword">New Password</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="resetPassword" name="password" autocomplete="new-password" required>
+                            <i class="fas fa-lock input-icon password-toggle"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm New Password</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password" required>
+                            <i class="fas fa-lock input-icon password-toggle"></i>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn primary">
+                        <i class="fas fa-save"></i> Save New Password
+                    </button>
                 </form>
             </div>
         </div>
@@ -190,7 +210,7 @@
                     Welcome to RideShare! By using our service, you agree to the following terms:
                     <br><br>
                     1. You are responsible for your account security.<br>
-                    2. We are not liable for disputes between riders/creators.<br>
+                    2. We are not liable for disputes between riders/drivers.<br>
                     3. All rides must comply with local laws.<br>
                     4. Your data will be protected according to our policy.<br>
                     5. Violation of terms can lead to account termination.
@@ -200,27 +220,48 @@
     </div>
 
 <script>
+    // KEEPING YOUR OLD CONFIGURATION - RENDER URL
     const API_BASE = 'https://campus-rideshare.onrender.com/api';
 
     document.addEventListener('DOMContentLoaded', () => {
         const token = localStorage.getItem('token');
+        const currentPath = window.location.pathname;
+        const isOnLoginPage = currentPath.endsWith('index.html') || currentPath === '/' || currentPath === '';
+        
         if (token) {
+            // If user has token, verify it and redirect to homepage
             verifyTokenAndRedirect();
+        } else if (!isOnLoginPage) {
+            // If no token and not on login page, redirect to login
+            window.location.href = 'index.html';
+        } else {
+            // User is on login page without token - initialize login functionality
+            initializeEventListeners();
         }
-        initializeEventListeners();
     });
 
     async function verifyTokenAndRedirect() {
         try {
-            const response = await fetch(`${API_BASE}/auth/me`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+            const response = await fetch(`${API_BASE}/auth/me`, {
+                headers: { 
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Accept': 'application/json'
+                }
+            });
+            
             if (response.ok) {
-                window.location.href = '/home_page.html';
+                // Token is valid, redirect to homepage
+                window.location.href = 'home_page.html';
             } else {
+                // Token is invalid, remove it and stay on login page
                 localStorage.removeItem('token');
+                initializeEventListeners();
             }
         } catch (error) {
             console.error('Token verification failed:', error);
             localStorage.removeItem('token');
+            // Stay on login page and initialize login functionality
+            initializeEventListeners();
         }
     }
 
@@ -292,7 +333,7 @@
         }
     }
 
-    // Email check function
+    // Email check function - NEW FROM YOUR NEW VERSION
     async function checkEmailExists(email) {
         try {
             const response = await fetch(`${API_BASE}/auth/check-email`, {
@@ -313,7 +354,7 @@
         }
     }
 
-    // Enhanced login handler with email check
+    // Enhanced login handler with email check - NEW FROM YOUR NEW VERSION
     async function handleLogin(e) {
         e.preventDefault();
         clearMessages();
@@ -420,16 +461,71 @@
         });
     }
 
+    // Enhanced forgot password handler - NEW FROM YOUR NEW VERSION
     function handleForgotPassword(e) {
-        handleFormSubmit(e, '/auth/forgot-password', (result) => {
-            if(result.token) {
-                document.getElementById('resetToken').value = result.token;
-                setTimeout(() => switchForm('resetSection'), 1000);
-            }
-        });
+        e.preventDefault();
+        
+        const form = e.target;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        const email = form.querySelector('input[name="email"]').value.trim();
+
+        if (!email) {
+            showMessage('Please enter your email address.', 'error');
+            return;
+        }
+
+        if (!validateEmail(email)) {
+            showMessage('Please enter a valid email address.', 'error');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+        clearMessages();
+
+        // Use async/await for better error handling
+        sendPasswordResetRequest(email, submitBtn, originalText, form);
     }
 
-    // Resend verification helpers
+    async function sendPasswordResetRequest(email, submitBtn, originalText, form) {
+        try {
+            const response = await fetch(`${API_BASE}/auth/forgot-password`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                showMessage('If your email is registered, you\'ll receive a reset link shortly.', 'success');
+                form.reset();
+                
+                setTimeout(() => {
+                    showMessage('Please check your email and click the reset link.', 'success');
+                }, 3000);
+            } else {
+                showMessage(result.message || 'Failed to send reset link. Please try again.', 'error');
+            }
+        } catch (error) {
+            console.error('Network error:', error);
+            showMessage('Network error. Please check your connection and try again.', 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    }
+
+    // Email validation helper - NEW FROM YOUR NEW VERSION
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+
+    // Resend verification helpers - NEW FROM YOUR NEW VERSION
     function showResendVerification(prefillEmail) {
         const section = document.getElementById('loginSection');
         if (!section || document.getElementById('resendVerifyBlock')) return;
@@ -473,41 +569,41 @@
         }
     }
 
-   function handleResetPassword(e) {
-      handleFormSubmit(e, '/auth/reset-password', () => {
-          setTimeout(() => switchForm('loginSection'), 2000);
-       });
-   }
+    function handleResetPassword(e) {
+        handleFormSubmit(e, '/auth/reset-password', () => {
+            setTimeout(() => switchForm('loginSection'), 2000);
+        });
+    }
 
-   function validateForm(formData, requiredFields) {
-    const errors = [];
-    
-    requiredFields.forEach(field => {
-        if (!formData[field] || formData[field].trim() === '') {
-            errors.push(`${field} is required`);
+    function validateForm(formData, requiredFields) {
+        const errors = [];
+        
+        requiredFields.forEach(field => {
+            if (!formData[field] || formData[field].trim() === '') {
+                errors.push(`${field} is required`);
+            }
+        });
+        
+        if (formData.email && !validateEmail(formData.email)) {
+            errors.push('Please enter a valid email address');
         }
-    });
-    
-    if (formData.email && !validateEmail(formData.email)) {
-        errors.push('Please enter a valid email address');
+
+        if (formData.password && formData.password.length < 8) {
+            errors.push('Password must be at least 8 characters long');
+        }
+        
+        return errors;
     }
 
-    if (formData.password && formData.password.length < 8) {
-        errors.push('Password must be at least 8 characters long');
+    function setLoadingState(button, isLoading) {
+        if (isLoading) {
+            button.disabled = true;
+            button.classList.add('loading');
+        } else {
+            button.disabled = false;
+            button.classList.remove('loading');
+        }
     }
-    
-    return errors;
-}
-
-function setLoadingState(button, isLoading) {
-    if (isLoading) {
-        button.disabled = true;
-        button.classList.add('loading');
-    } else {
-        button.disabled = false;
-        button.classList.remove('loading');
-    }
-}
 
     function showMessage(message, type) {
         const container = document.getElementById('messageContainer');
@@ -522,44 +618,44 @@ function setLoadingState(button, isLoading) {
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-    // Terms popup functionality
-    const signupSection = document.getElementById('signupSection');
-    if (signupSection) {
-        const checkboxLabel = signupSection.querySelector('.checkbox-label');
-        if (checkboxLabel && !document.getElementById('viewTerms')) {
-            checkboxLabel.innerHTML = `
-                <input type="checkbox" id="termsCheckbox" name="terms" required>
-                <p>I agree to the <a href="#" id="viewTerms">Terms & Conditions</a></p>
-            `;
-            
-            const viewTermsLink = document.getElementById('viewTerms');
-            if (viewTermsLink) {
-                viewTermsLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    document.getElementById('termsPopup').style.display = 'block';
-                });
+        // Terms popup functionality
+        const signupSection = document.getElementById('signupSection');
+        if (signupSection) {
+            const checkboxLabel = signupSection.querySelector('.checkbox-label');
+            if (checkboxLabel && !document.getElementById('viewTerms')) {
+                checkboxLabel.innerHTML = `
+                    <input type="checkbox" id="termsCheckbox" name="terms" required>
+                    <p>I agree to the <a href="#" id="viewTerms">Terms & Conditions</a></p>
+                `;
+                
+                const viewTermsLink = document.getElementById('viewTerms');
+                if (viewTermsLink) {
+                    viewTermsLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        document.getElementById('termsPopup').style.display = 'block';
+                    });
+                }
             }
         }
-    }
 
-    // Hide popup (close btn)
-    const closeTermsBtn = document.getElementById('closeTerms');
-    if (closeTermsBtn) {
-        closeTermsBtn.addEventListener('click', function() {
-            document.getElementById('termsPopup').style.display = 'none';
-        });
-    }
+        // Hide popup (close btn)
+        const closeTermsBtn = document.getElementById('closeTerms');
+        if (closeTermsBtn) {
+            closeTermsBtn.addEventListener('click', function() {
+                document.getElementById('termsPopup').style.display = 'none';
+            });
+        }
 
-    // Hide popup (click outside)
-    const termsPopup = document.getElementById('termsPopup');
-    if (termsPopup) {
-        window.addEventListener('click', function(event) {
-            if (event.target === termsPopup) {
-                termsPopup.style.display = 'none';
-            }
-        });
-    }
-});
+        // Hide popup (click outside)
+        const termsPopup = document.getElementById('termsPopup');
+        if (termsPopup) {
+            window.addEventListener('click', function(event) {
+                if (event.target === termsPopup) {
+                    termsPopup.style.display = 'none';
+                }
+            });
+        }
+    });
 
 </script>
 </body>
