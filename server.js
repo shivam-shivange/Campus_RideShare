@@ -207,7 +207,7 @@ const port = process.env.PORT || 10000;
 httpServer.listen(port, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${port}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`CORS Origins: ${allowedOrigins.join(', ')}`);
+  // console.log(`CORS Origins: ${allowedOrigins.join(', ')}`);
 });
 
 // Graceful shutdown
