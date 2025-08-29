@@ -61,6 +61,7 @@
             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
         }
         .input-icon { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; }
+        .password-toggle { cursor: pointer; user-select: none; }
         .btn {
             width: 100%; padding: 0.9rem 1.25rem; border: none; border-radius: 12px;
             font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease;
@@ -84,7 +85,6 @@
         }
         .message.error { background: rgba(220, 38, 38, 0.08); border: 1px solid rgba(220, 38, 38, 0.2); color: var(--error-color); }
         .message.success { background: rgba(22, 163, 74, 0.08); border: 1px solid rgba(22, 163, 74, 0.2); color: var(--success-color); }
-        .password-toggle { cursor: pointer; user-select: none; }
 
         /* Terms & Conditions Checkbox Styles */
         .checkbox-label { 
@@ -434,6 +434,12 @@
         document.querySelectorAll('.form-section').forEach(section => section.classList.remove('active'));
         document.getElementById(activeSectionId).classList.add('active');
         clearMessages();
+        
+        // Remove any existing resend verification blocks when switching forms
+        const existingBlock = document.getElementById('resendVerifyBlock');
+        if (existingBlock) {
+            existingBlock.remove();
+        }
     }
     
     async function handleFormSubmit(e, endpoint, successCallback) {
@@ -507,8 +513,13 @@
             return;
         }
 
+        if (!validateEmail(data.email)) {
+            showMessage('Please enter a valid email address.', 'error');
+            return;
+        }
+
         submitBtn.disabled = true;
-        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Signing In...`;
 
         try {
             // First check if email exists
@@ -516,6 +527,7 @@
             
             if (!emailExists) {
                 showMessage('Email not found. Please create an account first.', 'error');
+                setTimeout(() => switchForm('signupSection'), 2000);
                 return;
             }
 
@@ -537,22 +549,29 @@
                 }, 1000);
             } else {
                 // Handle verification or other login errors
-                if (result.message && result.message.toLowerCase().includes('verify')) {
-                    showMessage(result.message, 'error');
-                    showResendVerification(result.email || data.email);
+                if (response.status === 403) {
+                    if (result.message && (result.message.toLowerCase().includes('verify') || result.message.toLowerCase().includes('not verified'))) {
+                        showMessage(result.message || 'Please verify your email before logging in.', 'error');
+                        showResendVerification(data.email);
+                    } else {
+                        showMessage(result.message || 'Login failed', 'error');
+                    }
+                } else if (response.status === 401) {
+                    showMessage('Invalid email or password. Please try again.', 'error');
                 } else {
                     showMessage(result.message || 'Login failed', 'error');
                 }
             }
         } catch (error) {
             console.error('Login error:', error);
-            showMessage('Login error: ' + error.message, 'error');
+            showMessage('Network error. Please check your connection and try again.', 'error');
         } finally {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;
         }
     }
 
+    // Enhanced signup handler with proper email verification
     function handleSignup(e) {
         e.preventDefault();
         const form = e.target;
@@ -566,13 +585,31 @@
             return;
         }
 
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
-        clearMessages();
-
+        // Validate form data
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
+        
+        // Basic validation
+        if (!data.name || !data.email || !data.phone || !data.gender || !data.role || !data.password) {
+            showMessage('Please fill in all required fields.', 'error');
+            return;
+        }
 
+        if (!validateEmail(data.email)) {
+            showMessage('Please enter a valid email address.', 'error');
+            return;
+        }
+
+        if (data.password.length < 8) {
+            showMessage('Password must be at least 8 characters long.', 'error');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Creating Account...`;
+        clearMessages();
+
+        // Make the signup request
         fetch(`${API_BASE}/auth/signup`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -580,24 +617,46 @@
         })
         .then(async (response) => {
             const result = await response.json().catch(() => ({}));
+            
             if (response.ok) {
-                showMessage(result.message || 'Account created. Please verify your email.', 'success');
-                setTimeout(() => switchForm('loginSection'), 2000);
+                // Account created successfully
+                showMessage(result.message || 'Account created successfully! Please check your email for verification link.', 'success');
+                form.reset(); // Clear the form
+                setTimeout(() => {
+                    switchForm('loginSection');
+                    showMessage('Please verify your email before logging in. Check your inbox for the verification link.', 'success');
+                }, 3000);
                 return;
             }
 
-            // If user exists but is unverified, prompt to resend verification
-            if (response.status === 403 && (result.message || '').toLowerCase().includes('verify')) {
-                showMessage(result.message, 'error');
-                switchForm('loginSection');
-                showResendVerification(result.email || data.email);
-                return;
+            // Handle different error scenarios
+            if (response.status === 400) {
+                // User already exists but might be unverified
+                if (result.message && result.message.toLowerCase().includes('exists')) {
+                    showMessage('An account with this email already exists. Please try logging in.', 'error');
+                    setTimeout(() => switchForm('loginSection'), 2000);
+                    return;
+                }
             }
 
-            throw new Error(result.message || 'Signup failed');
+            if (response.status === 403) {
+                // Account exists but not verified
+                if (result.message && result.message.toLowerCase().includes('verify')) {
+                    showMessage(result.message, 'error');
+                    setTimeout(() => {
+                        switchForm('loginSection');
+                        showResendVerification(data.email);
+                    }, 2000);
+                    return;
+                }
+            }
+
+            // Generic error handling
+            throw new Error(result.message || 'Signup failed. Please try again.');
         })
         .catch((error) => {
-            showMessage(error.message || 'Signup failed', 'error');
+            console.error('Signup error:', error);
+            showMessage(error.message || 'Signup failed. Please try again.', 'error');
         })
         .finally(() => {
             submitBtn.disabled = false;
@@ -691,25 +750,50 @@
         return re.test(email);
     }
 
-    // Resend verification helpers
+    // Enhanced resend verification with better UI
     function showResendVerification(prefillEmail) {
+        // Remove existing resend block if it exists
+        const existingBlock = document.getElementById('resendVerifyBlock');
+        if (existingBlock) {
+            existingBlock.remove();
+        }
+
         const section = document.getElementById('loginSection');
-        if (!section || document.getElementById('resendVerifyBlock')) return;
+        if (!section) return;
+        
         const block = document.createElement('div');
         block.id = 'resendVerifyBlock';
         block.style.marginTop = '1rem';
+        block.style.padding = '1rem';
+        block.style.backgroundColor = 'rgba(37, 99, 235, 0.05)';
+        block.style.borderRadius = '12px';
+        block.style.border = '1px solid rgba(37, 99, 235, 0.2)';
+        
         block.innerHTML = `
+            <div style="text-align: center; margin-bottom: 1rem;">
+                <h3 style="color: var(--primary-600); margin-bottom: 0.5rem; font-size: 1rem;">Email Verification Required</h3>
+                <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
+                    Your account is not verified. Please check your email or resend the verification link.
+                </p>
+            </div>
             <div class="form-group">
-                <label>Resend verification email</label>
+                <label for="resendVerifyEmail">Email Address</label>
                 <div class="input-wrapper">
                     <input type="email" id="resendVerifyEmail" value="${prefillEmail || ''}" placeholder="Enter your email" />
                     <i class="fas fa-envelope input-icon"></i>
                 </div>
             </div>
-            <button id="resendVerifyBtn" class="btn primary"><i class="fas fa-paper-plane"></i> Resend Email</button>
-            <div id="resendVerifyMsg" class="message" style="margin-top: .75rem"></div>
+            <button id="resendVerifyBtn" class="btn primary">
+                <i class="fas fa-paper-plane"></i> Resend Verification Email
+            </button>
+            <div id="resendVerifyMsg" class="message" style="margin-top: 0.75rem; display: none;"></div>
         `;
-        section.appendChild(block);
+        
+        // Insert after the login form
+        const loginForm = section.querySelector('form');
+        loginForm.parentNode.insertBefore(block, loginForm.nextSibling);
+        
+        // Add event listener
         document.getElementById('resendVerifyBtn').addEventListener('click', resendVerifyAction);
     }
 
@@ -718,20 +802,51 @@
         const email = document.getElementById('resendVerifyEmail').value.trim();
         const btn = document.getElementById('resendVerifyBtn');
         const msg = document.getElementById('resendVerifyMsg');
-        if (!email) { msg.className = 'message error'; msg.textContent = 'Enter your email'; return; }
-        btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...'; msg.style.display = 'none';
-        try {
-            const res = await fetch(`${API_BASE}/auth/resend-verification`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email })
-            });
-            const data = await res.json().catch(() => ({}));
-            msg.className = res.ok ? 'message success' : 'message error';
-            msg.textContent = data.message || (res.ok ? 'If your account is eligible, we have sent a verification email.' : 'Failed to send verification email.');
+        
+        if (!email) {
+            msg.className = 'message error';
+            msg.textContent = 'Please enter your email address.';
             msg.style.display = 'block';
-        } catch (err) {
-            msg.className = 'message error'; msg.textContent = 'Network error. Please try again.'; msg.style.display = 'block';
+            return;
+        }
+
+        if (!validateEmail(email)) {
+            msg.className = 'message error';
+            msg.textContent = 'Please enter a valid email address.';
+            msg.style.display = 'block';
+            return;
+        }
+        
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+        msg.style.display = 'none';
+        
+        try {
+            const response = await fetch(`${API_BASE}/auth/resend-verification`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            
+            const data = await response.json().catch(() => ({}));
+            
+            if (response.ok) {
+                msg.className = 'message success';
+                msg.textContent = data.message || 'Verification email sent successfully! Please check your inbox.';
+            } else {
+                msg.className = 'message error';
+                msg.textContent = data.message || 'Failed to send verification email. Please try again.';
+            }
+            msg.style.display = 'block';
+            
+        } catch (error) {
+            console.error('Resend verification error:', error);
+            msg.className = 'message error';
+            msg.textContent = 'Network error. Please try again.';
+            msg.style.display = 'block';
         } finally {
-            btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Resend Email';
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Resend Verification Email';
         }
     }
 
