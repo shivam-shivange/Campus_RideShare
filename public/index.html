@@ -86,6 +86,27 @@
         .message.success { background: rgba(22, 163, 74, 0.08); border: 1px solid rgba(22, 163, 74, 0.2); color: var(--success-color); }
         .password-toggle { cursor: pointer; user-select: none; }
 
+        /* Terms & Conditions Checkbox Styles */
+        .checkbox-label { 
+            display: flex; align-items: flex-start; gap: 0.5rem; 
+            font-size: 0.875rem; color: var(--text-secondary);
+        }
+        .checkbox-label input[type="checkbox"] { 
+            margin-top: 0.25rem; 
+            cursor: pointer;
+        }
+        .checkbox-label p { 
+            margin: 0; 
+        }
+        .checkbox-label a { 
+            color: var(--primary-600); 
+            text-decoration: none; 
+            font-weight: 600;
+        }
+        .checkbox-label a:hover { 
+            text-decoration: underline; 
+        }
+
         .terms-popup {
             display: none;
             position: fixed;
@@ -139,71 +160,155 @@
             <div id="loginSection" class="form-section active">
                 <h2>Welcome Back!</h2>
                 <form id="loginForm" novalidate>
-                    <div class="form-group"><label for="loginEmail">Email</label><div class="input-wrapper"><input type="email" id="loginEmail" name="email" autocomplete="email" required><i class="fas fa-envelope input-icon"></i></div></div>
-                    <div class="form-group"><label for="loginPassword">Password</label><div class="input-wrapper"><input type="password" id="loginPassword" name="password" autocomplete="current-password" required><i class="fas fa-lock input-icon password-toggle"></i></div></div>
-                    <button type="submit" class="btn primary"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <div class="input-wrapper">
+                            <input type="email" id="loginEmail" name="email" autocomplete="email" required>
+                            <i class="fas fa-envelope input-icon"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="loginPassword" name="password" autocomplete="current-password" required>
+                            <i class="fas fa-lock input-icon password-toggle"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn primary">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
                 </form>
-                <div class="form-footer"><p><a href="#" id="showForgotLink">Forgot Password?</a></p><p>New to RideShare? <a href="#" id="showSignupLink">Create Account</a></p></div>
+                <div class="form-footer">
+                    <p><a href="#" id="showForgotLink">Forgot Password?</a></p>
+                    <p>New to RideShare? <a href="#" id="showSignupLink">Create Account</a></p>
+                </div>
             </div>
 
             <!-- Signup Form -->
             <div id="signupSection" class="form-section">
                 <h2>Create Your Account</h2>
                 <form id="signupForm" novalidate>
-                    <div class="form-group"><label for="signupName">Full Name *</label><div class="input-wrapper"><input type="text" id="signupName" name="name" autocomplete="name" required><i class="fas fa-user input-icon"></i></div></div>
-                    <div class="form-group"><label for="signupEmail">Email *</label><div class="input-wrapper"><input type="email" id="signupEmail" name="email" autocomplete="email" required><i class="fas fa-envelope input-icon"></i></div></div>
-                    <div class="form-group"><label for="signupPhone">Phone Number *</label><div class="input-wrapper"><input type="tel" id="signupPhone" name="phone" autocomplete="tel" required><i class="fas fa-phone input-icon"></i></div></div>
-                    <div class="form-group"><label for="signupGender">Gender *</label><div class="input-wrapper"><select id="signupGender" name="gender" required><option value="">Select gender</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select><i class="fas fa-venus-mars input-icon"></i></div></div>
-                    <div class="form-group"><label for="signupRole">Role *</label><div class="input-wrapper"><select id="signupRole" name="role" required><option value="">Select role</option><option value="student">Student</option><option value="professor">Professor</option><option value="employee">Employee</option></select><i class="fas fa-id-badge input-icon"></i></div></div>
-                    <div class="form-group"><label for="signupPassword">Password *</label><div class="input-wrapper"><input type="password" id="signupPassword" name="password" autocomplete="new-password" required><i class="fas fa-lock input-icon password-toggle"></i></div></div>
-                    <button type="submit" class="btn primary"><i class="fas fa-user-plus"></i> Create Account</button>
+                    <div class="form-group">
+                        <label for="signupName">Full Name *</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="signupName" name="name" autocomplete="name" required>
+                            <i class="fas fa-user input-icon"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupEmail">Email *</label>
+                        <div class="input-wrapper">
+                            <input type="email" id="signupEmail" name="email" autocomplete="email" required>
+                            <i class="fas fa-envelope input-icon"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupPhone">Phone Number *</label>
+                        <div class="input-wrapper">
+                            <input type="tel" id="signupPhone" name="phone" autocomplete="tel" required>
+                            <i class="fas fa-phone input-icon"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupGender">Gender *</label>
+                        <div class="input-wrapper">
+                            <select id="signupGender" name="gender" required>
+                                <option value="">Select gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <i class="fas fa-venus-mars input-icon"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupRole">Role *</label>
+                        <div class="input-wrapper">
+                            <select id="signupRole" name="role" required>
+                                <option value="">Select role</option>
+                                <option value="student">Student</option>
+                                <option value="professor">Professor</option>
+                                <option value="employee">Employee</option>
+                            </select>
+                            <i class="fas fa-id-badge input-icon"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupPassword">Password *</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="signupPassword" name="password" autocomplete="new-password" required>
+                            <i class="fas fa-lock input-icon password-toggle"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Terms & Conditions Checkbox -->
+                    <div class="form-group">
+                        <div class="checkbox-label">
+                            <input type="checkbox" id="termsCheckbox" name="terms" required>
+                            <p>I agree to the <a href="#" id="viewTerms">Terms & Conditions</a></p>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn primary">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
                 </form>
-                <div class="form-footer"><p>Already have an account? <a href="#" id="showLoginLink">Sign In</a></p></div>
+                <div class="form-footer">
+                    <p>Already have an account? <a href="#" id="showLoginLink">Sign In</a></p>
+                </div>
             </div>
 
             <!-- Forgot Password Form -->
             <div id="forgotSection" class="form-section">
                 <h2>Reset Password</h2>
                 <form id="forgotPasswordForm" novalidate>
-                    <div class="form-group"><label for="forgotEmail">Enter your Email</label><div class="input-wrapper"><input type="email" id="forgotEmail" name="email" autocomplete="email" required><i class="fas fa-envelope input-icon"></i></div></div>
-                    <button type="submit" class="btn primary"><i class="fas fa-paper-plane"></i> Send Reset Link</button>
+                    <div class="form-group">
+                        <label for="forgotEmail">Enter your Email</label>
+                        <div class="input-wrapper">
+                            <input type="email" id="forgotEmail" name="email" autocomplete="email" required>
+                            <i class="fas fa-envelope input-icon"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn primary">
+                        <i class="fas fa-paper-plane"></i> Send Reset Link
+                    </button>
                 </form>
-                <div class="form-footer"><p>Remembered your password? <a href="#" id="showLoginLinkFromForgot">Sign In</a></p></div>
+                <div class="form-footer">
+                    <p>Remembered your password? <a href="#" id="showLoginLinkFromForgot">Sign In</a></p>
+                </div>
             </div>
             
-             <!-- Reset Password Form -->
             <!-- Reset Password Form -->
-<div id="resetSection" class="form-section">
-    <h2>Create New Password</h2>
-    <form id="resetPasswordForm" novalidate>
-        <!-- ✅ ADD HIDDEN USERNAME FIELD FOR ACCESSIBILITY -->
-        <input type="hidden" id="resetToken" name="token">
-        <input type="email" name="username" autocomplete="username" style="display: none;" tabindex="-1" aria-hidden="true">
-        
-        <div class="form-group">
-            <label for="resetPassword">New Password</label>
-            <div class="input-wrapper">
-                <input type="password" id="resetPassword" name="password" autocomplete="new-password" required>
-                <i class="fas fa-lock input-icon password-toggle"></i>
+            <div id="resetSection" class="form-section">
+                <h2>Create New Password</h2>
+                <form id="resetPasswordForm" novalidate>
+                    <input type="hidden" id="resetToken" name="token">
+                    <input type="email" name="username" autocomplete="username" style="display: none;" tabindex="-1" aria-hidden="true">
+                    
+                    <div class="form-group">
+                        <label for="resetPassword">New Password</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="resetPassword" name="password" autocomplete="new-password" required>
+                            <i class="fas fa-lock input-icon password-toggle"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm New Password</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password" required>
+                            <i class="fas fa-lock input-icon password-toggle"></i>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn primary">
+                        <i class="fas fa-save"></i> Save New Password
+                    </button>
+                </form>
             </div>
         </div>
-        
-        <div class="form-group">
-            <label for="confirmPassword">Confirm New Password</label>
-            <div class="input-wrapper">
-                <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password" required>
-                <i class="fas fa-lock input-icon password-toggle"></i>
-            </div>
-        </div>
 
-        <button type="submit" class="btn primary">
-            <i class="fas fa-save"></i> Save New Password
-        </button>
-    </form>
-</div>
-
-</div>
-
+        <!-- Terms & Conditions Popup -->
         <div id="termsPopup" class="terms-popup" style="display:none;">
             <div class="terms-content">
                 <span class="close-btn" id="closeTerms">&times;</span>
@@ -224,48 +329,53 @@
 <script>
     const API_BASE = 'https://campus-rideshare.onrender.com/api';
 
-document.addEventListener('DOMContentLoaded', () => {
-    const token = localStorage.getItem('token');
-    const currentPath = window.location.pathname;
-    const isOnLoginPage = currentPath.endsWith('index.html') || currentPath === '/' || currentPath === '';
-    
-    if (token) {
-        // If user has token, verify it and redirect to homepage
-        verifyTokenAndRedirect();
-    } else if (!isOnLoginPage) {
-        // If no token and not on login page, redirect to login
-        window.location.href = 'index.html';
-    } else {
-        // User is on login page without token - initialize login functionality
-        initializeEventListeners();
-    }
-});
-
-
-async function verifyTokenAndRedirect() {
-    try {
-        const response = await fetch(`${API_BASE}/auth/me`, {
-            headers: { 
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                'Accept': 'application/json'
-            }
-        });
+    document.addEventListener('DOMContentLoaded', () => {
+        // Check for reset token in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const resetToken = urlParams.get('token');
         
-        if (response.ok) {
-            // Token is valid, redirect to homepage
-            window.location.href = 'home_page.html';
+        if (resetToken) {
+            switchForm('resetSection');
+            document.getElementById('resetToken').value = resetToken;
+        }
+
+        const token = localStorage.getItem('token');
+        const currentPath = window.location.pathname;
+        const isOnLoginPage = currentPath.endsWith('index.html') || currentPath === '/' || currentPath === '';
+        
+        if (token) {
+            verifyTokenAndRedirect();
+        } else if (!isOnLoginPage) {
+            window.location.href = 'index.html';
         } else {
-            // Token is invalid, remove it and stay on login page
+            initializeEventListeners();
+        }
+        
+        // Initialize terms popup
+        setupTermsPopup();
+    });
+
+    async function verifyTokenAndRedirect() {
+        try {
+            const response = await fetch(`${API_BASE}/auth/me`, {
+                headers: { 
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                window.location.href = 'home_page.html';
+            } else {
+                localStorage.removeItem('token');
+                initializeEventListeners();
+            }
+        } catch (error) {
+            console.error('Token verification failed:', error);
             localStorage.removeItem('token');
             initializeEventListeners();
         }
-    } catch (error) {
-        console.error('Token verification failed:', error);
-        localStorage.removeItem('token');
-        // Stay on login page and initialize login functionality
-        initializeEventListeners();
     }
-}
 
     function initializeEventListeners() {
         document.getElementById('loginForm').addEventListener('submit', handleLogin);
@@ -293,6 +403,31 @@ async function verifyTokenAndRedirect() {
                 toggle.classList.toggle('fa-unlock');
             });
         });
+    }
+
+    function setupTermsPopup() {
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.id === 'viewTerms') {
+                e.preventDefault();
+                document.getElementById('termsPopup').style.display = 'block';
+            }
+        });
+
+        const closeTermsBtn = document.getElementById('closeTerms');
+        if (closeTermsBtn) {
+            closeTermsBtn.addEventListener('click', function() {
+                document.getElementById('termsPopup').style.display = 'none';
+            });
+        }
+
+        const termsPopup = document.getElementById('termsPopup');
+        if (termsPopup) {
+            window.addEventListener('click', function(event) {
+                if (event.target === termsPopup) {
+                    termsPopup.style.display = 'none';
+                }
+            });
+        }
     }
 
     function switchForm(activeSectionId) {
@@ -335,51 +470,101 @@ async function verifyTokenAndRedirect() {
         }
     }
 
-function handleLogin(e) {
-    e.preventDefault();
-    const form = e.target;
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    clearMessages();
-    
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
-    
-    fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(result => {
-        if (result.token) {
-            localStorage.setItem('token', result.token);
-            // Direct redirect to homepage after successful login
-            window.location.href = 'home_page.html';
-        } else {
-            // Handle verification required or other messages
-            showMessage(result.message || 'Login failed', 'error');
+    // Enhanced email check function
+    async function checkEmailExists(email) {
+        try {
+            const response = await fetch(`${API_BASE}/auth/check-email`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to check email');
+            }
+            
+            const data = await response.json();
+            return data.exists;
+        } catch (error) {
+            console.error('Email check error:', error);
+            return true; // Assume email exists on error to avoid blocking login
         }
-    })
-    .catch(error => {
-        console.error('Login error:', error);
-        showMessage('Login failed. Please try again.', 'error');
-    })
-    .finally(() => {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
-    });
-}
+    }
 
+    // Enhanced login handler with email check
+    async function handleLogin(e) {
+        e.preventDefault();
+        clearMessages();
+
+        const form = e.target;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        if (!data.email || !data.password) {
+            showMessage('Please enter both email and password.', 'error');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+
+        try {
+            // First check if email exists
+            const emailExists = await checkEmailExists(data.email);
+            
+            if (!emailExists) {
+                showMessage('Email not found. Please create an account first.', 'error');
+                return;
+            }
+
+            // If email exists, proceed with login
+            const response = await fetch(`${API_BASE}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.token) {
+                localStorage.setItem('token', result.token);
+                showMessage('Login successful! Redirecting...', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'home_page.html';
+                }, 1000);
+            } else {
+                // Handle verification or other login errors
+                if (result.message && result.message.toLowerCase().includes('verify')) {
+                    showMessage(result.message, 'error');
+                    showResendVerification(result.email || data.email);
+                } else {
+                    showMessage(result.message || 'Login failed', 'error');
+                }
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            showMessage('Login error: ' + error.message, 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    }
 
     function handleSignup(e) {
         e.preventDefault();
         const form = e.target;
         const submitBtn = form.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
+
+        // Check if terms are accepted
+        const termsCheckbox = document.getElementById('termsCheckbox');
+        if (!termsCheckbox.checked) {
+            showMessage('Please accept the Terms & Conditions to continue.', 'error');
+            return;
+        }
 
         submitBtn.disabled = true;
         submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
@@ -420,72 +605,91 @@ function handleLogin(e) {
         });
     }
 
-// In your index.html - Enhanced forgot password handler
-function handleForgotPassword(e) {
-    e.preventDefault();
-    
-    const form = e.target;
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    const email = form.querySelector('input[name="email"]').value.trim();
+    // Enhanced forgot password handler
+    function handleForgotPassword(e) {
+        e.preventDefault();
+        
+        const form = e.target;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        const email = form.querySelector('input[name="email"]').value.trim();
 
-    if (!email) {
-        showMessage('Please enter your email address.', 'error');
-        return;
-    }
-
-    if (!validateEmail(email)) {
-        showMessage('Please enter a valid email address.', 'error');
-        return;
-    }
-
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-    clearMessages();
-
-    // Use async/await for better error handling
-    sendPasswordResetRequest(email, submitBtn, originalText, form);
-}
-
-async function sendPasswordResetRequest(email, submitBtn, originalText, form) {
-    try {
-        const response = await fetch(`${API_BASE}/auth/forgot-password`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email })
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            showMessage('If your email is registered, you\'ll receive a reset link shortly.', 'success');
-            form.reset();
-            
-            setTimeout(() => {
-                showMessage('Please check your email and click the reset link.', 'success');
-            }, 3000);
-        } else {
-            showMessage(result.message || 'Failed to send reset link. Please try again.', 'error');
+        if (!email) {
+            showMessage('Please enter your email address.', 'error');
+            return;
         }
-    } catch (error) {
-        console.error('Network error:', error);
-        showMessage('Network error. Please check your connection and try again.', 'error');
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
-    }
-}
 
+        if (!validateEmail(email)) {
+            showMessage('Please enter a valid email address.', 'error');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+        clearMessages();
+
+        sendPasswordResetRequest(email, submitBtn, originalText, form);
+    }
+
+    async function sendPasswordResetRequest(email, submitBtn, originalText, form) {
+        try {
+            const response = await fetch(`${API_BASE}/auth/forgot-password`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                showMessage('If your email is registered, you\'ll receive a reset link shortly.', 'success');
+                form.reset();
+                
+                setTimeout(() => {
+                    showMessage('Please check your email and click the reset link.', 'success');
+                }, 3000);
+            } else {
+                showMessage(result.message || 'Failed to send reset link. Please try again.', 'error');
+            }
+        } catch (error) {
+            console.error('Network error:', error);
+            showMessage('Network error. Please check your connection and try again.', 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    }
+
+    // Enhanced reset password handler
+    function handleResetPassword(e) {
+        e.preventDefault();
+        const form = e.target;
+        const password = form.querySelector('#resetPassword').value;
+        const confirmPassword = form.querySelector('#confirmPassword').value;
+        
+        if (password !== confirmPassword) {
+            showMessage('Passwords do not match.', 'error');
+            return;
+        }
+        
+        if (password.length < 8) {
+            showMessage('Password must be at least 8 characters long.', 'error');
+            return;
+        }
+        
+        handleFormSubmit(e, '/auth/reset-password', () => {
+            showMessage('Password reset successful! Redirecting to login...', 'success');
+            setTimeout(() => switchForm('loginSection'), 2000);
+        });
+    }
 
     // Email validation helper
     function validateEmail(email) {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(email);
     }
-
-
 
     // Resend verification helpers
     function showResendVerification(prefillEmail) {
@@ -531,42 +735,6 @@ async function sendPasswordResetRequest(email, submitBtn, originalText, form) {
         }
     }
 
-    function handleResetPassword(e) {
-        handleFormSubmit(e, '/auth/reset-password', () => {
-            setTimeout(() => switchForm('loginSection'), 2000);
-        });
-    }
-
-    function validateForm(formData, requiredFields) {
-        const errors = [];
-        
-        requiredFields.forEach(field => {
-            if (!formData[field] || formData[field].trim() === '') {
-                errors.push(`${field} is required`);
-            }
-        });
-        
-        if (formData.email && !validateEmail(formData.email)) {
-            errors.push('Please enter a valid email address');
-        }
-
-        if (formData.password && formData.password.length < 8) {
-            errors.push('Password must be at least 8 characters long');
-        }
-        
-        return errors;
-    }
-
-    function setLoadingState(button, isLoading) {
-        if (isLoading) {
-            button.disabled = true;
-            button.classList.add('loading');
-        } else {
-            button.disabled = false;
-            button.classList.remove('loading');
-        }
-    }
-
     function showMessage(message, type) {
         const container = document.getElementById('messageContainer');
         container.textContent = message;
@@ -578,23 +746,6 @@ async function sendPasswordResetRequest(email, submitBtn, originalText, form) {
         const container = document.getElementById('messageContainer');
         container.style.display = 'none';
     }
-
-document.addEventListener('DOMContentLoaded', () => {
-    const token = localStorage.getItem('token');
-    const isLoginPage = window.location.pathname.endsWith('index.html') || window.location.pathname === '/';
-
-    if (token && !isLoginPage) {
-        // Only verify token if NOT on login/index page
-        verifyTokenAndRedirect();
-    } else if (!token && !isLoginPage) {
-        // If there's no token and NOT on login, force login
-        window.location.href = 'index.html';
-    }
-    // If on login page, don't verify token, let login code handle redirect
-    initializeEventListeners();
-});
-
-
 </script>
 </body>
 </html>
