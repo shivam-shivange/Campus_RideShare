@@ -66,7 +66,7 @@
       box-shadow: var(--shadow-glass); border: 1px solid var(--glass-border);
       padding: 1.25rem 1.25rem 1rem; transition: all 0.3s ease;
     }
-    .ride-card:hover { transform: translateY(-2px); box-shadow: 0 12px 40px 0 rgba(255, 215, 0, 0.5); }
+    .ride-card:hover { transform: translateY(-2px); box-shadow: 0 12px 40px 0 rgba(117, 138, 197, 0.3); }
     .ride-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; gap: 1rem; }
     .route-info h3 { color: var(--text-primary); font-size: 1.1rem; margin-bottom: 0.25rem; }
     .route-details { color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
@@ -92,8 +92,18 @@
     .companions-list { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem; }
     .companion-card {
       background: rgba(255, 255, 255, 0.4); padding: 0.75rem; border-radius: 12px;
-      border: 1px solid var(--glass-border); flex: 1 1 240px; min-width: 220px;
+      border: 1px solid var(--glass-border); flex: 1 1 240px; min-width: 220px; display: flex;
+      flex-direction: column;gap: 0.5rem;
     }
+    /* Companion actions container */
+  .companion-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+}
     .companion-name { color: var(--text-primary); font-weight: 600; margin-bottom: 0.25rem; }
     .companion-details { color: var(--text-secondary); font-size: 0.85rem; }
     .section-title { color: var(--text-primary); width: 100%; margin: 0.25rem 0 0.25rem; font-size: 0.95rem; }
@@ -106,6 +116,70 @@
     }
     .notification.success { border-left: 4px solid var(--success-color); }
     .notification.error { border-left: 4px solid var(--danger-color); }
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .companion-card {
+        min-width: 100%;
+        flex: 1;
+    }
+    
+    .companion-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+        width: 100%;
+    }
+    
+    .companion-actions .btn {
+        width: 100%;
+        justify-content: center;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .companions-list {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .ride-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .ride-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Extra small mobile devices */
+@media (max-width: 480px) {
+    .container {
+        padding: 0.5rem;
+    }
+    
+    .header {
+        padding: 1.5rem;
+    }
+    
+    .ride-card {
+        padding: 1rem;
+    }
+    
+    .filter-section {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .filter-btn {
+        padding: 0.75rem;
+    }
+}
+
+
+
+
     @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
   </style>
 </head>
