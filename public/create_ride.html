@@ -455,7 +455,7 @@
             transform: translateY(-1px);
         }
 
-        /* Enhanced Date Picker Styling */
+        /* Enhanced DateTime Picker Styling */
         .flatpickr-calendar {
             background: rgba(255, 255, 255, 0.95) !important;
             backdrop-filter: blur(20px) !important;
@@ -505,19 +505,49 @@
             fill: var(--primary-600) !important;
         }
 
-        /* Date Input Wrapper for clickable area */
-        .date-input-wrapper {
+        /* Enhanced Time Picker Styling */
+        .flatpickr-time {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-top: 1px solid var(--glass-border) !important;
+        }
+
+        .flatpickr-time input:hover,
+        .numInputWrapper:hover {
+            background: rgba(37, 99, 235, 0.1) !important;
+        }
+
+        .flatpickr-am-pm {
+            background: var(--primary-500) !important;
+            color: white !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+        }
+
+        .flatpickr-am-pm:hover {
+            background: var(--primary-600) !important;
+        }
+
+        .numInput {
+            background: rgba(255, 255, 255, 0.8) !important;
+            border: 1px solid var(--glass-border) !important;
+            border-radius: 6px !important;
+            color: var(--text-primary) !important;
+            font-weight: 500 !important;
+        }
+
+        /* DateTime Input Wrapper for clickable area */
+        .datetime-input-wrapper {
             position: relative;
             cursor: pointer;
             user-select: none;
         }
         
-        .date-input-wrapper .form-control {
+        .datetime-input-wrapper .form-control {
             cursor: pointer;
             caret-color: transparent;
         }
         
-        .date-input-wrapper .input-icon {
+        .datetime-input-wrapper .input-icon {
             pointer-events: none;
         }
 
@@ -616,12 +646,12 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="departureDate">Departure Date *</label>
-                            <div class="input-wrapper date-input-wrapper" id="dateInputWrapper">
-                                <input type="text" id="departureDate" name="departureDate" class="form-control" placeholder="Select date" readonly required>
+                            <label for="departureDateTime">Departure Date & Time *</label>
+                            <div class="input-wrapper datetime-input-wrapper" id="dateTimeInputWrapper">
+                                <input type="text" id="departureDateTime" name="departureDateTime" class="form-control" placeholder="Select date & time" readonly required>
                                 <i class="fas fa-calendar-alt input-icon"></i>
                             </div>
-                            <span class="error-message" id="departureDateError"></span>
+                            <span class="error-message" id="departureDateTimeError"></span>
                         </div>
                     </div>
 
@@ -696,7 +726,7 @@
         constructor() {
             this.seatsCount = 1;
             this.apiBaseUrl = 'https://campus-rideshare.onrender.com/api';
-            this.datePickerInstance = null;
+            this.dateTimePickerInstance = null;
             this.init();
         }
 
@@ -778,7 +808,7 @@
         init() {
             this.checkForAuth();
             this.bindEvents();
-            this.initDatePicker();
+            this.initDateTimePicker();
             this.loadStartingLocations();
         }
 
@@ -790,31 +820,33 @@
             }
         }
 
-        initDatePicker() {
-            const dateInput = document.getElementById('departureDate');
-            const dateInputWrapper = document.getElementById('dateInputWrapper');
+        initDateTimePicker() {
+            const dateTimeInput = document.getElementById('departureDateTime');
+            const dateTimeInputWrapper = document.getElementById('dateTimeInputWrapper');
             
-            if (dateInput) {
-                // Initialize Flatpickr with date-only selection
-                this.datePickerInstance = flatpickr(dateInput, {
-                    dateFormat: "Y-m-d",
+            if (dateTimeInput) {
+                // Initialize Flatpickr with DATE AND TIME selection
+                this.dateTimePickerInstance = flatpickr(dateTimeInput, {
+                    enableTime: true, // ENABLE TIME PICKER
+                    dateFormat: "Y-m-d H:i", // Date and time format
                     altInput: true,
-                    altFormat: "F j, Y",
+                    altFormat: "F j, Y h:i K", // Display format with AM/PM
                     minDate: "today",
+                    time_24hr: false, // Use 12-hour format with AM/PM
                     allowInput: false, // Prevent manual typing
                     clickOpens: false, // We'll control opening manually
                     onChange: (selectedDates, dateStr) => {
-                        // Clear any previous errors when date is selected
-                        document.getElementById('departureDateError').textContent = '';
+                        // Clear any previous errors when date/time is selected
+                        document.getElementById('departureDateTimeError').textContent = '';
                     }
                 });
 
-                // Make entire wrapper clickable
-                if (dateInputWrapper && this.datePickerInstance) {
-                    dateInputWrapper.addEventListener('click', (event) => {
+                // Make entire wrapper clickable to open date/time picker
+                if (dateTimeInputWrapper && this.dateTimePickerInstance) {
+                    dateTimeInputWrapper.addEventListener('click', (event) => {
                         event.preventDefault();
                         event.stopPropagation();
-                        this.datePickerInstance.open();
+                        this.dateTimePickerInstance.open();
                     });
                 }
             }
@@ -836,7 +868,7 @@
                 this.handleRideCreation();
             });
 
-            const requiredFields = ['fromLocation', 'toLocation', 'genderAcceptance', 'departureDate'];
+            const requiredFields = ['fromLocation', 'toLocation', 'genderAcceptance', 'departureDateTime'];
             requiredFields.forEach(field => {
                 document.getElementById(field).addEventListener('blur', () => this.validateField(field));
             });
@@ -874,8 +906,8 @@
                 errorElement.textContent = `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1).replace(/([A-Z])/g, ' $1')} is required.`;
                 return false;
             }
-            if (fieldName === 'departureDate' && new Date(field.value) <= new Date()) {
-                errorElement.textContent = 'Please select a future date.';
+            if (fieldName === 'departureDateTime' && new Date(field.value) <= new Date()) {
+                errorElement.textContent = 'Please select a future date and time.';
                 return false;
             }
             if ((fieldName === 'fromLocation' || fieldName === 'toLocation') && field.value.length < 3) {
@@ -898,7 +930,7 @@
 
         validateAllFields() {
             let isValid = true;
-            ['fromLocation', 'toLocation', 'genderAcceptance', 'departureDate'].forEach(field => {
+            ['fromLocation', 'toLocation', 'genderAcceptance', 'departureDateTime'].forEach(field => {
                 if (!this.validateField(field)) isValid = false;
             });
             if (!this.validateConfirmation()) isValid = false;
@@ -937,15 +969,14 @@
             const postRideBtn = document.getElementById('postRideBtn');
             const formData = new FormData(document.getElementById('createRideForm'));
 
-            // Create a complete datetime by appending default time (9:00 AM) to the date
-            const selectedDate = formData.get('departureDate');
-            const dateTime = `${selectedDate}T09:00:00`;
+            // Use the complete datetime from the picker (includes both date and time)
+            const selectedDateTime = formData.get('departureDateTime');
 
             const apiPayload = {
                 fromLocation: formData.get('fromLocation'),
                 toLocation: formData.get('toLocation'),
                 preferredGender: this.mapGender(formData.get('genderAcceptance')),
-                dateTime: dateTime,
+                dateTime: selectedDateTime, // Now includes both date and time
                 availableSeats: parseInt(this.seatsCount, 10),
                 luggageSpace: formData.has('luggageSpace'),
                 allowChat: formData.has('allowChat'),
