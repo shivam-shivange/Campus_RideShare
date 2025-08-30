@@ -54,27 +54,6 @@
             z-index: 1;
         }
 
-        .form-container {
-            background: var(--form-bg);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border-radius: 28px;
-            box-shadow: var(--shadow-glass);
-            overflow: hidden;
-            border: 1px solid var(--glass-border);
-            position: relative;
-        }
-
-        .form-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-        }
-
         .header {
             text-align: center;
             padding: 2.5rem 2rem 1.5rem;
@@ -455,6 +434,27 @@
         }
 
         /* Mobile layout: stack form fields vertically */
+.form-container {
+    background: var(--form-bg);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border-radius: 28px;
+    box-shadow: var(--shadow-glass);
+    overflow: hidden;
+    border: 1px solid var(--glass-border);
+    position: relative;
+}
+
+.form-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+}
+
 @media (max-width: 640px) {
     body {
         padding-left: 1rem !important;
@@ -465,34 +465,95 @@
         padding: 1.5rem !important;
     }
 
-    .form-row {
-        grid-template-columns: 1fr !important;
-        gap: 1rem !important;
-    }
-    
-    .container {
-        width: 100%;
-        padding-left: 1rem;  /* Closer to edges */
-        padding-right: 1rem;
-    }
-}
-
-/* Even tighter on smaller phones */
-@media (max-width: 480px) {
-    body {
-        padding-left: 0.75rem !important;
-        padding-right: 0.75rem !important;
+    .form-container, .container {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
     }
 
     .form-container {
+        border-radius: 16px; /* slightly reduce radius if you want */
+    }
+
+    .form-container::before {
+        left: 1rem;
+        right: 1rem;
+    }
+
+    .form-container, .container {
+        box-sizing: border-box;
+    }
+
+    .form-container, .container {
+        /* Remove extra margin/padding to bring closer */
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    .form-container, .container {
+        max-width: 100% !important;
+    }
+
+    .form-container {
+        /* reduce padding if still too much space */
         padding: 1rem !important;
     }
 
-    .container {
-        padding-left: 0.75rem;
-        padding-right: 0.75rem;
+    .form-container, .container {
+        /* Ensure no horizontal scrollbar */
+        overflow-x: hidden;
+    }
+
+    .form-container {
+        box-shadow: none; /* optionally remove shadow to save space */
+    }
+
+    .form-container {
+        border-width: 1px !important;
+    }
+
+    .form-container {
+        /* Keep border radius but less */
+        border-radius: 8px !important;
+    }
+
+    .form-container {
+        margin: 0 auto;
+    }
+
+    /* Form fields stacked vertically */
+    .form-row {
+        display: block !important;
+    }
+    
+    .form-row > * {
+        width: 100% !important;
+        margin-bottom: 1rem;
     }
 }
+
+@media (max-width: 480px) {
+    body {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    .form-container {
+        padding: 1px !important;
+    }
+
+    .form-section {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+    }
+
+    .form-container, .container {
+        padding-left: 1px !important;
+        padding-right: 1px !important;
+    }
+}
+
 
     </style>
 </head>
