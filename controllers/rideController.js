@@ -425,14 +425,14 @@ export const getUserRides = async (req, res) => {
     if (type === 'created') {
       rideQuery.creatorId = req.user.id;
     } else if (type === 'requested') {
-      rideQuery.requests = { $elemMatch: { $eq: req.user.id } };
+      rideQuery.requests = req.user.id; // Simple array contains check
     } else if (type === 'confirmed') {
-      rideQuery.confirmedUsers = { $elemMatch: { $eq: req.user.id } };
+      rideQuery.confirmedUsers = req.user.id; // Simple array contains check
     } else if (type === 'all') {
       rideQuery.$or = [
         { creatorId: req.user.id },
-        { requests: { $elemMatch: { $eq: req.user.id } } },
-        { confirmedUsers: { $elemMatch: { $eq: req.user.id } } }
+        { requests: req.user.id }, // Simplified
+        { confirmedUsers: req.user.id } // Simplified
       ];
     }
 
