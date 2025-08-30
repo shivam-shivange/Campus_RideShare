@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>RideShare - Create New Ride</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
     <style>
         :root {
             --primary-500: #2563eb;
@@ -454,203 +453,12 @@
             background: rgba(255, 255, 255, 0.3);
             transform: translateY(-1px);
         }
-
-        /* MOBILE-OPTIMIZED FLATPICKR - SMALLER SIZE */
-        .flatpickr-calendar {
-            background: rgba(255, 255, 255, 0.95) !important;
-            backdrop-filter: blur(20px) !important;
-            -webkit-backdrop-filter: blur(20px) !important;
-            border: 1px solid var(--glass-border) !important;
-            border-radius: 12px !important; /* Reduced from 16px */
-            box-shadow: var(--shadow-glass) !important;
-            font-family: 'Inter', sans-serif !important;
-            z-index: 99999 !important;
-            position: fixed !important;
-            transform: scale(0.85) !important; /* Makes entire calendar 85% of original size */
-            transform-origin: center center !important;
-        }
-
-        .flatpickr-calendar.open {
-            animation: slideInUpSmall 0.3s ease-out;
-        }
-
-        @keyframes slideInUpSmall {
-            from { opacity: 0; transform: scale(0.75) translateY(10px); }
-            to { opacity: 1; transform: scale(0.85) translateY(0); }
-        }
-
-        /* Smaller day cells */
-        .flatpickr-day {
-            border-radius: 6px !important; /* Reduced from 8px */
-            margin: 1px !important; /* Reduced from 2px */
-            transition: all 0.2s ease !important;
-            font-size: 14px !important; /* Reduced from 16px */
-            min-height: 32px !important; /* Reduced from 40px */
-            width: 32px !important; /* Explicit width */
-        }
-
-        .flatpickr-day:hover, .flatpickr-day:focus {
-            background: var(--primary-500) !important;
-            color: white !important;
-            transform: scale(1.1) !important; /* Slightly reduced scale */
-            border-color: var(--primary-500) !important;
-        }
-
-        .flatpickr-day.selected {
-            background: var(--secondary-gradient) !important;
-            border-color: var(--primary-600) !important;
-            color: white !important;
-        }
-
-        /* Smaller month/year selectors */
-        .flatpickr-current-month .flatpickr-monthDropdown-months {
-            background: rgba(255, 255, 255, 0.9) !important;
-            border-radius: 6px !important;
-            color: var(--text-primary) !important;
-            font-size: 14px !important;
-        }
-
-        /* Smaller navigation arrows */
-        .flatpickr-months .flatpickr-prev-month,
-        .flatpickr-months .flatpickr-next-month {
-            width: 24px !important;
-            height: 24px !important;
-        }
-
-        .flatpickr-months .flatpickr-prev-month:hover svg,
-        .flatpickr-months .flatpickr-next-month:hover svg {
-            fill: var(--primary-600) !important;
-        }
-
-        /* Smaller time picker (for create ride page) */
-        .flatpickr-time {
-            background: rgba(255, 255, 255, 0.9) !important;
-            border-top: 1px solid var(--glass-border) !important;
-            padding: 8px !important; /* Reduced from 10px */
-        }
-
-        .flatpickr-time input:hover,
-        .numInputWrapper:hover {
-            background: rgba(37, 99, 235, 0.1) !important;
-        }
-
-        .flatpickr-am-pm {
-            background: var(--primary-500) !important;
-            color: white !important;
-            border-radius: 6px !important;
-            font-weight: 600 !important;
-            min-height: 32px !important; /* Reduced from 40px */
-            font-size: 14px !important; /* Reduced from 16px */
-            padding: 0 8px !important;
-        }
-
-        .flatpickr-am-pm:hover {
-            background: var(--primary-600) !important;
-        }
-
-        .numInput {
-            background: rgba(255, 255, 255, 0.8) !important;
-            border: 1px solid var(--glass-border) !important;
-            border-radius: 4px !important;
-            color: var(--text-primary) !important;
-            font-weight: 500 !important;
-            min-height: 32px !important; /* Reduced from 40px */
-            font-size: 14px !important; /* Reduced from 16px */
-            width: 40px !important;
-        }
-
-        /* DateTime Input Wrapper for clickable area - MOBILE FIXES */
-        .datetime-input-wrapper {
-            position: relative;
-            cursor: pointer;
-            user-select: none;
-        }
-        
-        .datetime-input-wrapper .form-control {
-            cursor: pointer;
-            caret-color: transparent;
-            font-size: 16px !important; /* Prevent zoom on iOS */
-        }
-        
-        .datetime-input-wrapper .input-icon {
-            pointer-events: none;
-        }
-
-        /* Mobile specific smaller sizing */
-        @media (max-width: 640px) {
-            .container { padding: 0.5rem; }
-            .form-section { padding: 1.5rem; }
-            .header { padding: 2rem 1.5rem 1rem; }
-            .header h1 { font-size: 1.75rem; }
-            .header-icon { font-size: 2.5rem; }
-            .form-row { grid-template-columns: 1fr; gap: 0; }
-            .counter-group { justify-content: center; }
-            
-            .flatpickr-calendar {
-                width: 280px !important; /* Reduced from 380px */
-                max-width: 90vw !important;
-                left: 50% !important;
-                top: 50% !important;
-                transform: translateX(-50%) translateY(-50%) scale(0.8) !important; /* Even smaller on mobile */
-            }
-            
-            .flatpickr-day {
-                min-height: 36px !important; /* Slightly larger for touch but still smaller than before */
-                font-size: 15px !important;
-                width: 36px !important;
-            }
-            
-            .flatpickr-am-pm,
-            .numInput {
-                min-height: 36px !important;
-                font-size: 15px !important;
-            }
-        }
-
-        /* Even smaller for very small screens */
-        @media (max-width: 480px) {
-            .flatpickr-calendar {
-                width: 260px !important;
-                transform: translateX(-50%) translateY(-50%) scale(0.75) !important; /* 75% size on small phones */
-            }
-            
-            .flatpickr-day {
-                min-height: 34px !important;
-                width: 34px !important;
-                font-size: 14px !important;
-            }
-        }
-
-        .glass-notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--form-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            color: var(--text-primary);
-            padding: 16px 20px;
-            border-radius: 16px;
-            border: 1px solid var(--glass-border);
-            box-shadow: var(--shadow-glass);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            animation: slideInRight 0.3s ease-out;
-            max-width: 300px;
-            font-weight: 500;
-        }
-
-        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
-</style>
-
+    </style>
 </head>
 <body>
     <div class="container">
         <div class="form-container">
-            <button class="back-btn" id="backBtn">
+            <button class="back-btn" id="backBtn" title="Back">
                 <i class="fas fa-arrow-left"></i>
             </button>
 
@@ -703,51 +511,51 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="departureDateTime">Departure Date & Time *</label>
-                            <div class="input-wrapper datetime-input-wrapper" id="dateTimeInputWrapper">
-                                <input type="text" id="departureDateTime" name="departureDateTime" class="form-control" placeholder="Select date & time" readonly required>
-                                <i class="fas fa-calendar-alt input-icon"></i>
-                            </div>
-                            <span class="error-message" id="departureDateTimeError"></span>
+                            <label for="departureDate">Departure Date *</label>
+                            <input type="date" id="departureDate" name="departureDate" class="form-control" required />
+                            <span class="error-message" id="departureDateError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="departureTime">Departure Time *</label>
+                            <input type="time" id="departureTime" name="departureTime" class="form-control" required />
+                            <span class="error-message" id="departureTimeError"></span>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="seatsAvailable">Seats Available *</label>
                         <div class="counter-group">
-                            <button type="button" class="counter-btn" id="decreaseSeats">
+                            <button type="button" class="counter-btn" id="decreaseSeats" title="Decrease seats">
                                 <i class="fas fa-minus"></i>
                             </button>
                             <div class="counter-display" id="seatsDisplay">1</div>
-                            <button type="button" class="counter-btn" id="increaseSeats">
+                            <button type="button" class="counter-btn" id="increaseSeats" title="Increase seats">
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
-                        <input type="hidden" id="seatsAvailable" name="seatsAvailable" value="1">
+                        <input type="hidden" id="seatsAvailable" name="seatsAvailable" value="1" />
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label>Luggage Space</label>
-                            <div class="toggle-group">
+                            <div class="toggle-group" id="luggageToggle" tabindex="0" role="button" aria-pressed="false" aria-label="Toggle luggage space">
                                 <span class="toggle-label"><i class="fas fa-suitcase" style="margin-right: 8px;"></i>Luggage space</span>
-                                <div class="toggle-switch" id="luggageToggle">
-                                    <input type="checkbox" id="luggageSpace" name="luggageSpace">
+                                <input type="checkbox" id="luggageSpace" name="luggageSpace" hidden />
+                                <div class="toggle-switch" aria-hidden="true">
                                     <div class="toggle-slider"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="form-group full-width">
                          <label>Passenger Communication</label>
-                         <div class="toggle-group">
-                             <span class="toggle-label">
-                                 <i class="fas fa-comments" style="margin-right: 8px;"></i>
-                                 Enable chat with passengers
-                             </span>
-                             <div class="toggle-switch active" id="allowChatToggle">
-                                 <input type="checkbox" id="allowChat" name="allowChat" checked>
+                         <div class="toggle-group active" id="allowChatToggle" tabindex="0" role="button" aria-pressed="true" aria-label="Toggle chat with passengers">
+                             <span class="toggle-label"><i class="fas fa-comments" style="margin-right: 8px;"></i>Enable chat with passengers</span>
+                             <input type="checkbox" id="allowChat" name="allowChat" checked hidden />
+                             <div class="toggle-switch" aria-hidden="true">
                                  <div class="toggle-slider"></div>
                              </div>
                          </div>
@@ -759,8 +567,8 @@
                     </div>
 
                     <div class="confirmation-group">
-                        <label class="confirmation-checkbox">
-                            <input type="checkbox" id="confirmationBox" name="confirmationBox" required>
+                        <label class="confirmation-checkbox" for="confirmationBox">
+                            <input type="checkbox" id="confirmationBox" name="confirmationBox" required />
                             <div class="confirmation-text">
                                 I confirm that all the information provided is accurate. I understand that I am responsible for communicating with passengers and ensuring a safe ride. I agree to the terms and conditions of RideShare platform.
                             </div>
@@ -768,7 +576,7 @@
                         <span class="error-message" id="confirmationBoxError"></span>
                     </div>
 
-                    <button type="submit" id="postRideBtn" class="btn primary">
+                    <button type="submit" id="postRideBtn" class="btn primary" aria-label="Post Ride Button">
                         <i class="fas fa-paper-plane" style="margin-right: 10px;"></i>
                         Post Ride
                     </button>
@@ -777,13 +585,11 @@
         </div>
     </div>
 
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
     class RideCreator {
         constructor() {
             this.seatsCount = 1;
             this.apiBaseUrl = 'https://campus-rideshare.onrender.com/api';
-            this.dateTimePickerInstance = null;
             this.init();
         }
 
@@ -796,21 +602,13 @@
                 }
 
                 const response = await fetch(`${this.apiBaseUrl}/locations/starting-points`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
-
-                if (!response.ok) {
-                    throw new Error('Failed to load locations');
-                }
+                if (!response.ok) throw new Error('Failed to load locations');
 
                 const locations = await response.json();
-                console.log('Loaded starting locations:', locations);
-                
                 const fromSelect = document.getElementById('fromLocation');
                 fromSelect.innerHTML = '<option value="">Select starting point</option>';
-                
                 locations.forEach(location => {
                     fromSelect.innerHTML += `<option value="${location.name}">${location.name} (${location.type})</option>`;
                 });
@@ -826,7 +624,6 @@
                 if (!token) return;
 
                 const toSelect = document.getElementById('toLocation');
-                
                 if (!fromLocation) {
                     toSelect.innerHTML = '<option value="">Select destination</option>';
                     toSelect.disabled = true;
@@ -834,24 +631,15 @@
                 }
 
                 const response = await fetch(`${this.apiBaseUrl}/locations/destinations?fromLocation=${encodeURIComponent(fromLocation)}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
-
-                if (!response.ok) {
-                    throw new Error('Failed to load destinations');
-                }
+                if (!response.ok) throw new Error('Failed to load destinations');
 
                 const locations = await response.json();
-                console.log('Loaded destinations for', fromLocation, ':', locations);
-                
                 toSelect.innerHTML = '<option value="">Select destination</option>';
-                
                 locations.forEach(location => {
                     toSelect.innerHTML += `<option value="${location.name}">${location.name} (${location.type})</option>`;
                 });
-                
                 toSelect.disabled = false;
             } catch (error) {
                 console.error('Error loading destinations:', error);
@@ -865,8 +653,8 @@
         init() {
             this.checkForAuth();
             this.bindEvents();
-            this.initDateTimePicker();
             this.loadStartingLocations();
+            this.setMinDepartureDate();
         }
 
         checkForAuth() {
@@ -877,42 +665,11 @@
             }
         }
 
-        initDateTimePicker() {
-            const dateTimeInput = document.getElementById('departureDateTime');
-            const dateTimeInputWrapper = document.getElementById('dateTimeInputWrapper');
-            
-            if (dateTimeInput) {
-                // MOBILE FIX: Initialize Flatpickr with disableMobile option
-                this.dateTimePickerInstance = flatpickr(dateTimeInput, {
-                    enableTime: true, // ENABLE TIME PICKER
-                    dateFormat: "Y-m-d H:i", // Date and time format
-                    altInput: true,
-                    altFormat: "F j, Y h:i K", // Display format with AM/PM
-                    minDate: "today",
-                    time_24hr: false, // Use 12-hour format with AM/PM
-                    allowInput: false, // Prevent manual typing
-                    clickOpens: false, // We'll control opening manually
-                    disableMobile: true, // CRITICAL: Force flatpickr UI on mobile instead of native
-                    onChange: (selectedDates, dateStr) => {
-                        // Clear any previous errors when date/time is selected
-                        document.getElementById('departureDateTimeError').textContent = '';
-                    }
-                });
-
-                // Make entire wrapper clickable to open date/time picker
-                if (dateTimeInputWrapper && this.dateTimePickerInstance) {
-                    dateTimeInputWrapper.addEventListener('click', (event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        this.dateTimePickerInstance.open();
-                    });
-                    
-                    // MOBILE FIX: Also add touch events for better mobile support
-                    dateTimeInputWrapper.addEventListener('touchstart', (event) => {
-                        event.preventDefault();
-                        this.dateTimePickerInstance.open();
-                    });
-                }
+        setMinDepartureDate() {
+            const dateInput = document.getElementById('departureDate');
+            if (dateInput) {
+                const todayISO = new Date().toISOString().split('T')[0];
+                dateInput.setAttribute('min', todayISO);
             }
         }
 
@@ -924,21 +681,29 @@
             document.getElementById('increaseSeats').addEventListener('click', () => this.updateSeats(1));
             document.getElementById('decreaseSeats').addEventListener('click', () => this.updateSeats(-1));
 
-            document.getElementById('luggageToggle').addEventListener('click', () => this.toggleSwitch('luggageToggle', 'luggageSpace'));
-            document.getElementById('allowChatToggle').addEventListener('click', () => this.toggleSwitch('allowChatToggle', 'allowChat'));
+            ['luggageToggle', 'allowChatToggle'].forEach(toggleId => {
+                const toggle = document.getElementById(toggleId);
+                toggle.addEventListener('click', () => this.toggleSwitch(toggleId));
+                toggle.addEventListener('keydown', e => {
+                    if (e.key === ' ' || e.key === 'Enter') {
+                        e.preventDefault();
+                        this.toggleSwitch(toggleId);
+                    }
+                });
+            });
 
-            document.getElementById('createRideForm').addEventListener('submit', (e) => {
+            document.getElementById('createRideForm').addEventListener('submit', e => {
                 e.preventDefault();
                 this.handleRideCreation();
             });
 
-            const requiredFields = ['fromLocation', 'toLocation', 'genderAcceptance', 'departureDateTime'];
+            const requiredFields = ['fromLocation', 'toLocation', 'genderAcceptance', 'departureDate', 'departureTime'];
             requiredFields.forEach(field => {
                 document.getElementById(field).addEventListener('blur', () => this.validateField(field));
             });
             document.getElementById('confirmationBox').addEventListener('change', () => this.validateConfirmation());
 
-            document.getElementById('fromLocation').addEventListener('change', (e) => {
+            document.getElementById('fromLocation').addEventListener('change', e => {
                 this.loadDestinations(e.target.value);
             });
         }
@@ -954,11 +719,13 @@
             }
         }
 
-        toggleSwitch(toggleId, checkboxId) {
+        toggleSwitch(toggleId) {
             const toggle = document.getElementById(toggleId);
+            const checkboxId = toggleId === 'luggageToggle' ? 'luggageSpace' : 'allowChat';
             const checkbox = document.getElementById(checkboxId);
             checkbox.checked = !checkbox.checked;
             toggle.classList.toggle('active', checkbox.checked);
+            toggle.setAttribute('aria-pressed', checkbox.checked ? 'true' : 'false');
         }
 
         validateField(fieldName) {
@@ -967,17 +734,32 @@
             errorElement.textContent = '';
 
             if (!field.value.trim()) {
-                errorElement.textContent = `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1).replace(/([A-Z])/g, ' $1')} is required.`;
+                errorElement.textContent = `${this.formatLabel(fieldName)} is required.`;
                 return false;
             }
-            if (fieldName === 'departureDateTime' && new Date(field.value) <= new Date()) {
-                errorElement.textContent = 'Please select a future date and time.';
-                return false;
+
+            if (fieldName === 'departureDate') {
+                const today = new Date();
+                const selectedDate = new Date(field.value);
+                today.setHours(0, 0, 0, 0);
+                if (selectedDate < today) {
+                    errorElement.textContent = 'Please select today or a future date.';
+                    return false;
+                }
             }
+
+            if (fieldName === 'departureTime') {
+                if (!field.value.match(/^([01]\d|2[0-3]):([0-5]\d)$/)) {
+                    errorElement.textContent = 'Please enter a valid time.';
+                    return false;
+                }
+            }
+
             if ((fieldName === 'fromLocation' || fieldName === 'toLocation') && field.value.length < 3) {
                 errorElement.textContent = 'Location must be at least 3 characters.';
                 return false;
             }
+
             return true;
         }
 
@@ -994,7 +776,7 @@
 
         validateAllFields() {
             let isValid = true;
-            ['fromLocation', 'toLocation', 'genderAcceptance', 'departureDateTime'].forEach(field => {
+            ['fromLocation', 'toLocation', 'genderAcceptance', 'departureDate', 'departureTime'].forEach(field => {
                 if (!this.validateField(field)) isValid = false;
             });
             if (!this.validateConfirmation()) isValid = false;
@@ -1013,12 +795,20 @@
             notification.className = 'glass-notification';
             const icon = isSuccess ? 'fa-check-circle' : 'fa-exclamation-circle';
             if (!isSuccess) notification.style.borderColor = 'var(--error-color)';
+            notification.setAttribute('role', 'alert');
             notification.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
             document.body.appendChild(notification);
             setTimeout(() => {
                 notification.style.animation = 'slideOutRight 0.3s ease-in forwards';
                 notification.addEventListener('animationend', () => notification.remove());
             }, 3000);
+        }
+
+        formatLabel(fieldName) {
+            return fieldName.charAt(0).toUpperCase() + fieldName.slice(1)
+                .replace(/([A-Z])/g, ' $1')
+                .replace(/departure Date/, 'Departure Date')
+                .replace(/departure Time/, 'Departure Time');
         }
 
         async handleRideCreation() {
@@ -1033,14 +823,22 @@
             const postRideBtn = document.getElementById('postRideBtn');
             const formData = new FormData(document.getElementById('createRideForm'));
 
-            // Use the complete datetime from the picker (includes both date and time)
-            const selectedDateTime = formData.get('departureDateTime');
+            const date = formData.get('departureDate');  // yyyy-MM-dd
+            const time = formData.get('departureTime');  // HH:mm (24h)
+
+            // Combine to ISO string
+            const combinedDateTimeLocal = new Date(`${date}T${time}`);
+            if (isNaN(combinedDateTimeLocal.getTime())) {
+                this.showNotification('Invalid date/time selected.', false);
+                return;
+            }
+            const isoDateTime = combinedDateTimeLocal.toISOString();
 
             const apiPayload = {
                 fromLocation: formData.get('fromLocation'),
                 toLocation: formData.get('toLocation'),
                 preferredGender: this.mapGender(formData.get('genderAcceptance')),
-                dateTime: selectedDateTime, // Now includes both date and time
+                dateTime: isoDateTime,
                 availableSeats: parseInt(this.seatsCount, 10),
                 luggageSpace: formData.has('luggageSpace'),
                 allowChat: formData.has('allowChat'),
@@ -1052,8 +850,6 @@
                 postRideBtn.classList.add('loading');
                 postRideBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i>Posting Ride...';
 
-                console.log('Sending ride data:', apiPayload);
-
                 const response = await fetch(`${this.apiBaseUrl}/rides`, {
                     method: 'POST',
                     headers: {
@@ -1062,9 +858,8 @@
                     },
                     body: JSON.stringify(apiPayload)
                 });
-                
+
                 const result = await response.json();
-                console.log('Server response:', result);
 
                 if (!response.ok) throw new Error(result.message || 'Failed to post ride.');
 

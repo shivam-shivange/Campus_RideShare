@@ -1,222 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RideShare - Home</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RideShare - Create New Ride</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
     <style>
-        /* Profile Menu Styles */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            margin-bottom: 2rem;
-            position: relative;
-            z-index: 1000;
-        }
-        .profile-menu {
-            position: relative;
-            display: none; /* Will be shown when authenticated */
-            z-index: 10000;
-        }
-        .profile-button {
-            background: rgba(37, 99, 235, 0.2);
-            border: 1px solid rgba(37, 99, 235, 0.3);
-            cursor: pointer;
-            padding: 0.75rem;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-        .profile-button:hover {
-            background: rgba(37, 99, 235, 0.3);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
-        }
-        .profile-icon {
-            font-size: 1.5rem;
-            color: var(--text-primary);
-        }
-        
-        /* Enhanced Dropdown Menu Styling */
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: var(--glass-bg);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border-radius: 16px;
-            box-shadow: var(--shadow-glass);
-            border: 1px solid var(--glass-border);
-            padding: 0.5rem 0;
-            min-width: 160px;
-            width: max-content;
-            max-width: 220px;
-            white-space: nowrap;
-            display: none;
-            z-index: 999999 !important;
-            margin-top: 0.5rem;
-            animation: dropdownFadeIn 0.3s ease-out;
-        }
-        
-        @keyframes dropdownFadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-        
-        .dropdown-menu.show {
-            display: block !important;
-        }
-        
-        .dropdown-menu::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-            border-radius: 16px 16px 0 0;
-        }
-        
-        .user-info {
-            font-weight: 700;
-            color: var(--text-primary);
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid var(--glass-border);
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(37, 99, 235, 0.05));
-            margin: 0.5rem;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            text-align: center;
-            white-space: nowrap;
-        }
-        
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
-            color: var(--text-primary);
-            text-decoration: none;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            margin: 0.25rem 0.5rem;
-            border-radius: 12px;
-            font-weight: 500;
-            position: relative;
-            overflow: hidden;
-            white-space: nowrap;
-        }
-        
-        .dropdown-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.1), transparent);
-            transition: left 0.5s ease;
-        }
-        
-        .dropdown-item:hover::before {
-            left: 100%;
-        }
-        
-        .dropdown-item:hover {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(37, 99, 235, 0.1));
-            color: var(--primary-600);
-            transform: translateX(4px);
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
-        }
-        
-        .dropdown-item:active {
-            transform: translateX(2px) scale(0.98);
-        }
-        
-        .dropdown-item i {
-            width: 20px;
-            text-align: center;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-        
-        .dropdown-item:hover i {
-            transform: scale(1.1);
-            color: var(--primary-600);
-        }
-        
-        /* Special styling for logout button */
-        .dropdown-item:last-child {
-            border-top: 1px solid var(--glass-border);
-            margin-top: 0.5rem;
-            padding-top: 1rem;
-        }
-        
-        .dropdown-item:last-child:hover {
-            background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(248, 215, 218, 0.05));
-            color: #dc3545;
-        }
-        
-        .dropdown-item:last-child:hover i {
-            color: #dc3545;
-        }
-
         :root {
             --primary-500: #2563eb;
             --primary-600: #1d4ed8;
+            --primary-gradient: linear-gradient(180deg, var(--primary-500), var(--primary-600));
             --secondary-gradient: linear-gradient(180deg, var(--primary-500), var(--primary-600));
             --glass-bg: rgba(255, 255, 255, 0.85);
             --glass-border: rgba(15, 23, 42, 0.08);
+            --form-bg: rgba(255, 255, 255, 0.9);
             --card-bg: rgba(255, 255, 255, 0.9);
             --input-bg: #ffffff;
+            --success-color: #16a34a;
+            --error-color: #ef4444;
+            --warning-color: #1d4ed8;
             --text-primary: #0f172a;
             --text-secondary: #475569;
+            --text-dark: #0f172a;
+            --bg-light: rgba(219, 234, 254, 0.3);
+            --border-color: rgba(15, 23, 42, 0.08);
             --shadow-glass: 0 10px 30px rgba(2, 6, 23, 0.08);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: radial-gradient(1200px 600px at 10% 10%, #e0e7ff 0%, transparent 60%),
                         radial-gradient(1200px 600px at 90% 20%, #dbeafe 0%, transparent 60%),
                         #f8fafc;
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 1rem;
+            position: relative;
             overflow-x: hidden;
-            color: var(--text-primary);
         }
+
         .container {
-            max-width: 800px;
-            margin: 0 auto;
+            width: 100%;
+            max-width: 600px;
             position: relative;
             z-index: 1;
         }
-        .glass-section {
-            background: var(--glass-bg);
+
+        .form-container {
+            background: var(--form-bg);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
-            border-radius: 20px;
+            border-radius: 28px;
             box-shadow: var(--shadow-glass);
+            overflow: hidden;
             border: 1px solid var(--glass-border);
-            padding: 2rem;
-            margin-bottom: 2rem;
             position: relative;
-            z-index: 1;
         }
-        .glass-section::before {
+
+        .form-container::before {
             content: '';
             position: absolute;
             top: 0;
@@ -225,1277 +74,829 @@
             height: 1px;
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
         }
-        .glass-section h2 {
+
+        .header {
+            text-align: center;
+            padding: 2.5rem 2rem 1.5rem;
+            background: var(--primary-gradient);
+            color: white;
+            position: relative;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        }
+
+        .header-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            display: block;
+            color: white;
+            text-shadow: 0 0 20px rgba(37, 99, 235, 0.6);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            letter-spacing: -0.025em;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-section {
+            padding: 2rem;
+            background: var(--form-bg);
+        }
+
+        .form-section h2 {
             text-align: center;
             margin-bottom: 2rem;
+            color: var(--text-primary);
             font-size: 1.875rem;
             font-weight: 700;
+            letter-spacing: -0.025em;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        /* MOBILE-OPTIMIZED FLATPICKR - SMALLER SIZE */
-        .flatpickr-calendar {
-            background: rgba(255, 255, 255, 0.95) !important;
-            backdrop-filter: blur(20px) !important;
-            -webkit-backdrop-filter: blur(20px) !important;
-            border: 1px solid var(--glass-border) !important;
-            border-radius: 12px !important; /* Reduced from 16px */
-            box-shadow: var(--shadow-glass) !important;
-            font-family: 'Inter', sans-serif !important;
-            z-index: 99999 !important;
-            position: fixed !important;
-            transform: scale(0.85) !important; /* Makes entire calendar 85% of original size */
-            transform-origin: center center !important;
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
 
-        .flatpickr-calendar.open {
-            animation: slideInUpSmall 0.3s ease-out;
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
         }
 
-        @keyframes slideInUpSmall {
-            from { opacity: 0; transform: scale(0.75) translateY(10px); }
-            to { opacity: 1; transform: scale(0.85) translateY(0); }
+        .form-group.full-width {
+            grid-column: 1 / -1;
         }
 
-        /* Smaller day cells */
-        .flatpickr-day {
-            border-radius: 6px !important; /* Reduced from 8px */
-            margin: 1px !important; /* Reduced from 2px */
-            transition: all 0.2s ease !important;
-            font-size: 14px !important; /* Reduced from 16px */
-            min-height: 32px !important; /* Reduced from 40px */
-            width: 32px !important; /* Explicit width */
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
         }
 
-        .flatpickr-day:hover, .flatpickr-day:focus {
-            background: var(--primary-500) !important;
-            color: white !important;
-            transform: scale(1.1) !important; /* Slightly reduced scale */
-            border-color: var(--primary-500) !important;
+        .input-wrapper {
+            position: relative;
         }
 
-        .flatpickr-day.selected {
-            background: var(--secondary-gradient) !important;
-            border-color: var(--primary-600) !important;
-            color: white !important;
-        }
-
-        /* Smaller month/year selectors */
-        .flatpickr-current-month .flatpickr-monthDropdown-months {
-            background: rgba(255, 255, 255, 0.9) !important;
-            border-radius: 6px !important;
-            color: var(--text-primary) !important;
-            font-size: 14px !important;
-        }
-
-        /* Smaller navigation arrows */
-        .flatpickr-months .flatpickr-prev-month,
-        .flatpickr-months .flatpickr-next-month {
-            width: 24px !important;
-            height: 24px !important;
-        }
-
-        .flatpickr-months .flatpickr-prev-month:hover svg,
-        .flatpickr-months .flatpickr-next-month:hover svg {
-            fill: var(--primary-600) !important;
-        }
-
-        /* Smaller time picker (for create ride page) */
-        .flatpickr-time {
-            background: rgba(255, 255, 255, 0.9) !important;
-            border-top: 1px solid var(--glass-border) !important;
-            padding: 8px !important; /* Reduced from 10px */
-        }
-
-        .flatpickr-time input:hover,
-        .numInputWrapper:hover {
-            background: rgba(37, 99, 235, 0.1) !important;
-        }
-
-        .flatpickr-am-pm {
-            background: var(--primary-500) !important;
-            color: white !important;
-            border-radius: 6px !important;
-            font-weight: 600 !important;
-            min-height: 32px !important; /* Reduced from 40px */
-            font-size: 14px !important; /* Reduced from 16px */
-            padding: 0 8px !important;
-        }
-
-        .flatpickr-am-pm:hover {
-            background: var(--primary-600) !important;
-        }
-
-        .numInput {
-            background: rgba(255, 255, 255, 0.8) !important;
-            border: 1px solid var(--glass-border) !important;
-            border-radius: 4px !important;
-            color: var(--text-primary) !important;
-            font-weight: 500 !important;
-            min-height: 32px !important; /* Reduced from 40px */
-            font-size: 14px !important; /* Reduced from 16px */
-            width: 40px !important;
-        }
-        
-        .header {
-            padding: 1.5rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .logo-section { display: flex; align-items: center; gap: 1rem; }
-        .logo-icon { font-size: 2rem; color: var(--primary-600); text-shadow: 0 0 20px rgba(37, 99, 235, 0.25); }
-        .logo-text h1 { font-size: 1.5rem; font-weight: 700; }
-        .logo-text p { font-size: 0.875rem; color: var(--text-secondary); }
-        .auth-buttons .btn {
-            display: none; /* Controlled by JS */
-        }
-        .profile-menu {
-            display: none; /* Will be shown when authenticated */
-            z-index: 10000;
-        }
-        .auth-buttons { display: flex; gap: 1rem; }
-        
-        .profile-menu { position: relative; }
-        .hamburger-btn {
-            background: rgba(37, 99, 235, 0.2); border: 1px solid rgba(37, 99, 235, 0.3);
-            border-radius: 50%; width: 48px; height: 48px; display: flex;
-            align-items: center; justify-content: center; color: var(--primary-600);
-            cursor: pointer; transition: all 0.3s ease;
-        }
-        .hamburger-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3); }
-        .dropdown-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--glass-border); font-weight: bold; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
-        .form-group { margin-bottom: 1rem; position: relative; }
-        .form-group.full-width { grid-column: 1 / -1; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.875rem; text-transform: uppercase; }
-        .input-wrapper { position: relative; }
-        .form-group input {
-            width: 100%; padding: 1rem 1.25rem; border: 1px solid var(--glass-border);
-            border-radius: 16px; font-size: 1rem; transition: all 0.3s ease;
-            background: var(--input-bg); color: var(--text-primary);
-        }
-        .form-group input:focus {
-            outline: none; border-color: var(--primary-600);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
-        }
-        .input-icon { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary); pointer-events: none; }
-        
-        .form-control {
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
             width: 100%;
             padding: 1rem 1.25rem;
-            padding-right: 2.5rem;
             border: 1px solid var(--glass-border);
             border-radius: 16px;
-            background: var(--input-bg);
             font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--input-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             color: var(--text-primary);
-            appearance: none;
-            -webkit-appearance: none;
-            cursor: pointer;
+            font-family: inherit;
         }
-        
-        .form-control:focus {
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+           color: var(--text-secondary);
+        }
+
+        .form-group select option {
+            background: white;
+            color: var(--text-dark);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
             outline: none;
             border-color: var(--primary-600);
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+            background: rgba(255, 255, 255, 0.95);
+            transform: translateY(-1px);
         }
 
-        /* Styles for Quick-Select Buttons */
-        .quick-select-container {
-            display: flex;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-            justify-content: center;
-        }
-        .quick-select-btn {
-            padding: 0.5rem 1rem;
-            border-radius: 12px;
-            border: 1px solid var(--glass-border);
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(5px);
+        .input-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
             color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 1rem 1.25rem;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .toggle-label {
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 32px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .toggle-switch.active {
+            background: var(--secondary-gradient);
+            border-color: transparent;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(28px);
+            background: white;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+        }
+
+        .toggle-switch input[type="checkbox"] {
+            display: none;
+        }
+
+        .counter-group {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .counter-btn {
+            width: 48px;
+            height: 48px;
+            background: var(--secondary-gradient);
+            border: none;
+            color: white;
+            font-size: 1.2rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .quick-select-btn:hover {
-            transform: translateY(-2px);
-            background: rgba(255, 255, 255, 0.9);
-            color: var(--primary-600);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+
+        .counter-btn:hover:not(:disabled) {
+            background: var(--primary-600);
         }
-        .quick-select-btn.active {
+
+        .counter-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .counter-display {
+            flex: 1;
+            text-align: center;
+            padding: 1rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .confirmation-group {
+           background: rgba(255, 255, 255, 0.3);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+        }
+
+        .confirmation-checkbox {
+            display: flex;
+            align-items: flex-start;
+            cursor: pointer;
+        }
+
+        .confirmation-checkbox input[type="checkbox"] {
+            width: auto !important;
+            margin-right: 1rem;
+            accent-color: var(--primary-600);
+            transform: scale(1.2);
+        }
+
+        .confirmation-text {
+            color: var(--text-secondary);
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1.25rem 1.5rem;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn.primary {
             background: var(--secondary-gradient);
             color: white;
-            border-color: var(--primary-600);
-            box-shadow: 0 5px 20px rgba(29, 78, 216, 0.3);
-        }
-        
-        .btn {
-            padding: 0.75rem 1.5rem; border: none; border-radius: 16px; font-size: 1rem;
-            font-weight: 600; cursor: pointer; transition: all 0.3s ease;
-            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-            text-decoration: none;
-        }
-        .btn.primary {
-            background: var(--secondary-gradient); color: white;
+            border: 1px solid rgba(37, 99, 235, 0.4);
             box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
         }
-        .btn.primary:hover { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(37, 99, 235, 0.4); }
-        .btn.full-width { width: 100%; padding: 1rem 1.5rem; }
-        /* Ride Cards and Content Grids */
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
-        .ride-card, .destination-card {
-            background: var(--card-bg); border-radius: 16px; padding: 1.5rem;
-            border: 1px solid var(--glass-border); transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        .ride-card:hover, .destination-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-glass); }
-        .ride-card h3, .destination-card h4 { margin-bottom: 0.75rem; font-weight: 700; }
-        .ride-card p { margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 0.9rem; }
-        .ride-card .btn { margin-top: 1rem; width: 100%; }
-        .destination-card p { color: var(--text-secondary); }
-        #searchResultsContainer { display: none; }
 
-        /* Helper container for the persistent create button under results */
-        .create-new-wrapper {
-            display: flex; justify-content: center; margin-top: 1.25rem;
-        }
-
-        /* Enhanced hamburger menu styling */
-        .profile-button {
-            background: rgba(37, 99, 235, 0.2);
-            border: 1px solid rgba(37, 99, 235, 0.3);
-            cursor: pointer;
-            padding: 0.75rem;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            position: relative;
-        }
-
-        .profile-button:hover {
-            background: rgba(37, 99, 235, 0.3);
+        .btn.primary:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+            box-shadow: 0 15px 35px rgba(37, 99, 235, 0.4);
+            background: linear-gradient(180deg, #3b82f6, var(--primary-600));
         }
 
-        /* Add animation for menu items */
-        .dropdown-item {
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn.loading {
+            color: transparent;
+        }
+
+        .btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            top: 50%;
+            left: 50%;
+            margin-left: -12px;
+            margin-top: -12px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            display: block;
+            color: var(--error-color);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            animation: shake 0.3s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
             transition: all 0.3s ease;
+            z-index: 10;
         }
 
-        .dropdown-item:hover {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(37, 99, 235, 0.1));
-            color: var(--primary-600);
-            transform: translateX(4px);
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
         }
 
-        /* Special styling for logout */
-        .dropdown-item:last-child:hover {
-            background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(248, 215, 218, 0.05));
-            color: #dc3545;
+        .glass-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--form-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            color: var(--text-primary);
+            padding: 16px 20px;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-glass);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInRight 0.3s ease-out;
+            max-width: 300px;
+            font-weight: 500;
         }
 
-        /* CUSTOM STYLES FOR CLICKABLE DATE PICKER - MOBILE FIXES */
-        .date-input-wrapper {
-            position: relative;
-            cursor: pointer;
-            user-select: none;
-        }
-        
-        .date-input-wrapper .form-control {
-            cursor: pointer;
-            caret-color: transparent; /* Hide text cursor */
-            font-size: 16px !important; /* Prevent zoom on iOS */
-        }
-        
-        .date-input-wrapper .input-icon {
-            pointer-events: none; /* Let clicks pass through to wrapper */
-        }
-
-        /* Mobile specific smaller sizing */
-        @media (max-width: 640px) {
-            body { padding: 0.5rem; }
-            .glass-section, .header { padding: 1.5rem; }
-            .logo-text h1 { font-size: 1.25rem; }
-            .form-row { grid-template-columns: 1fr; gap: 0; }
-            .dropdown-menu {
-                min-width: 140px;
-                max-width: 200px;
-                right: -10px;
-            }
-            
-            .flatpickr-calendar {
-                width: 280px !important; /* Reduced from 380px */
-                max-width: 90vw !important;
-                left: 50% !important;
-                top: 50% !important;
-                transform: translateX(-50%) translateY(-50%) scale(0.8) !important; /* Even smaller on mobile */
-            }
-            
-            .flatpickr-day {
-                min-height: 36px !important; /* Slightly larger for touch but still smaller than before */
-                font-size: 15px !important;
-                width: 36px !important;
-            }
-            
-            .flatpickr-am-pm,
-            .numInput {
-                min-height: 36px !important;
-                font-size: 15px !important;
-            }
-        }
-
-        /* Even smaller for very small screens */
-        @media (max-width: 480px) {
-            .flatpickr-calendar {
-                width: 260px !important;
-                transform: translateX(-50%) translateY(-50%) scale(0.75) !important; /* 75% size on small phones */
-            }
-            
-            .flatpickr-day {
-                min-height: 34px !important;
-                width: 34px !important;
-                font-size: 14px !important;
-            }
-        }
-</style>
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+    </style>
 </head>
 <body>
-    <!-- Move dropdown outside of all containers -->
-    <div id="profileDropdown" class="dropdown-menu">
-        <div class="dropdown-item user-info" id="userName">Loading...</div>
-        <a href="my_rides.html" class="dropdown-item">
-            <i class="fas fa-car"></i>My Rides
-        </a>
-        <a href="edit_profile.html" class="dropdown-item">
-            <i class="fas fa-user-edit"></i>Edit Profile
-        </a>
-        <a href="#" class="dropdown-item" id="logoutButton">
-            <i class="fas fa-sign-out-alt"></i>Logout
-        </a>
-    </div>
-
     <div class="container">
-        <!-- Header -->
-        <header class="glass-section header">
-            <div class="logo-section">
-                <i class="fas fa-car logo-icon"></i>
-                <div class="logo-text"><h1>RideShare</h1><p>Connect. Share. Save.</p></div>
-            </div>
-            <div class="profile-menu" id="userMenu">
-                <button class="profile-button" id="profileButton">
-                    <i class="fas fa-user-circle profile-icon"></i>
-                </button>
-            </div>
-        </header>
+        <div class="form-container">
+            <button class="back-btn" id="backBtn" title="Back">
+                <i class="fas fa-arrow-left"></i>
+            </button>
 
-        <!-- Search Section -->
-        <section class="glass-section">
-            <h2>Find Your Ride</h2>
-            <form id="searchForm">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="searchFrom">From</label>
-                        <div class="input-wrapper">
-                            <select id="searchFrom" class="form-control">
-                                <option value="">Select starting point</option>
-                            </select>
-                            <i class="fas fa-map-marker-alt input-icon"></i>
+            <div class="header">
+                <i class="fas fa-plus-circle header-icon"></i>
+                <h1>Create New Ride</h1>
+                <p>Share your journey with fellow students</p>
+            </div>
+
+            <div class="form-section">
+                <h2>Ride Details</h2>
+                <form id="createRideForm" novalidate>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fromLocation">From *</label>
+                            <div class="input-wrapper">
+                                <select id="fromLocation" name="fromLocation" class="form-control" required>
+                                    <option value="">Select starting point</option>
+                                </select>
+                                <i class="fas fa-map-marker-alt input-icon"></i>
+                            </div>
+                            <span class="error-message" id="fromLocationError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="toLocation">To *</label>
+                            <div class="input-wrapper">
+                                <select id="toLocation" name="toLocation" class="form-control" required disabled>
+                                    <option value="">Select destination</option>
+                                </select>
+                                <i class="fas fa-flag-checkered input-icon"></i>
+                            </div>
+                            <span class="error-message" id="toLocationError"></span>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="searchTo">To</label>
-                        <div class="input-wrapper">
-                            <select id="searchTo" class="form-control" disabled>
-                                <option value="">Select destination</option>
-                            </select>
-                            <i class="fas fa-flag-checkered input-icon"></i>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="genderAcceptance">Gender Preference *</label>
+                            <div class="input-wrapper">
+                                <select id="genderAcceptance" name="genderAcceptance" required>
+                                    <option value="">Select preference</option>
+                                    <option value="any">Any Gender</option>
+                                    <option value="male-only">Male Only</option>
+                                    <option value="female-only">Female Only</option>
+                                </select>
+                                <i class="fas fa-users input-icon"></i>
+                            </div>
+                            <span class="error-message" id="genderAcceptanceError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="departureDate">Departure Date *</label>
+                            <input type="date" id="departureDate" name="departureDate" class="form-control" required />
+                            <span class="error-message" id="departureDateError"></span>
                         </div>
                     </div>
-                </div>
-                
-                <div class="form-group full-width">
-                    <label for="searchDate">Travel Date</label>
-                    <div class="input-wrapper date-input-wrapper" id="dateInputWrapper">
-                        <input type="text" id="searchDate" class="form-control" placeholder="Select date" readonly>
-                        <i class="fas fa-calendar-alt input-icon"></i>
+
+                    <div class="form-group">
+                        <label for="seatsAvailable">Seats Available *</label>
+                        <div class="counter-group">
+                            <button type="button" class="counter-btn" id="decreaseSeats" title="Decrease seats">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <div class="counter-display" id="seatsDisplay">1</div>
+                            <button type="button" class="counter-btn" id="increaseSeats" title="Increase seats">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <input type="hidden" id="seatsAvailable" name="seatsAvailable" value="1" />
                     </div>
-                </div>
 
-                <!-- Quick-Select Buttons HTML (removed weekend button) -->
-                <div class="quick-select-container">
-                    <button type="button" class="quick-select-btn" id="quick-select-today">Today</button>
-                    <button type="button" class="quick-select-btn" id="quick-select-tomorrow">Tomorrow</button>
-                </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Luggage Space</label>
+                            <div class="toggle-group" id="luggageToggle" tabindex="0" role="button" aria-pressed="false" aria-label="Toggle luggage space">
+                                <span class="toggle-label"><i class="fas fa-suitcase" style="margin-right: 8px;"></i>Luggage space</span>
+                                <input type="checkbox" id="luggageSpace" name="luggageSpace" hidden />
+                                <div class="toggle-switch" aria-hidden="true">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                <button type="submit" class="btn primary full-width">
-                    <i class="fas fa-search"></i><span>Search Rides</span>
-                </button>
-            </form>
-        </section>
+                    <div class="form-group full-width">
+                         <label>Passenger Communication</label>
+                         <div class="toggle-group active" id="allowChatToggle" tabindex="0" role="button" aria-pressed="true" aria-label="Toggle chat with passengers">
+                             <span class="toggle-label"><i class="fas fa-comments" style="margin-right: 8px;"></i>Enable chat with passengers</span>
+                             <input type="checkbox" id="allowChat" name="allowChat" checked hidden />
+                             <div class="toggle-switch" aria-hidden="true">
+                                 <div class="toggle-slider"></div>
+                             </div>
+                         </div>
+                     </div>
 
-        <!-- Search Results Section (hidden by default) -->
-        <section class="glass-section" id="searchResultsContainer">
-            <h2>Search Results</h2>
-            <div id="searchResults" class="grid-container"></div>
+                    <div class="form-group full-width">
+                        <label for="additionalNotes">Additional Notes (Optional)</label>
+                        <textarea id="additionalNotes" name="additionalNotes" rows="3" placeholder="Any specific requirements, vehicle details, or instructions for passengers..."></textarea>
+                    </div>
 
-            <!-- No rides message -->
-            <div id="noRidesFound" style="display: none; text-align: center; padding: 2rem;">
-                <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 1.1rem;">
-                    No rides found matching your criteria.
-                </p>
+                    <div class="confirmation-group">
+                        <label class="confirmation-checkbox" for="confirmationBox">
+                            <input type="checkbox" id="confirmationBox" name="confirmationBox" required />
+                            <div class="confirmation-text">
+                                I confirm that all the information provided is accurate. I understand that I am responsible for communicating with passengers and ensuring a safe ride. I agree to the terms and conditions of RideShare platform.
+                            </div>
+                        </label>
+                        <span class="error-message" id="confirmationBoxError"></span>
+                    </div>
+
+                    <button type="submit" id="postRideBtn" class="btn primary" aria-label="Post Ride Button">
+                        <i class="fas fa-paper-plane" style="margin-right: 10px;"></i>
+                        Post Ride
+                    </button>
+                </form>
             </div>
-
-            <!-- Always show: Create a New Ride button under results -->
-            <div class="create-new-wrapper">
-                <button onclick="window.location.href='/create_ride.html'" class="btn primary" style="max-width: 300px;">
-                    <i class="fas fa-plus"></i> Create a New Ride
-                </button>
-            </div>
-
-            <!-- Optional prompt section (kept, but we won't rely on it for the button) -->
-            <div id="createRidePrompt" class="glass-section" style="display: none; text-align: center; margin-top: 2rem; padding: 1.5rem;">
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">
-                    Don't see a ride that works for you?
-                </p>
-                <button onclick="window.location.href='/create_ride.html'" class="btn primary" style="max-width: 300px; margin: 0 auto;">
-                    <i class="fas fa-plus"></i> Create Your Own Ride
-                </button>
-            </div>
-        </section>
+        </div>
     </div>
 
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-const API_BASE = 'https://campus-rideshare.onrender.com/api';
-// Global variable to hold the Flatpickr instance
-let datePickerInstance;
-
-// Single DOMContentLoaded handler
-document.addEventListener('DOMContentLoaded', () => {
-    const token = localStorage.getItem('token');
-    const currentPath = window.location.pathname;
-    const isOnLoginPage = currentPath.endsWith('index.html') || currentPath === '/' || currentPath === '';
-    
-    if (token && !isOnLoginPage) {
-        verifyTokenAndLoadPage();
-    } else if (!token && !isOnLoginPage) {
-        window.location.href = 'index.html';
-    } else if (token && isOnLoginPage) {
-        verifyTokenAndRedirect();
-    } else {
-        initializeEventListeners();
-    }
-});
-
-// For login page - verify token and redirect to homepage
-async function verifyTokenAndRedirect() {
-    console.log('Verifying token for redirect...');
-    try {
-        const response = await fetch(`${API_BASE}/auth/me`, {
-            headers: { 
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                'Accept': 'application/json'
-            }
-        });
-        
-        if (response.ok) {
-            console.log('Token valid, redirecting to homepage');
-            window.location.href = 'homepage.html';
-        } else {
-            console.log('Token invalid, removing');
-            localStorage.removeItem('token');
-            initializeEventListeners();
-        }
-    } catch (error) {
-        console.error('Token verification failed:', error);
-        localStorage.removeItem('token');
-        initializeEventListeners();
-    }
-}
-
-// For homepage - verify token and load page content
-async function verifyTokenAndLoadPage() {
-    console.log('Verifying token and loading page...');
-    const token = localStorage.getItem('token');
-    
-    if (!token) {
-        window.location.href = 'index.html';
-        return;
-    }
-
-    try {
-        // First verify token with user profile
-        const response = await fetch(`${API_BASE}/auth/me`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const responseText = await response.text();
-        
-        // Only redirect on authentication errors
-        if (response.status === 401 || response.status === 403) {
-            console.log('Token invalid, removing and redirecting');
-            localStorage.removeItem('token');
-            window.location.href = 'index.html';
-            return;
+    class RideCreator {
+        constructor() {
+            this.seatsCount = 1;
+            this.apiBaseUrl = 'https://campus-rideshare.onrender.com/api';
+            this.init();
         }
 
-        if (!response.ok) {
-            throw new Error(`Failed to load user profile: ${response.status}`);
-        }
+        async loadStartingLocations() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/index.html';
+                    return;
+                }
 
-        let data;
-        try {
-            data = JSON.parse(responseText);
-        } catch (e) {
-            console.error('Failed to parse response:', e);
-            throw new Error('Invalid response format');
-        }
+                const response = await fetch(`${this.apiBaseUrl}/locations/starting-points`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) throw new Error('Failed to load locations');
 
-        const user = data.user || data;
-        
-        if (!user || !user.name) {
-            throw new Error('Invalid profile data received');
-        }
-
-        // Update UI with user info
-        const userName = document.getElementById('userName');
-        if (userName) {
-            userName.textContent = `Hi, ${user.name.split(' ')[0]}!`;
-        }
-
-        const profileMenu = document.querySelector('.profile-menu');
-        if (profileMenu) {
-            profileMenu.style.display = 'block';
-        }
-
-        console.log('User profile loaded successfully');
-
-        // Set up event listeners FIRST before loading data
-        setupEventListeners();
-
-        // Then load other data (non-critical)
-        await loadOptionalData();
-
-    } catch (error) {
-        console.error('Error loading user profile:', error);
-        
-        // Only redirect if it's actually an auth error
-        if (error.message.includes('401') || error.message.includes('403') || 
-            error.message.includes('Invalid token') || error.message.includes('auth')) {
-            localStorage.removeItem('token');
-            window.location.href = 'index.html';
-        } else {
-            // For other errors, show a message but don't redirect
-            console.warn('Profile loading failed, but keeping user logged in');
-            setupEventListeners(); // Still set up basic functionality
-        }
-    }
-}
-
-// Load optional data without failing the whole app
-async function loadOptionalData() {
-    try {
-        // Load starting locations first (most important)
-        await loadStartingLocations();
-        
-        // Then load other optional data
-        const loadingPromises = [
-            loadPopularDestinations().catch(error => {
-                console.warn('Popular destinations failed to load:', error);
-            }),
-            loadRecentRides().catch(error => {
-                console.warn('Recent rides failed to load:', error);
-            })
-        ];
-
-        await Promise.allSettled(loadingPromises);
-        console.log('Optional data loading complete');
-    } catch (error) {
-        console.warn('Some data failed to load:', error);
-    }
-}
-
-// COMPLETE IMPLEMENTATION - Load starting locations for the user's college
-async function loadStartingLocations() {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
-    try {
-        const response = await fetch(`${API_BASE}/locations/starting-points`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.removeItem('token');
-            window.location.href = 'index.html';
-            return;
-        }
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
-
-        const locations = await response.json();
-        const fromSelect = document.getElementById('searchFrom');
-        
-        if (fromSelect) {
-            fromSelect.innerHTML = '<option value="">Select starting point</option>';
-            
-            if (Array.isArray(locations) && locations.length > 0) {
+                const locations = await response.json();
+                const fromSelect = document.getElementById('fromLocation');
+                fromSelect.innerHTML = '<option value="">Select starting point</option>';
                 locations.forEach(location => {
                     fromSelect.innerHTML += `<option value="${location.name}">${location.name} (${location.type})</option>`;
                 });
+            } catch (error) {
+                console.error('Error loading starting locations:', error);
+                this.showNotification('Error loading locations. Please try again.', false);
             }
         }
 
-        const toSelect = document.getElementById('searchTo');
-        if (toSelect) {
-            toSelect.innerHTML = '<option value="">Select destination</option>';
-            toSelect.disabled = true;
-        }
+        async loadDestinations(fromLocation) {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) return;
 
-        console.log('Starting locations loaded successfully');
+                const toSelect = document.getElementById('toLocation');
+                if (!fromLocation) {
+                    toSelect.innerHTML = '<option value="">Select destination</option>';
+                    toSelect.disabled = true;
+                    return;
+                }
 
-    } catch (error) {
-        console.warn('Error loading starting locations:', error);
-        // Don't redirect - just log the error and continue
-    }
-}
+                const response = await fetch(`${this.apiBaseUrl}/locations/destinations?fromLocation=${encodeURIComponent(fromLocation)}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) throw new Error('Failed to load destinations');
 
-// COMPLETE IMPLEMENTATION - Load destinations based on from location
-async function loadDestinations(fromLocation) {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
-    const toSelect = document.getElementById('searchTo');
-    
-    if (!fromLocation) {
-        if (toSelect) {
-            toSelect.innerHTML = '<option value="">Select destination</option>';
-            toSelect.disabled = true;
-        }
-        return;
-    }
-
-    try {
-        const response = await fetch(`${API_BASE}/locations/destinations?fromLocation=${encodeURIComponent(fromLocation)}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const locations = await response.json();
-        
-        if (toSelect) {
-            toSelect.innerHTML = '<option value="">Select destination</option>';
-            
-            locations.forEach(location => {
-                toSelect.innerHTML += `<option value="${location.name}">${location.name} (${location.type})</option>`;
-            });
-            
-            toSelect.disabled = false;
-        }
-        
-        console.log('Destinations loaded successfully for:', fromLocation);
-    } catch (error) {
-        console.error('Error loading destinations:', error);
-        if (toSelect) {
-            toSelect.innerHTML = '<option value="">Error loading destinations</option>';
-            toSelect.disabled = true;
-        }
-        alert('Error loading destinations. Please try again.');
-    }
-}
-
-// COMPLETE IMPLEMENTATION - Load popular destinations
-async function loadPopularDestinations() {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-    
-    try {
-        const response = await fetch(`${API_BASE}/rides/popular-destinations`, { 
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            displayPopularDestinations(data, 'popularDestinations');
-        }
-    } catch (error) { 
-        console.error('Error loading popular destinations:', error); 
-    }
-}
-
-// COMPLETE IMPLEMENTATION - Load recent rides
-async function loadRecentRides() {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-    
-    try {
-        const response = await fetch(`${API_BASE}/rides/recent?limit=6`, { 
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            displayRecentRides(data, 'recentRides');
-        }
-    } catch (error) { 
-        console.error('Error loading recent rides:', error); 
-    }
-}
-
-// Display functions
-function displayPopularDestinations(destinations, containerId) {
-    const container = document.getElementById(containerId);
-    if (container && Array.isArray(destinations)) {
-        container.innerHTML = destinations.map(dest => `
-            <div class="destination-card" onclick="searchByDestination('${dest.destination}')">
-                <h4><i class="fas fa-city"></i> ${dest.destination}</h4>
-                <p>${dest.count} rides available</p>
-            </div>`).join('');
-    }
-}
-
-function displayRecentRides(rides, containerId) {
-    const container = document.getElementById(containerId);
-    if (container && Array.isArray(rides)) {
-        container.innerHTML = rides.map(ride => `
-            <div class="ride-card">
-                <h4>${ride.fromLocation} → ${ride.toLocation}</h4>
-                <p><i class="fas fa-user-circle"></i> ${ride.creatorName}</p>
-                <p><i class="fas fa-calendar-alt"></i> ${new Date(ride.dateTime).toLocaleDateString()}</p>
-                <p><i class="fas fa-chair"></i> ${ride.availableSeats} seats left</p>
-                <button onclick="requestRide('${ride._id}')" class="btn primary">Request</button>
-            </div>`).join('');
-    }
-}
-
-function searchByDestination(destination) {
-    const searchTo = document.getElementById('searchTo');
-    const searchForm = document.getElementById('searchForm');
-    if (searchTo && searchForm) {
-        searchTo.value = destination;
-        searchForm.requestSubmit();
-    }
-}
-
-// CRITICAL - Setup event listeners for homepage functionality
-function setupEventListeners() {
-    console.log('Setting up event listeners...');
-    
-    // MOBILE FIX: Initialize Flatpickr for date only (no time) with mobile support
-    const searchDateInput = document.getElementById('searchDate');
-    const dateInputWrapper = document.getElementById('dateInputWrapper');
-    
-    if (searchDateInput) {
-        // Store instance for programmatic control
-        datePickerInstance = flatpickr(searchDateInput, {
-            enableTime: false, // Date only
-            dateFormat: "Y-m-d", // Date only format
-            altInput: true,
-            altFormat: "F j, Y", // Display format without time
-            minDate: "today",
-            allowInput: false, // Prevent manual typing
-            clickOpens: false, // We'll control opening manually
-            disableMobile: true, // CRITICAL: Force flatpickr UI on mobile instead of native
-            // When user changes date manually, clear quick-select buttons
-            onChange: function() {
-                clearActiveQuickSelect();
+                const locations = await response.json();
+                toSelect.innerHTML = '<option value="">Select destination</option>';
+                locations.forEach(location => {
+                    toSelect.innerHTML += `<option value="${location.name}">${location.name} (${location.type})</option>`;
+                });
+                toSelect.disabled = false;
+            } catch (error) {
+                console.error('Error loading destinations:', error);
+                const toSelect = document.getElementById('toLocation');
+                toSelect.innerHTML = '<option value="">Error loading destinations</option>';
+                toSelect.disabled = true;
+                this.showNotification('Error loading destinations. Please try again.', false);
             }
-        });
+        }
 
-        // Make entire wrapper clickable to open calendar
-        if (dateInputWrapper && datePickerInstance) {
-            dateInputWrapper.addEventListener('click', function(event) {
-                event.preventDefault();
-                event.stopPropagation();
-                datePickerInstance.open();
+        init() {
+            this.checkForAuth();
+            this.bindEvents();
+            this.loadStartingLocations();
+            this.setMinDepartureDate();
+        }
+
+        checkForAuth() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('You are not logged in. Redirecting to login page...');
+                window.location.href = '/index.html';
+            }
+        }
+
+        setMinDepartureDate() {
+            const dateInput = document.getElementById('departureDate');
+            if (dateInput) {
+                const todayISO = new Date().toISOString().split('T')[0];
+                dateInput.setAttribute('min', todayISO);
+            }
+        }
+
+        bindEvents() {
+            document.getElementById('backBtn').addEventListener('click', () => {
+                window.location.href = '/home_page.html';
             });
-            
-            // MOBILE FIX: Also add touch events for better mobile support
-            dateInputWrapper.addEventListener('touchstart', function(event) {
-                event.preventDefault();
-                datePickerInstance.open();
+
+            document.getElementById('increaseSeats').addEventListener('click', () => this.updateSeats(1));
+            document.getElementById('decreaseSeats').addEventListener('click', () => this.updateSeats(-1));
+
+            ['luggageToggle', 'allowChatToggle'].forEach(toggleId => {
+                const toggle = document.getElementById(toggleId);
+                toggle.addEventListener('click', () => this.toggleSwitch(toggleId));
+                toggle.addEventListener('keydown', e => {
+                    if (e.key === ' ' || e.key === 'Enter') {
+                        e.preventDefault();
+                        this.toggleSwitch(toggleId);
+                    }
+                });
+            });
+
+            document.getElementById('createRideForm').addEventListener('submit', e => {
+                e.preventDefault();
+                this.handleRideCreation();
+            });
+
+            const requiredFields = ['fromLocation', 'toLocation', 'genderAcceptance', 'departureDate'];
+            requiredFields.forEach(field => {
+                document.getElementById(field).addEventListener('blur', () => this.validateField(field));
+            });
+            document.getElementById('confirmationBox').addEventListener('change', () => this.validateConfirmation());
+
+            document.getElementById('fromLocation').addEventListener('change', e => {
+                this.loadDestinations(e.target.value);
             });
         }
-    }
 
-    // Add listeners for the remaining quick-select buttons (weekend removed)
-    const todayBtn = document.getElementById('quick-select-today');
-    const tomorrowBtn = document.getElementById('quick-select-tomorrow');
-    
-    if (todayBtn) todayBtn.addEventListener('click', handleQuickSelect);
-    if (tomorrowBtn) tomorrowBtn.addEventListener('click', handleQuickSelect);
-    
-    // From dropdown change listener - KEY FUNCTIONALITY
-    const fromSelect = document.getElementById('searchFrom');
-    if (fromSelect) {
-        fromSelect.removeEventListener('change', handleFromLocationChange);
-        fromSelect.addEventListener('change', handleFromLocationChange);
-    }
-
-    // **ENHANCED Profile dropdown functionality**
-    const profileButton = document.getElementById('profileButton');
-    const profileDropdown = document.getElementById('profileDropdown');
-    const logoutButton = document.getElementById('logoutButton');
-
-    if (profileButton && profileDropdown) {
-        profileButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            
-            // Position the dropdown correctly
-            const buttonRect = profileButton.getBoundingClientRect();
-            profileDropdown.style.position = 'fixed';
-            profileDropdown.style.top = (buttonRect.bottom + 5) + 'px';
-            profileDropdown.style.left = (buttonRect.right - 160) + 'px';
-            profileDropdown.style.zIndex = '999999';
-            
-            // Toggle visibility
-            profileDropdown.classList.toggle('show');
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!profileButton.contains(e.target) && !profileDropdown.contains(e.target)) {
-                profileDropdown.classList.remove('show');
+        updateSeats(change) {
+            const newCount = this.seatsCount + change;
+            if (newCount >= 1 && newCount <= 8) {
+                this.seatsCount = newCount;
+                document.getElementById('seatsDisplay').textContent = this.seatsCount;
+                document.getElementById('seatsAvailable').value = this.seatsCount;
+                document.getElementById('decreaseSeats').disabled = this.seatsCount <= 1;
+                document.getElementById('increaseSeats').disabled = this.seatsCount >= 8;
             }
-        });
+        }
 
-        // Prevent dropdown from closing when clicking inside it
-        profileDropdown.addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
-    }
+        toggleSwitch(toggleId) {
+            const toggle = document.getElementById(toggleId);
+            const checkboxId = toggleId === 'luggageToggle' ? 'luggageSpace' : 'allowChat';
+            const checkbox = document.getElementById(checkboxId);
+            checkbox.checked = !checkbox.checked;
+            toggle.classList.toggle('active', checkbox.checked);
+            toggle.setAttribute('aria-pressed', checkbox.checked ? 'true' : 'false');
+        }
 
-    // **ENHANCED Logout functionality**
-    if (logoutButton) {
-        logoutButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            
-            // Show confirmation dialog
-            if (confirm('Are you sure you want to logout?')) {
-                // Clear authentication token
-                localStorage.removeItem('token');
-                
-                // Show logout message
-                console.log('User logged out successfully');
-                
-                // Redirect to login page
-                window.location.href = 'index.html';
+        validateField(fieldName) {
+            const field = document.getElementById(fieldName);
+            const errorElement = document.getElementById(fieldName + 'Error');
+            errorElement.textContent = '';
+
+            if (!field.value.trim()) {
+                errorElement.textContent = `${this.formatLabel(fieldName)} is required.`;
+                return false;
             }
-        });
-    }
 
-    // **NEW: Add navigation handlers for menu items**
-    setupMenuNavigation();
-
-    // Rest of your existing event listeners...
-    const searchForm = document.getElementById('searchForm');
-    if (searchForm) {
-        searchForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            searchRides();
-        });
-    }
-    
-    console.log('Event listeners set up successfully');
-}
-
-// Functions to handle quick date selection (weekend option removed)
-function handleQuickSelect(e) {
-    const buttonId = e.target.id;
-    let targetDate = new Date();
-
-    if (buttonId === 'quick-select-tomorrow') {
-        targetDate.setDate(targetDate.getDate() + 1);
-    }
-    // Weekend option removed
-
-    if (datePickerInstance) {
-        datePickerInstance.setDate(targetDate, true); // true triggers onChange
-    }
-
-    // Set active state
-    clearActiveQuickSelect();
-    e.target.classList.add('active');
-}
-
-function clearActiveQuickSelect() {
-    document.querySelectorAll('.quick-select-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-}
-
-// **NEW: Enhanced menu navigation function**
-function setupMenuNavigation() {
-    // Add click handlers for menu items that require special handling
-    const myRidesLink = document.querySelector('a[href="my_rides.html"]');
-    const editProfileLink = document.querySelector('a[href="edit_profile.html"]');
-    
-    if (myRidesLink) {
-        myRidesLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            console.log('Navigating to My Rides...');
-            window.location.href = 'my_rides.html';
-        });
-    }
-
-    if (editProfileLink) {
-        editProfileLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            console.log('Navigating to Edit Profile...');
-            window.location.href = 'edit_profile.html';
-        });
-    }
-}
-
-// Separate handler for from location change
-function handleFromLocationChange(e) {
-    const fromLocation = e.target.value;
-    if (fromLocation) {
-        loadDestinations(fromLocation);
-    } else {
-        const toSelect = document.getElementById('searchTo');
-        if (toSelect) {
-            toSelect.innerHTML = '<option value="">Select destination</option>';
-            toSelect.disabled = true;
-        }
-    }
-}
-
-// COMPLETE IMPLEMENTATION - Search rides functionality
-async function searchRides() {
-    const from = document.getElementById('searchFrom')?.value || '';
-    const to = document.getElementById('searchTo')?.value || '';
-    const date = document.getElementById('searchDate')?.value || '';
-    const token = localStorage.getItem('token');
-    
-    if (!token) { 
-        alert('Please login to search rides'); 
-        return; 
-    }
-    
-    try {
-        const params = new URLSearchParams({ from, to, date, limit: '10' });
-        const response = await fetch(`${API_BASE}/rides/search?${params}`, { 
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        const resultsContainer = document.getElementById('searchResultsContainer');
-        const resultsDiv = document.getElementById('searchResults');
-        const noRidesFound = document.getElementById('noRidesFound');
-        const createRidePrompt = document.getElementById('createRidePrompt');
-
-        if (resultsContainer) resultsContainer.style.display = 'block';
-
-        if (response.ok) {
-            const rides = await response.json();
-            displaySearchResults(rides);
-            
-            // Show or hide messages based on results
-            if (rides.length === 0) {
-                if (noRidesFound) noRidesFound.style.display = 'block';
-                if (createRidePrompt) createRidePrompt.style.display = 'none';
-            } else {
-                if (noRidesFound) noRidesFound.style.display = 'none';
-                if (createRidePrompt) createRidePrompt.style.display = 'none';
+            if (fieldName === 'departureDate') {
+                const today = new Date();
+                const selectedDate = new Date(field.value);
+                today.setHours(0, 0, 0, 0);
+                if (selectedDate < today) {
+                    errorElement.textContent = 'Please select today or a future date.';
+                    return false;
+                }
             }
-        } else {
-            const error = await response.json();
-            alert(error.message || 'Search failed');
-            if (resultsDiv) resultsDiv.innerHTML = '';
-            if (noRidesFound) noRidesFound.style.display = 'block';
-            if (createRidePrompt) createRidePrompt.style.display = 'none';
+
+            if ((fieldName === 'fromLocation' || fieldName === 'toLocation') && field.value.length < 3) {
+                errorElement.textContent = 'Location must be at least 3 characters.';
+                return false;
+            }
+
+            return true;
         }
 
-        if (resultsContainer) {
-            resultsContainer.scrollIntoView({ behavior: 'smooth' });
+        validateConfirmation() {
+            const confirmation = document.getElementById('confirmationBox');
+            const errorElement = document.getElementById('confirmationBoxError');
+            if (!confirmation.checked) {
+                errorElement.textContent = 'Please agree to the terms to continue.';
+                return false;
+            }
+            errorElement.textContent = '';
+            return true;
         }
-    } catch (error) { 
-        console.error('Error searching rides:', error);
-        const resultsContainer = document.getElementById('searchResultsContainer');
-        const resultsDiv = document.getElementById('searchResults');
-        const noRidesFound = document.getElementById('noRidesFound');
-        
-        if (resultsContainer) resultsContainer.style.display = 'block';
-        if (resultsDiv) resultsDiv.innerHTML = '';
-        if (noRidesFound) noRidesFound.style.display = 'block';
-        if (resultsContainer) resultsContainer.scrollIntoView({ behavior: 'smooth' });
-    }
-}
 
-// Display search results with all ride features
-function displaySearchResults(rides) {
-    const resultsDiv = document.getElementById('searchResults');
-    const noRidesFound = document.getElementById('noRidesFound');
-    const createRidePrompt = document.getElementById('createRidePrompt');
-    
-    if (!resultsDiv) return;
-    
-    if (rides.length === 0) {
-        resultsDiv.innerHTML = '';
-        if (noRidesFound) noRidesFound.style.display = 'block';
-        if (createRidePrompt) createRidePrompt.style.display = 'none';
-        return;
-    }
+        validateAllFields() {
+            let isValid = true;
+            ['fromLocation', 'toLocation', 'genderAcceptance', 'departureDate'].forEach(field => {
+                if (!this.validateField(field)) isValid = false;
+            });
+            if (!this.validateConfirmation()) isValid = false;
 
-    resultsDiv.innerHTML = rides.map(ride => `
-        <div class="ride-card">
-            <h3>${ride.fromLocation} → ${ride.toLocation}</h3>
-            <p><strong>Creator:</strong> ${ride.creatorName}</p>
-            <p><strong>Date:</strong> ${new Date(ride.dateTime).toLocaleDateString()}</p>
-            <p><strong>Time:</strong> ${new Date(ride.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-            <p><strong>Seats:</strong> ${ride.availableSeats}</p>
-            <p><strong>Gender (allowed):</strong> ${ride.preferredGender}</p>
-            <div>
-                ${ride.luggageSpace ? '<span class="feature-tag"><i class="fas fa-suitcase"></i> Luggage Space</span><br>' : ''}
-                ${ride.allowChat ? '<span class="feature-tag"><i class="fas fa-comments"></i> Chat Available</span><br>' : ''}
-                ${ride.timeNegotiation ? '<span class="feature-tag"><i class="fas fa-handshake"></i> Flexible Timing</span><br>' : ''}
-            </div>
-            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                <button onclick="requestRide('${ride._id}')" class="btn primary" style="flex: 1">
-                    <i class="fas fa-hand-point-up"></i> Request
-                </button>
-            </div>
-        </div>`).join('');
-
-    if (noRidesFound) noRidesFound.style.display = 'none';
-    if (createRidePrompt) createRidePrompt.style.display = 'none';
-}
-
-// Request ride functionality
-async function requestRide(rideId) {
-    const token = localStorage.getItem('token');
-    if (!token) { 
-        alert('Please login to request a ride'); 
-        return; 
-    }
-    
-    try {
-        const response = await fetch(`${API_BASE}/rides/request`, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json', 
-                'Authorization': `Bearer ${token}` 
-            },
-            body: JSON.stringify({ rideId })
-        });
-        
-        const data = await response.json();
-        alert(data.message || (response.ok ? 'Ride requested successfully!' : 'Failed to request ride'));
-    } catch (error) { 
-        console.error('Error requesting ride:', error);
-        alert('Error requesting ride. Please try again.');
-    }
-}
-
-// LOGIN PAGE FUNCTIONS
-function initializeEventListeners() {
-    const loginForm = document.getElementById('loginForm');
-    const signupForm = document.getElementById('signupForm');
-    const forgotForm = document.getElementById('forgotPasswordForm');
-    const resetForm = document.getElementById('resetPasswordForm');
-
-    if (loginForm) loginForm.addEventListener('submit', handleLogin);
-    if (signupForm) signupForm.addEventListener('submit', handleSignup);
-    if (forgotForm) forgotForm.addEventListener('submit', handleForgotPassword);
-    if (resetForm) resetForm.addEventListener('submit', handleResetPassword);
-    
-    setupFormSwitching();
-    setupPasswordToggles();
-}
-
-function handleLogin(e) {
-    e.preventDefault();
-    const form = e.target;
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    clearMessages();
-    
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
-    
-    fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(result => {
-        if (result.token) {
-            localStorage.setItem('token', result.token);
-            console.log('Login successful, redirecting to homepage');
-            window.location.href = 'homepage.html';
-        } else {
-            showMessage(result.message || 'Login failed', 'error');
+            const from = document.getElementById('fromLocation').value.trim();
+            const to = document.getElementById('toLocation').value.trim();
+            if (from && to && from.toLowerCase() === to.toLowerCase()) {
+                document.getElementById('toLocationError').textContent = 'Destination must differ from the starting location.';
+                isValid = false;
+            }
+            return isValid;
         }
-    })
-    .catch(error => {
-        console.error('Login error:', error);
-        showMessage('Login failed. Please try again.', 'error');
-    })
-    .finally(() => {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
+
+        showNotification(message, isSuccess = true) {
+            const notification = document.createElement('div');
+            notification.className = 'glass-notification';
+            const icon = isSuccess ? 'fa-check-circle' : 'fa-exclamation-circle';
+            if (!isSuccess) notification.style.borderColor = 'var(--error-color)';
+            notification.setAttribute('role', 'alert');
+            notification.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-in forwards';
+                notification.addEventListener('animationend', () => notification.remove());
+            }, 3000);
+        }
+
+        formatLabel(fieldName) {
+            return fieldName.charAt(0).toUpperCase() + fieldName.slice(1)
+                .replace(/([A-Z])/g, ' $1')
+                .replace(/departure Date/, 'Departure Date');
+        }
+
+        async handleRideCreation() {
+            if (!this.validateAllFields()) return;
+
+            const token = localStorage.getItem('token');
+            if (!token) {
+                this.showNotification('Authentication error. Please log in again.', false);
+                return;
+            }
+
+            const postRideBtn = document.getElementById('postRideBtn');
+            const formData = new FormData(document.getElementById('createRideForm'));
+
+            // Use the date input only (no time)
+            const date = formData.get('departureDate');  // yyyy-MM-dd
+
+            if (!date) {
+                this.showNotification('Please select a valid departure date.', false);
+                return;
+            }
+
+            // Send just the date string as is
+            const apiPayload = {
+                fromLocation: formData.get('fromLocation'),
+                toLocation: formData.get('toLocation'),
+                preferredGender: this.mapGender(formData.get('genderAcceptance')),
+                dateTime: date,  // just the date string YYYY-MM-DD
+                availableSeats: parseInt(this.seatsCount, 10),
+                luggageSpace: formData.has('luggageSpace'),
+                allowChat: formData.has('allowChat'),
+                additionalNotes: formData.get('additionalNotes') || ''
+            };
+
+            try {
+                postRideBtn.disabled = true;
+                postRideBtn.classList.add('loading');
+                postRideBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 10px;"></i>Posting Ride...';
+
+                const response = await fetch(`${this.apiBaseUrl}/rides`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(apiPayload)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) throw new Error(result.message || 'Failed to post ride.');
+
+                this.showNotification('Ride posted successfully! Redirecting...');
+                setTimeout(() => window.location.href = '/my_rides.html', 1500);
+
+            } catch (error) {
+                console.error('Error posting ride:', error);
+                this.showNotification(error.message, false);
+            } finally {
+                postRideBtn.disabled = false;
+                postRideBtn.classList.remove('loading');
+                postRideBtn.innerHTML = '<i class="fas fa-paper-plane" style="margin-right: 10px;"></i>Post Ride';
+            }
+        }
+
+        mapGender(formValue) {
+            switch (formValue) {
+                case 'any': return 'Any';
+                case 'male-only': return 'Male';
+                case 'female-only': return 'Female';
+                default: return 'Any';
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        new RideCreator();
     });
-}
-
-function handleSignup(e) {
-    e.preventDefault();
-    const form = e.target;
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    clearMessages();
-
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
-
-    fetch(`${API_BASE}/auth/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    })
-    .then(async (response) => {
-        const result = await response.json().catch(() => ({}));
-        if (response.ok) {
-            showMessage(result.message || 'Account created. Please verify your email.', 'success');
-            setTimeout(() => switchForm('loginSection'), 2000);
-            return;
-        }
-
-        if (response.status === 403 && (result.message || '').toLowerCase().includes('verify')) {
-            showMessage(result.message, 'error');
-            switchForm('loginSection');
-            return;
-        }
-
-        throw new Error(result.message || 'Signup failed');
-    })
-    .catch((error) => {
-        showMessage(error.message || 'Signup failed', 'error');
-    })
-    .finally(() => {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
-    });
-}
-
-// Generic form submit handler - MISSING FUNCTION IMPLEMENTED
-async function handleFormSubmit(e, endpoint, successCallback) {
-    e.preventDefault();
-    const form = e.target;
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
-
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    clearMessages();
-
-    try {
-        const response = await fetch(`${API_BASE}${endpoint}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-        const result = await response.json();
-        if (response.ok) {
-            showMessage(result.message || 'Success!', 'success');
-            if (successCallback) successCallback(result);
-        } else {
-            throw new Error(result.message || 'An error occurred.');
-        }
-    } catch (error) {
-        showMessage(error.message, 'error');
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
-    }
-}
-
-function handleForgotPassword(e) {
-    handleFormSubmit(e, '/auth/forgot-password', (result) => {
-        if(result.token) {
-            document.getElementById('resetToken').value = result.token;
-            setTimeout(() => switchForm('resetSection'), 1000);
-        }
-    });
-}
-
-function handleResetPassword(e) {
-    handleFormSubmit(e, '/auth/reset-password', () => {
-        setTimeout(() => switchForm('loginSection'), 2000);
-    });
-}
-
-function setupFormSwitching() {
-    const showSignup = document.getElementById('showSignupLink');
-    const showLogin = document.getElementById('showLoginLink');
-    const showForgot = document.getElementById('showForgotLink');
-    const showLoginFromForgot = document.getElementById('showLoginLinkFromForgot');
-
-    if (showSignup) showSignup.addEventListener('click', e => { e.preventDefault(); switchForm('signupSection'); });
-    if (showLogin) showLogin.addEventListener('click', e => { e.preventDefault(); switchForm('loginSection'); });
-    if (showForgot) showForgot.addEventListener('click', e => { e.preventDefault(); switchForm('forgotSection'); });
-    if (showLoginFromForgot) showLoginFromForgot.addEventListener('click', e => { e.preventDefault(); switchForm('loginSection'); });
-}
-
-function setupPasswordToggles() {
-    document.querySelectorAll('.password-toggle').forEach(toggle => {
-        toggle.addEventListener('click', () => {
-            const input = toggle.previousElementSibling;
-            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
-            input.setAttribute('type', type);
-            toggle.classList.toggle('fa-lock');
-            toggle.classList.toggle('fa-unlock');
-        });
-    });
-}
-
-function switchForm(activeSectionId) {
-    document.querySelectorAll('.form-section').forEach(section => section.classList.remove('active'));
-    const activeSection = document.getElementById(activeSectionId);
-    if (activeSection) activeSection.classList.add('active');
-    clearMessages();
-}
-
-function showMessage(message, type) {
-    const container = document.getElementById('messageContainer');
-    if (container) {
-        container.textContent = message;
-        container.className = `message ${type}`;
-        container.style.display = 'block';
-    }
-}
-
-function clearMessages() {
-    const container = document.getElementById('messageContainer');
-    if (container) {
-        container.style.display = 'none';
-    }
-}
 </script>
-
 </body>
 </html>
