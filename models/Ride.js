@@ -5,7 +5,7 @@ const rideSchema = new mongoose.Schema({
   creatorCollegeId: { type: String, required: true },
   fromLocation: { type: String, required: true },
   toLocation: { type: String, required: true },
-  availableSeats: { type: Number, required: true, min: 1 },
+  availableSeats: { type: Number, required: true, min: 0 },
   preferredGender: { type: String, enum: ["Any", "Male", "Female"], default: "Any" },
   luggageSpace: { type: Boolean, default: false },
   timeNegotiation: { type: Boolean, default: false },
