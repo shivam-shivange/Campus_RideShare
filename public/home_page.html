@@ -518,50 +518,65 @@
 
         /* Mobile specific smaller sizing */
         @media (max-width: 640px) {
-            body { padding: 0.5rem; }
-            .glass-section, .header { padding: 1.5rem; }
-            .logo-text h1 { font-size: 1.25rem; }
-            .form-row { grid-template-columns: 1fr; gap: 0; }
-            .dropdown-menu {
-                min-width: 140px;
-                max-width: 240px; /* increased max width */
-                right: -10px;
-            }
-            
-            .flatpickr-calendar {
-                width: 320px !important;  /* increased from 280px */
-                max-width: 95vw !important;
-                left: 50% !important;
-                top: 50% !important;
-                transform: translateX(-50%) translateY(-50%) scale(0.9) !important; /* increased scale */
-            }
-            
-            .flatpickr-day {
-                min-height: 40px !important; /* increased from 36px */
-                font-size: 16px !important;  /* increased from 15px */
-                width: 40px !important;      /* increased from 36px */
-            }
-            
-            .flatpickr-am-pm,
-            .numInput {
-                min-height: 40px !important; /* increased from 36px */
-                font-size: 16px !important;  /* increased from 15px */
-            }
-        }
+    /* Increase calendar width and scale */
+    .flatpickr-calendar {
+        width: 360px !important;      /* Increased from 320px */
+        max-width: 98vw !important;   /* Slightly wider max width */
+        left: 50% !important;
+        top: 50% !important;
+        transform: translateX(-50%) translateY(-50%) scale(0.95) !important; /* Larger scale */
+    }
+    
+    /* Increase day cell size */
+    .flatpickr-day {
+        min-height: 44px !important;  /* Increased from 40px */
+        font-size: 18px !important;   /* Increased from 16px */
+        width: 44px !important;       /* Increased from 40px */
+    }
+    
+    .flatpickr-weekdays {
+        font-size: 18px !important;   /* Increase weekday header font */
+    }
+    
+    .flatpickr-months {
+        font-size: 18px !important;
+    }
+    
+    /* Increase am/pm and time input size */
+    .flatpickr-am-pm,
+    .numInput {
+        min-height: 44px !important;  /* Increased from 40px */
+        font-size: 18px !important;   /* Increased from 16px */
+    }
+}
 
-        @media (max-width: 480px) {
-            .flatpickr-calendar {
-                width: 300px !important; /* increased from 260px */
-                /* slightly less scaling for better visibility on very small devices */
-                transform: translateX(-50%) translateY(-50%) scale(0.85) !important; 
-            }
-            
-            .flatpickr-day {
-                min-height: 40px !important; /* increased from 34px */
-                width: 40px !important;      /* increased from 34px */
-                font-size: 15px !important;  /* increased from 14px */
-            }
-        }
+@media (max-width: 480px) {
+    .flatpickr-calendar {
+        width: 340px !important;      /* Increased from 300px */
+        transform: translateX(-50%) translateY(-50%) scale(0.9) !important;  /* Slightly larger scale */
+    }
+    
+    .flatpickr-day {
+        min-height: 42px !important;  /* Increased from 38px */
+        width: 42px !important;       /* Increased from 38px */
+        font-size: 17px !important;   /* Increased from 15px */
+    }
+    
+    .flatpickr-weekdays {
+        font-size: 17px !important;
+    }
+    
+    .flatpickr-months {
+        font-size: 17px !important;
+    }
+    
+    .flatpickr-am-pm,
+    .numInput {
+        min-height: 42px !important;  /* Increased from 40px */
+        font-size: 17px !important;   /* Increased from 15px */
+    }
+}
+
 </style>
 </head>
 <body>
