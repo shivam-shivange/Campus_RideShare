@@ -142,33 +142,32 @@ export const listRides = async (req, res) => {
 export const searchRides = async (req, res) => {
   try {
     const { from, to, date, limit = 20 } = req.query;
-    
-    // Build search query
+    const userGender = req.user.gender ? req.user.gender.toLowerCase() : 'any';
+
     let searchQuery = {
       creatorCollegeId: req.user.collegeId,
       status: { $in: ["OPEN", "FULL"] },
-      dateTime: { $gte: new Date() } // Only future rides
+      dateTime: { $gte: new Date() }
     };
 
-    // Only add filters if values exist
-    if (from && from.trim() && from !== '') {
+    if (from && from.trim()) {
       searchQuery.fromLocation = { $regex: from.trim(), $options: 'i' };
     }
-
-    if (to && to.trim() && to !== '') {
+    if (to && to.trim()) {
       searchQuery.toLocation = { $regex: to.trim(), $options: 'i' };
     }
-
     if (date && date !== '') {
       const searchDate = new Date(date);
       const nextDay = new Date(searchDate);
       nextDay.setDate(nextDay.getDate() + 1);
-      
-      searchQuery.dateTime = {
-        $gte: searchDate,
-        $lt: nextDay
-      };
+      searchQuery.dateTime = { $gte: searchDate, $lt: nextDay };
     }
+    
+    // Add gender matching filter: rides where preferredGender is 'Any' OR matches user gender
+    searchQuery.$or = [
+      { preferredGender: 'Any' },
+      { preferredGender: { $regex: new RegExp(`^${userGender}$`, 'i') } }
+    ];
 
     const rides = await Ride.find(searchQuery)
       .sort({ dateTime: 1 })
@@ -297,16 +296,22 @@ export const requestRide = async (req, res) => {
   try {
     const { rideId } = req.body;
     const ride = await Ride.findById(rideId);
-    
     if (!ride) return res.status(404).json({ message: "Ride not found" });
     if (ride.creatorCollegeId !== req.user.collegeId) 
       return res.status(403).json({ message: "Cross-college access denied" });
-    if (ride.status === "CLOSED") 
+    if (ride.status === "CLOSED")
       return res.status(400).json({ message: "Ride is closed" });
     if (ride.creatorId === req.user.id)
       return res.status(400).json({ message: "Cannot request your own ride" });
     if (ride.requests.includes(req.user.id) || ride.confirmedUsers.includes(req.user.id))
       return res.status(400).json({ message: "Already requested/confirmed" });
+
+    const userGender = req.user.gender ? req.user.gender.toLowerCase() : 'any';
+    const rideGender = ride.preferredGender.toLowerCase();
+
+    if (rideGender !== 'any' && rideGender !== userGender) {
+      return res.status(403).json({ message: `This ride is for ${ride.preferredGender} only.` });
+    }
 
     ride.requests.push(req.user.id);
     await ride.save();
@@ -317,6 +322,7 @@ export const requestRide = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 export const cancelRequest = async (req, res) => {
   try {
@@ -338,53 +344,64 @@ export const cancelRequest = async (req, res) => {
 };
 
 export const decideRequest = async (req, res) => {
-  try {
-    const { rideId, userId, decision } = req.body;
-    const ride = await Ride.findById(rideId);
-    
-    if (!ride) return res.status(404).json({ message: "Ride not found" });
-    if (ride.creatorId !== req.user.id) 
-      return res.status(403).json({ message: "Only creator can decide" });
-    if (!ride.requests.includes(userId)) 
-      return res.status(400).json({ message: "User did not request" });
+  try {
+    const { rideId, userId, decision } = req.body;
+    const ride = await Ride.findById(rideId);
 
-    // Get user details using Supabase
-    const { data: userData, error } = await supabaseAdmin
-      .from('users')
-      .select('id, name, email')
-      .eq('id', userId)
-      .single();
+    if (!ride) return res.status(404).json({ message: "Ride not found" });
+    if (ride.creatorId !== req.user.id) 
+      return res.status(403).json({ message: "Only creator can decide" });
+    
+    // Ensure ride.requests is an array and userId is string
+    if (!Array.isArray(ride.requests) || !ride.requests.some(id => id.toString() === userId.toString())) {
+      return res.status(400).json({ message: "User did not request" });
+    }
 
-    if (error) {
-      console.error("Error fetching user:", error);
-      return res.status(500).json({ message: "Error fetching user data" });
-    }
+    // Fetch user details from Supabase
+    const { data: userData, error } = await supabaseAdmin
+      .from('users')
+      .select('id, name, email')
+      .eq('id', userId)
+      .single();
 
-    const user = userData;
+    if (error) {
+      console.error("Error fetching user:", error);
+      return res.status(500).json({ message: "Error fetching user data" });
+    }
 
-    if (decision === "reject") {
-      ride.requests = ride.requests.filter(u => u !== userId);
-    } else {
-      if (ride.availableSeats <= 0) 
-        return res.status(400).json({ message: "No seats left" });
-      
-      ride.confirmedUsers.push(userId);
-      ride.requests = ride.requests.filter(u => u !== userId);
-      ride.availableSeats -= 1;
-      
-      if (ride.availableSeats === 0) ride.status = "FULL";
-      ride.expiresAt = new Date(new Date(ride.dateTime).getTime() + 30 * 24 * 3600 * 1000);
-    }
+    const user = userData;
 
-    await ride.save();
-    res.json({ 
-      message: decision === "accept" ? `${user?.name || 'User'} confirmed for the ride` : `${user?.name || 'User'} rejected`, 
-      ride 
-    });
-  } catch (error) {
-    console.error("Error deciding request:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
+    if (decision === "reject") {
+      // Remove userId from requests array safely
+      ride.requests = ride.requests.filter(u => u.toString() !== userId.toString());
+    } else {
+      if (ride.availableSeats <= 0) 
+        return res.status(400).json({ message: "No seats left" });
+
+      // Add userId to confirmedUsers if not already present
+      ride.confirmedUsers = ride.confirmedUsers || [];
+      if (!ride.confirmedUsers.some(u => u.toString() === userId.toString())) {
+        ride.confirmedUsers.push(userId);
+      }
+      // Remove userId from requests array
+      ride.requests = ride.requests.filter(u => u.toString() !== userId.toString());
+
+      ride.availableSeats -= 1;
+
+      if (ride.availableSeats === 0) ride.status = "FULL";
+      ride.expiresAt = new Date(new Date(ride.dateTime).getTime() + 30 * 24 * 3600 * 1000);
+    }
+
+    await ride.save();
+
+    res.json({ 
+      message: decision === "accept" ? `${user?.name || 'User'} confirmed for the ride` : `${user?.name || 'User'} rejected`, 
+      ride 
+    });
+  } catch (error) {
+    console.error("Error deciding request:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 export const updateRideTime = async (req, res) => {
