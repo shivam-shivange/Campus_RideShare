@@ -1239,41 +1239,48 @@ async function searchRides() {
 
 // Display search results with all ride features
 function displaySearchResults(rides) {
-    const resultsDiv = document.getElementById('searchResults');
-    const noRidesFound = document.getElementById('noRidesFound');
-    const createRidePrompt = document.getElementById('createRidePrompt');
-    
-    if (!resultsDiv) return;
-    
-    if (rides.length === 0) {
-        resultsDiv.innerHTML = '';
-        if (noRidesFound) noRidesFound.style.display = 'block';
-        if (createRidePrompt) createRidePrompt.style.display = 'none';
-        return;
-    }
+  const userGender = currentUser?.gender || 'any'; // Adjust based on your user object
+  const resultsDiv = document.getElementById('searchResults');
+  if(!resultsDiv) return;
 
-    resultsDiv.innerHTML = rides.map(ride => `
-        <div class="ride-card">
-            <h3>${ride.fromLocation} → ${ride.toLocation}</h3>
-            <p><strong>Creator:</strong> ${ride.creatorName}</p>
-            <p><strong>Date:</strong> ${new Date(ride.dateTime).toLocaleDateString()}</p>
-            <p><strong>Time:</strong> ${new Date(ride.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-            <p><strong>Seats:</strong> ${ride.availableSeats}</p>
-            <p><strong>Gender (allowed):</strong> ${ride.preferredGender}</p>
-            <div>
-                ${ride.luggageSpace ? '<span class="feature-tag"><i class="fas fa-suitcase"></i> Luggage Space</span><br>' : ''}
-                ${ride.allowChat ? '<span class="feature-tag"><i class="fas fa-comments"></i> Chat Available</span><br>' : ''}
-                ${ride.timeNegotiation ? '<span class="feature-tag"><i class="fas fa-handshake"></i> Flexible Timing</span><br>' : ''}
-            </div>
-            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                <button onclick="requestRide('${ride._id}')" class="btn primary" style="flex: 1">
-                    <i class="fas fa-hand-point-up"></i> Request
-                </button>
-            </div>
-        </div>`).join('');
+  if(rides.length === 0) {
+    resultsDiv.innerHTML = '<p>No rides available.</p>';
+    return;
+  }
 
-    if (noRidesFound) noRidesFound.style.display = 'none';
-    if (createRidePrompt) createRidePrompt.style.display = 'none';
+  resultsDiv.innerHTML = rides.map(ride => {
+    const preferred = ride.preferredGender.toLowerCase();
+    const allowed = (
+      preferred === 'any' || 
+      preferred === userGender.toLowerCase()
+    );
+
+    const requestBtn = allowed
+      ? `<button onclick="requestRide('${ride._id}')" class="btn primary">
+            <i class="fas fa-hand-paper"></i> Request
+         </button>`
+      : `<button class="btn primary" disabled title="This ride is for ${ride.preferredGender}-only. You cannot request.">
+            <i class="fas fa-ban"></i> Not allowed
+         </button>`;
+
+    return `
+      <div class="ride-card">
+        <h3>${ride.fromLocation} → ${ride.toLocation}</h3>
+        <p><strong>Driver:</strong> ${ride.creatorName}</p>
+        <p><strong>Date:</strong> ${new Date(ride.dateTime).toLocaleDateString()}</p>
+        <p><strong>Time:</strong> ${new Date(ride.dateTime).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</p>
+        <p><strong>Seats:</strong> ${ride.availableSeats}</p>
+        <p><strong>Gender:</strong> ${ride.preferredGender}</p>
+        <div>
+          ${ride.luggageSpace ? '<span><i class="fas fa-suitcase"></i> Luggage Space</span>' : ''}
+          ${ride.allowChat ? '<span><i class="fas fa-comments"></i> Chat Available</span>' : ''}
+          ${ride.timeNegotiation ? '<span><i class="fas fa-handshake"></i> Flexible Timing</span>' : ''}
+        </div>
+        <div>
+          ${requestBtn}
+        </div>
+      </div>`;
+  }).join('');
 }
 
 // Request ride functionality
