@@ -1259,7 +1259,7 @@ function displaySearchResults(rides) {
             <p><strong>Date:</strong> ${new Date(ride.dateTime).toLocaleDateString()}</p>
             <p><strong>Time:</strong> ${new Date(ride.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
             <p><strong>Seats:</strong> ${ride.availableSeats}</p>
-            <p><strong>Gender:</strong> ${ride.preferredGender}</p>
+            <p><strong>Gender (allowed):</strong> ${ride.preferredGender}</p>
             <div>
                 ${ride.luggageSpace ? '<span class="feature-tag"><i class="fas fa-suitcase"></i> Luggage Space</span><br>' : ''}
                 ${ride.allowChat ? '<span class="feature-tag"><i class="fas fa-comments"></i> Chat Available</span><br>' : ''}
