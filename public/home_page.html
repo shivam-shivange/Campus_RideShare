@@ -524,42 +524,42 @@
             .form-row { grid-template-columns: 1fr; gap: 0; }
             .dropdown-menu {
                 min-width: 140px;
-                max-width: 200px;
+                max-width: 240px; /* increased max width */
                 right: -10px;
             }
             
             .flatpickr-calendar {
-                width: 280px !important; /* Reduced from 380px */
-                max-width: 90vw !important;
+                width: 320px !important;  /* increased from 280px */
+                max-width: 95vw !important;
                 left: 50% !important;
                 top: 50% !important;
-                transform: translateX(-50%) translateY(-50%) scale(0.8) !important; /* Even smaller on mobile */
+                transform: translateX(-50%) translateY(-50%) scale(0.9) !important; /* increased scale */
             }
             
             .flatpickr-day {
-                min-height: 36px !important; /* Slightly larger for touch but still smaller than before */
-                font-size: 15px !important;
-                width: 36px !important;
+                min-height: 40px !important; /* increased from 36px */
+                font-size: 16px !important;  /* increased from 15px */
+                width: 40px !important;      /* increased from 36px */
             }
             
             .flatpickr-am-pm,
             .numInput {
-                min-height: 36px !important;
-                font-size: 15px !important;
+                min-height: 40px !important; /* increased from 36px */
+                font-size: 16px !important;  /* increased from 15px */
             }
         }
 
-        /* Even smaller for very small screens */
         @media (max-width: 480px) {
             .flatpickr-calendar {
-                width: 260px !important;
-                transform: translateX(-50%) translateY(-50%) scale(0.75) !important; /* 75% size on small phones */
+                width: 300px !important; /* increased from 260px */
+                /* slightly less scaling for better visibility on very small devices */
+                transform: translateX(-50%) translateY(-50%) scale(0.85) !important; 
             }
             
             .flatpickr-day {
-                min-height: 34px !important;
-                width: 34px !important;
-                font-size: 14px !important;
+                min-height: 38px !important; /* increased from 34px */
+                width: 38px !important;      /* increased from 34px */
+                font-size: 15px !important;  /* increased from 14px */
             }
         }
 </style>
