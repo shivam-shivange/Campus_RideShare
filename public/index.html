@@ -87,25 +87,42 @@
         .message.success { background: rgba(22, 163, 74, 0.08); border: 1px solid rgba(22, 163, 74, 0.2); color: var(--success-color); }
 
         /* Terms & Conditions Checkbox Styles */
-        .checkbox-label { 
-            display: flex; align-items: flex-start; gap: 0.5rem; 
-            font-size: 0.875rem; color: var(--text-secondary);
-        }
-        .checkbox-label input[type="checkbox"] { 
-            margin-top: 0.25rem; 
-            cursor: pointer;
-        }
-        .checkbox-label p { 
-            margin: 0; 
-        }
-        .checkbox-label a { 
-            color: var(--primary-600); 
-            text-decoration: none; 
-            font-weight: 600;
-        }
-        .checkbox-label a:hover { 
-            text-decoration: underline; 
-        }
+        .checkbox-label {
+    /* Use flex layout aligned center for perfect vertical alignment */
+    display: flex; 
+    align-items: center;    /* Center vertically */
+    gap: 0.5rem;            /* Adjust spacing between checkbox and text */
+    font-size: 0.875rem; 
+    color: var(--text-secondary);
+    cursor: pointer;        /* Cursor pointer on the whole label */
+    margin: 0;              /* Reset margin to avoid extra space */
+    margin-bottom: 10px;
+}
+
+.checkbox-label input[type="checkbox"] {
+    margin: 0;              /* Remove default margin, no top offset */
+    cursor: pointer;
+    vertical-align: middle; /* Helps align correctly inside flex */
+}
+
+.checkbox-label p {
+    margin: 0;              /* Remove default paragraph margin */
+    line-height: 1.2;       /* Optional: better line height for readability */
+}
+
+.checkbox-label a {
+    color: var(--primary-600);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.checkbox-label a:hover {
+    text-decoration: underline;
+}
+
+
+
+
 
         .terms-popup {
             display: none;
@@ -242,12 +259,14 @@
                     </div>
                     
                     <!-- Terms & Conditions Checkbox -->
-                    <div class="form-group">
-                        <div class="checkbox-label">
-                            <input type="checkbox" id="termsCheckbox" name="terms" required>
-                            <p>I agree to the <a href="#" id="viewTerms">Terms & Conditions</a></p>
-                        </div>
-                    </div>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="termsCheckbox" name="terms" required style="margin: 0;">
+                        <p style="margin: 0;">
+                            I agree to the <a href="#" id="viewTerms">Terms & Conditions</a>
+                        </p>
+                    </label>
+
+
                     
                     <button type="submit" class="btn primary">
                         <i class="fas fa-user-plus"></i> Create Account

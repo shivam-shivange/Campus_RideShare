@@ -142,33 +142,32 @@ export const listRides = async (req, res) => {
 export const searchRides = async (req, res) => {
   try {
     const { from, to, date, limit = 20 } = req.query;
-    
-    // Build search query
+    const userGender = req.user.gender ? req.user.gender.toLowerCase() : 'any';
+
     let searchQuery = {
       creatorCollegeId: req.user.collegeId,
       status: { $in: ["OPEN", "FULL"] },
-      dateTime: { $gte: new Date() } // Only future rides
+      dateTime: { $gte: new Date() }
     };
 
-    // Only add filters if values exist
-    if (from && from.trim() && from !== '') {
+    if (from && from.trim()) {
       searchQuery.fromLocation = { $regex: from.trim(), $options: 'i' };
     }
-
-    if (to && to.trim() && to !== '') {
+    if (to && to.trim()) {
       searchQuery.toLocation = { $regex: to.trim(), $options: 'i' };
     }
-
     if (date && date !== '') {
       const searchDate = new Date(date);
       const nextDay = new Date(searchDate);
       nextDay.setDate(nextDay.getDate() + 1);
-      
-      searchQuery.dateTime = {
-        $gte: searchDate,
-        $lt: nextDay
-      };
+      searchQuery.dateTime = { $gte: searchDate, $lt: nextDay };
     }
+    
+    // Add gender matching filter: rides where preferredGender is 'Any' OR matches user gender
+    searchQuery.$or = [
+      { preferredGender: 'Any' },
+      { preferredGender: { $regex: new RegExp(`^${userGender}$`, 'i') } }
+    ];
 
     const rides = await Ride.find(searchQuery)
       .sort({ dateTime: 1 })
@@ -297,16 +296,22 @@ export const requestRide = async (req, res) => {
   try {
     const { rideId } = req.body;
     const ride = await Ride.findById(rideId);
-    
     if (!ride) return res.status(404).json({ message: "Ride not found" });
     if (ride.creatorCollegeId !== req.user.collegeId) 
       return res.status(403).json({ message: "Cross-college access denied" });
-    if (ride.status === "CLOSED") 
+    if (ride.status === "CLOSED")
       return res.status(400).json({ message: "Ride is closed" });
     if (ride.creatorId === req.user.id)
       return res.status(400).json({ message: "Cannot request your own ride" });
     if (ride.requests.includes(req.user.id) || ride.confirmedUsers.includes(req.user.id))
       return res.status(400).json({ message: "Already requested/confirmed" });
+
+    const userGender = req.user.gender ? req.user.gender.toLowerCase() : 'any';
+    const rideGender = ride.preferredGender.toLowerCase();
+
+    if (rideGender !== 'any' && rideGender !== userGender) {
+      return res.status(403).json({ message: `This ride is for ${ride.preferredGender} only.` });
+    }
 
     ride.requests.push(req.user.id);
     await ride.save();
@@ -317,6 +322,7 @@ export const requestRide = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 export const cancelRequest = async (req, res) => {
   try {

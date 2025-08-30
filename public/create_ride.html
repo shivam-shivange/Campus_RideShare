@@ -455,36 +455,44 @@
             transform: translateY(-1px);
         }
 
-        /* Enhanced DateTime Picker Styling */
+        /* MOBILE-OPTIMIZED FLATPICKR - SMALLER SIZE */
         .flatpickr-calendar {
             background: rgba(255, 255, 255, 0.95) !important;
             backdrop-filter: blur(20px) !important;
             -webkit-backdrop-filter: blur(20px) !important;
             border: 1px solid var(--glass-border) !important;
-            border-radius: 16px !important;
+            border-radius: 12px !important; /* Reduced from 16px */
             box-shadow: var(--shadow-glass) !important;
             font-family: 'Inter', sans-serif !important;
+            z-index: 99999 !important;
+            position: fixed !important;
+            transform: scale(0.85) !important; /* Makes entire calendar 85% of original size */
+            transform-origin: center center !important;
         }
 
         .flatpickr-calendar.open {
-            animation: slideInUp 0.3s ease-out;
+            animation: slideInUpSmall 0.3s ease-out;
         }
 
-        @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes slideInUpSmall {
+            from { opacity: 0; transform: scale(0.75) translateY(10px); }
+            to { opacity: 1; transform: scale(0.85) translateY(0); }
         }
 
+        /* Smaller day cells */
         .flatpickr-day {
-            border-radius: 8px !important;
-            margin: 2px !important;
+            border-radius: 6px !important; /* Reduced from 8px */
+            margin: 1px !important; /* Reduced from 2px */
             transition: all 0.2s ease !important;
+            font-size: 14px !important; /* Reduced from 16px */
+            min-height: 32px !important; /* Reduced from 40px */
+            width: 32px !important; /* Explicit width */
         }
 
         .flatpickr-day:hover, .flatpickr-day:focus {
             background: var(--primary-500) !important;
             color: white !important;
-            transform: scale(1.05) !important;
+            transform: scale(1.1) !important; /* Slightly reduced scale */
             border-color: var(--primary-500) !important;
         }
 
@@ -494,10 +502,19 @@
             color: white !important;
         }
 
+        /* Smaller month/year selectors */
         .flatpickr-current-month .flatpickr-monthDropdown-months {
             background: rgba(255, 255, 255, 0.9) !important;
-            border-radius: 8px !important;
+            border-radius: 6px !important;
             color: var(--text-primary) !important;
+            font-size: 14px !important;
+        }
+
+        /* Smaller navigation arrows */
+        .flatpickr-months .flatpickr-prev-month,
+        .flatpickr-months .flatpickr-next-month {
+            width: 24px !important;
+            height: 24px !important;
         }
 
         .flatpickr-months .flatpickr-prev-month:hover svg,
@@ -505,10 +522,11 @@
             fill: var(--primary-600) !important;
         }
 
-        /* Enhanced Time Picker Styling */
+        /* Smaller time picker (for create ride page) */
         .flatpickr-time {
             background: rgba(255, 255, 255, 0.9) !important;
             border-top: 1px solid var(--glass-border) !important;
+            padding: 8px !important; /* Reduced from 10px */
         }
 
         .flatpickr-time input:hover,
@@ -519,8 +537,11 @@
         .flatpickr-am-pm {
             background: var(--primary-500) !important;
             color: white !important;
-            border-radius: 8px !important;
+            border-radius: 6px !important;
             font-weight: 600 !important;
+            min-height: 32px !important; /* Reduced from 40px */
+            font-size: 14px !important; /* Reduced from 16px */
+            padding: 0 8px !important;
         }
 
         .flatpickr-am-pm:hover {
@@ -530,12 +551,15 @@
         .numInput {
             background: rgba(255, 255, 255, 0.8) !important;
             border: 1px solid var(--glass-border) !important;
-            border-radius: 6px !important;
+            border-radius: 4px !important;
             color: var(--text-primary) !important;
             font-weight: 500 !important;
+            min-height: 32px !important; /* Reduced from 40px */
+            font-size: 14px !important; /* Reduced from 16px */
+            width: 40px !important;
         }
 
-        /* DateTime Input Wrapper for clickable area */
+        /* DateTime Input Wrapper for clickable area - MOBILE FIXES */
         .datetime-input-wrapper {
             position: relative;
             cursor: pointer;
@@ -545,12 +569,14 @@
         .datetime-input-wrapper .form-control {
             cursor: pointer;
             caret-color: transparent;
+            font-size: 16px !important; /* Prevent zoom on iOS */
         }
         
         .datetime-input-wrapper .input-icon {
             pointer-events: none;
         }
 
+        /* Mobile specific smaller sizing */
         @media (max-width: 640px) {
             .container { padding: 0.5rem; }
             .form-section { padding: 1.5rem; }
@@ -559,9 +585,39 @@
             .header-icon { font-size: 2.5rem; }
             .form-row { grid-template-columns: 1fr; gap: 0; }
             .counter-group { justify-content: center; }
+            
             .flatpickr-calendar {
-                width: 90vw !important;
-                max-width: 350px !important;
+                width: 280px !important; /* Reduced from 380px */
+                max-width: 90vw !important;
+                left: 50% !important;
+                top: 50% !important;
+                transform: translateX(-50%) translateY(-50%) scale(0.8) !important; /* Even smaller on mobile */
+            }
+            
+            .flatpickr-day {
+                min-height: 36px !important; /* Slightly larger for touch but still smaller than before */
+                font-size: 15px !important;
+                width: 36px !important;
+            }
+            
+            .flatpickr-am-pm,
+            .numInput {
+                min-height: 36px !important;
+                font-size: 15px !important;
+            }
+        }
+
+        /* Even smaller for very small screens */
+        @media (max-width: 480px) {
+            .flatpickr-calendar {
+                width: 260px !important;
+                transform: translateX(-50%) translateY(-50%) scale(0.75) !important; /* 75% size on small phones */
+            }
+            
+            .flatpickr-day {
+                min-height: 34px !important;
+                width: 34px !important;
+                font-size: 14px !important;
             }
         }
 
@@ -588,7 +644,8 @@
 
         @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
-    </style>
+</style>
+
 </head>
 <body>
     <div class="container">
@@ -825,7 +882,7 @@
             const dateTimeInputWrapper = document.getElementById('dateTimeInputWrapper');
             
             if (dateTimeInput) {
-                // Initialize Flatpickr with DATE AND TIME selection
+                // MOBILE FIX: Initialize Flatpickr with disableMobile option
                 this.dateTimePickerInstance = flatpickr(dateTimeInput, {
                     enableTime: true, // ENABLE TIME PICKER
                     dateFormat: "Y-m-d H:i", // Date and time format
@@ -835,6 +892,7 @@
                     time_24hr: false, // Use 12-hour format with AM/PM
                     allowInput: false, // Prevent manual typing
                     clickOpens: false, // We'll control opening manually
+                    disableMobile: true, // CRITICAL: Force flatpickr UI on mobile instead of native
                     onChange: (selectedDates, dateStr) => {
                         // Clear any previous errors when date/time is selected
                         document.getElementById('departureDateTimeError').textContent = '';
@@ -846,6 +904,12 @@
                     dateTimeInputWrapper.addEventListener('click', (event) => {
                         event.preventDefault();
                         event.stopPropagation();
+                        this.dateTimePickerInstance.open();
+                    });
+                    
+                    // MOBILE FIX: Also add touch events for better mobile support
+                    dateTimeInputWrapper.addEventListener('touchstart', (event) => {
+                        event.preventDefault();
                         this.dateTimePickerInstance.open();
                     });
                 }
