@@ -1255,8 +1255,9 @@ function displaySearchResults(rides) {
     resultsDiv.innerHTML = rides.map(ride => `
         <div class="ride-card">
             <h3>${ride.fromLocation} → ${ride.toLocation}</h3>
-            <p><strong>Driver:</strong> ${ride.creatorName}</p>
+            <p><strong>Creator:</strong> ${ride.creatorName}</p>
             <p><strong>Date:</strong> ${new Date(ride.dateTime).toLocaleDateString()}</p>
+            <p><strong>Time:</strong> ${new Date(ride.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
             <p><strong>Seats:</strong> ${ride.availableSeats}</p>
             <p><strong>Gender:</strong> ${ride.preferredGender}</p>
             <div>
