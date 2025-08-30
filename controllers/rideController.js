@@ -346,50 +346,115 @@ export const cancelRequest = async (req, res) => {
 export const decideRequest = async (req, res) => {
   try {
     const { rideId, userId, decision } = req.body;
-    const ride = await Ride.findById(rideId);
     
-    if (!ride) return res.status(404).json({ message: "Ride not found" });
-    if (ride.creatorId !== req.user.id) 
-      return res.status(403).json({ message: "Only creator can decide" });
-    if (!ride.requests.includes(userId)) 
-      return res.status(400).json({ message: "User did not request" });
-
-    // Get user details using Supabase
-    const { data: userData, error } = await supabaseAdmin
-      .from('users')
-      .select('id, name, email')
-      .eq('id', userId)
-      .single();
-
-    if (error) {
-      console.error("Error fetching user:", error);
-      return res.status(500).json({ message: "Error fetching user data" });
+    // Add detailed logging
+    console.log('decideRequest called:', { rideId, userId, decision, requesterId: req.user.id });
+    
+    // Validate input parameters
+    if (!rideId || !userId || !decision) {
+      return res.status(400).json({ message: "Missing required parameters" });
     }
-
-    const user = userData;
-
+    
+    if (!['accept', 'reject'].includes(decision)) {
+      return res.status(400).json({ message: "Invalid decision value" });
+    }
+    
+    // Find the ride
+    const ride = await Ride.findById(rideId);
+    if (!ride) {
+      console.log('Ride not found:', rideId);
+      return res.status(404).json({ message: "Ride not found" });
+    }
+    
+    // Authorization checks
+    if (ride.creatorId !== req.user.id) {
+      console.log('Authorization failed:', { creatorId: ride.creatorId, requesterId: req.user.id });
+      return res.status(403).json({ message: "Only creator can decide" });
+    }
+    
+    if (!ride.requests.includes(userId)) {
+      console.log('User not in requests:', { userId, requests: ride.requests });
+      return res.status(400).json({ message: "User did not request this ride" });
+    }
+    
+    // Get user details using Supabase with better error handling
+    let userData = null;
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('users')
+        .select('id, name, email')
+        .eq('id', userId)
+        .single();
+        
+      if (error) {
+        console.error("Supabase error:", error);
+        // Continue without user data if Supabase fails
+        userData = { id: userId, name: 'Unknown User', email: null };
+      } else {
+        userData = data;
+      }
+    } catch (supabaseError) {
+      console.error("Supabase connection error:", supabaseError);
+      // Use fallback user data
+      userData = { id: userId, name: 'Unknown User', email: null };
+    }
+    
+    // Process the decision
     if (decision === "reject") {
+      // Remove from requests
       ride.requests = ride.requests.filter(u => u !== userId);
-    } else {
-      if (ride.availableSeats <= 0) 
-        return res.status(400).json({ message: "No seats left" });
+      console.log('User rejected, updated requests:', ride.requests);
+    } else if (decision === "accept") {
+      // Check available seats
+      if (ride.availableSeats <= 0) {
+        return res.status(400).json({ message: "No seats available" });
+      }
       
+      // Move from requests to confirmed users
       ride.confirmedUsers.push(userId);
       ride.requests = ride.requests.filter(u => u !== userId);
       ride.availableSeats -= 1;
       
-      if (ride.availableSeats === 0) ride.status = "FULL";
+      // Update ride status if full
+      if (ride.availableSeats === 0) {
+        ride.status = "FULL";
+      }
+      
+      // Extend expiry for rides with confirmed users
       ride.expiresAt = new Date(new Date(ride.dateTime).getTime() + 30 * 24 * 3600 * 1000);
+      
+      console.log('User accepted:', { 
+        userId, 
+        newAvailableSeats: ride.availableSeats, 
+        confirmedUsers: ride.confirmedUsers.length,
+        status: ride.status 
+      });
     }
-
+    
+    // Save the ride
     await ride.save();
+    console.log('Ride saved successfully');
+    
+    // Prepare response message
+    const userName = userData?.name || 'User';
+    const message = decision === "accept" 
+      ? `${userName} has been confirmed for the ride` 
+      : `${userName}'s request has been rejected`;
+    
+    // Return success response
     res.json({ 
-      message: decision === "accept" ? `${user?.name || 'User'} confirmed for the ride` : `${user?.name || 'User'} rejected`, 
-      ride 
+      message,
+      ride: ride.toObject()
     });
+    
   } catch (error) {
-    console.error("Error deciding request:", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Error in decideRequest:", error);
+    console.error("Error stack:", error.stack);
+    
+    res.status(500).json({ 
+      message: "Internal server error",
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
