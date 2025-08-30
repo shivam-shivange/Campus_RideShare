@@ -344,64 +344,53 @@ export const cancelRequest = async (req, res) => {
 };
 
 export const decideRequest = async (req, res) => {
-  try {
-    const { rideId, userId, decision } = req.body;
-    const ride = await Ride.findById(rideId);
+  try {
+    const { rideId, userId, decision } = req.body;
+    const ride = await Ride.findById(rideId);
+    
+    if (!ride) return res.status(404).json({ message: "Ride not found" });
+    if (ride.creatorId !== req.user.id) 
+      return res.status(403).json({ message: "Only creator can decide" });
+    if (!ride.requests.includes(userId)) 
+      return res.status(400).json({ message: "User did not request" });
 
-    if (!ride) return res.status(404).json({ message: "Ride not found" });
-    if (ride.creatorId !== req.user.id) 
-      return res.status(403).json({ message: "Only creator can decide" });
-    
-    // Ensure ride.requests is an array and userId is string
-    if (!Array.isArray(ride.requests) || !ride.requests.some(id => id.toString() === userId.toString())) {
-      return res.status(400).json({ message: "User did not request" });
-    }
+    // Get user details using Supabase
+    const { data: userData, error } = await supabaseAdmin
+      .from('users')
+      .select('id, name, email')
+      .eq('id', userId)
+      .single();
 
-    // Fetch user details from Supabase
-    const { data: userData, error } = await supabaseAdmin
-      .from('users')
-      .select('id, name, email')
-      .eq('id', userId)
-      .single();
+    if (error) {
+      console.error("Error fetching user:", error);
+      return res.status(500).json({ message: "Error fetching user data" });
+    }
 
-    if (error) {
-      console.error("Error fetching user:", error);
-      return res.status(500).json({ message: "Error fetching user data" });
-    }
+    const user = userData;
 
-    const user = userData;
+    if (decision === "reject") {
+      ride.requests = ride.requests.filter(u => u !== userId);
+    } else {
+      if (ride.availableSeats <= 0) 
+        return res.status(400).json({ message: "No seats left" });
+      
+      ride.confirmedUsers.push(userId);
+      ride.requests = ride.requests.filter(u => u !== userId);
+      ride.availableSeats -= 1;
+      
+      if (ride.availableSeats === 0) ride.status = "FULL";
+      ride.expiresAt = new Date(new Date(ride.dateTime).getTime() + 30 * 24 * 3600 * 1000);
+    }
 
-    if (decision === "reject") {
-      // Remove userId from requests array safely
-      ride.requests = ride.requests.filter(u => u.toString() !== userId.toString());
-    } else {
-      if (ride.availableSeats <= 0) 
-        return res.status(400).json({ message: "No seats left" });
-
-      // Add userId to confirmedUsers if not already present
-      ride.confirmedUsers = ride.confirmedUsers || [];
-      if (!ride.confirmedUsers.some(u => u.toString() === userId.toString())) {
-        ride.confirmedUsers.push(userId);
-      }
-      // Remove userId from requests array
-      ride.requests = ride.requests.filter(u => u.toString() !== userId.toString());
-
-      ride.availableSeats -= 1;
-
-      if (ride.availableSeats === 0) ride.status = "FULL";
-      ride.expiresAt = new Date(new Date(ride.dateTime).getTime() + 30 * 24 * 3600 * 1000);
-    }
-
-    await ride.save();
-
-    res.json({ 
-      message: decision === "accept" ? `${user?.name || 'User'} confirmed for the ride` : `${user?.name || 'User'} rejected`, 
-      ride 
-    });
-  } catch (error) {
-    console.error("Error deciding request:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
+    await ride.save();
+    res.json({ 
+      message: decision === "accept" ? `${user?.name || 'User'} confirmed for the ride` : `${user?.name || 'User'} rejected`, 
+      ride 
+    });
+  } catch (error) {
+    console.error("Error deciding request:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 export const updateRideTime = async (req, res) => {
