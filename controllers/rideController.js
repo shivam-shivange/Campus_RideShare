@@ -157,10 +157,12 @@ export const searchRides = async (req, res) => {
       searchQuery.toLocation = { $regex: to.trim(), $options: 'i' };
     }
     if (date && date !== '') {
-      const searchDate = new Date(date);
-      const nextDay = new Date(searchDate);
-      nextDay.setDate(nextDay.getDate() + 1);
-      searchQuery.dateTime = { $gte: searchDate, $lt: nextDay };
+      // Using explicit UTC day start and UTC day end for filtering
+      
+      const startDate = new Date(date + 'T00:00:00.000Z');
+      const endDate = new Date(date + 'T23:59:59.999Z');
+      
+      searchQuery.dateTime = { $gte: startDate, $lte: endDate };
     }
     
     // Add gender matching filter: rides where preferredGender is 'Any' OR matches user gender
