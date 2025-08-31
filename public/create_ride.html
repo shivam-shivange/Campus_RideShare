@@ -613,13 +613,19 @@
 
                         <div class="form-group">
                             <label for="departureDate">Departure Date *</label>
-                            <input type="date" id="departureDate" name="departureDate" class="form-control" required />
+                            <div class="input-wrapper" id="departureDateWrapper" style="position: relative; cursor: pointer;">
+                                <input type="date" id="departureDate" name="departureDate" class="form-control" required />
+                                <i class="fas fa-calendar-alt input-icon" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+                            </div>
                             <span class="error-message" id="departureDateError"></span>
                         </div>
 
                         <div class="form-group">
                             <label for="departureTime">Departure Time *</label>
-                            <input type="time" id="departureTime" name="departureTime" class="form-control" required />
+                            <div class="input-wrapper" id="departureTimeWrapper" style="position: relative; cursor: pointer;">
+                                <input type="time" id="departureTime" name="departureTime" class="form-control" required />
+                                <i class="fas fa-clock input-icon" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+                            </div>
                             <span class="error-message" id="departureTimeError"></span>
                         </div>
                     </div>
@@ -756,6 +762,7 @@
             this.bindEvents();
             this.loadStartingLocations();
             this.setMinDepartureDate();
+            this.setupClickableInputs(); // Add this line
         }
 
         checkForAuth() {
@@ -771,6 +778,35 @@
             if (dateInput) {
                 const todayISO = new Date().toISOString().split('T')[0];
                 dateInput.setAttribute('min', todayISO);
+            }
+        }
+
+        // NEW METHOD: Set up clickable input wrappers
+        setupClickableInputs() {
+            const departureDateWrapper = document.getElementById('departureDateWrapper');
+            const departureDateInput = document.getElementById('departureDate');
+            
+            const departureTimeWrapper = document.getElementById('departureTimeWrapper');
+            const departureTimeInput = document.getElementById('departureTime');
+
+            if (departureDateWrapper && departureDateInput) {
+                departureDateWrapper.addEventListener('click', () => {
+                    departureDateInput.focus();
+                    // Use showPicker() if available (modern browsers)
+                    if (typeof departureDateInput.showPicker === 'function') {
+                        departureDateInput.showPicker();
+                    }
+                });
+            }
+
+            if (departureTimeWrapper && departureTimeInput) {
+                departureTimeWrapper.addEventListener('click', () => {
+                    departureTimeInput.focus();
+                    // Use showPicker() if available (modern browsers)
+                    if (typeof departureTimeInput.showPicker === 'function') {
+                        departureTimeInput.showPicker();
+                    }
+                });
             }
         }
 
