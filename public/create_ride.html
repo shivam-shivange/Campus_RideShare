@@ -221,11 +221,10 @@
             transition: all 0.3s ease;
             border: 1px solid rgba(0, 0, 0, 0.1);
         }
-
-        .toggle-switch.active {
-            background: var(--secondary-gradient);
-            border-color: transparent;
-        }
+.toggle-group.active .toggle-switch {
+    background: var(--secondary-gradient);
+    border-color: transparent;
+}
 
         .toggle-slider {
             position: absolute;
@@ -239,12 +238,11 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
-        .toggle-switch.active .toggle-slider {
-            transform: translateX(28px);
-            background: white;
-            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
-        }
-
+.toggle-group.active .toggle-slider {
+    transform: translateX(28px);
+    background: white;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+}
         .toggle-switch input[type="checkbox"] {
             display: none;
         }
