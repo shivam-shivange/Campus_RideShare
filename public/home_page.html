@@ -1004,7 +1004,7 @@ function setupEventListeners() {
         // Store instance for programmatic control
         datePickerInstance = flatpickr(searchDateInput, {
             enableTime: false, // Date only
-            dateFormat: "Y-m-d", // Date only format
+            dateFormat: "Y-m-d", // BACKEND-FRIENDLY FORMAT: YYYY-MM-DD
             altInput: true,
             altFormat: "F j, Y", // Display format without time
             minDate: "today",
@@ -1176,11 +1176,23 @@ function handleFromLocationChange(e) {
     }
 }
 
-// COMPLETE IMPLEMENTATION - Search rides functionality
+// 🔥 FIXED: Search rides functionality with proper parameter handling
 async function searchRides() {
     const from = document.getElementById('searchFrom')?.value || '';
     const to = document.getElementById('searchTo')?.value || '';
-    const date = document.getElementById('searchDate')?.value || '';
+    const dateInput = document.getElementById('searchDate');
+    
+    // Get the actual selected date in YYYY-MM-DD format
+    let date = '';
+    if (datePickerInstance && datePickerInstance.selectedDates.length > 0) {
+        // Use the actual selected date from Flatpickr
+        const selectedDate = datePickerInstance.selectedDates[0];
+        date = selectedDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+    } else if (dateInput?.value) {
+        // Fallback to input value if available
+        date = dateInput.value;
+    }
+    
     const token = localStorage.getItem('token');
     
     if (!token) { 
@@ -1188,9 +1200,17 @@ async function searchRides() {
         return; 
     }
     
+    // 🔥 KEY FIX: Only add non-empty parameters to avoid sending empty strings
+    const params = new URLSearchParams();
+    if (from.trim()) params.append('from', from.trim());
+    if (to.trim()) params.append('to', to.trim());
+    if (date.trim()) params.append('date', date.trim());
+    params.append('limit', '10');
+    
     try {
-        const params = new URLSearchParams({ from, to, date, limit: '10' });
-        const response = await fetch(`${API_BASE}/rides/search?${params}`, { 
+        console.log('Search params:', params.toString()); // Debug log
+        
+        const response = await fetch(`${API_BASE}/rides/search?${params.toString()}`, { 
             headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -1203,6 +1223,7 @@ async function searchRides() {
 
         if (response.ok) {
             const rides = await response.json();
+            console.log('Search results:', rides); // Debug log
             displaySearchResults(rides);
             
             // Show or hide messages based on results
@@ -1215,6 +1236,7 @@ async function searchRides() {
             }
         } else {
             const error = await response.json();
+            console.error('Search error:', error); // Debug log
             alert(error.message || 'Search failed');
             if (resultsDiv) resultsDiv.innerHTML = '';
             if (noRidesFound) noRidesFound.style.display = 'block';
@@ -1234,6 +1256,8 @@ async function searchRides() {
         if (resultsDiv) resultsDiv.innerHTML = '';
         if (noRidesFound) noRidesFound.style.display = 'block';
         if (resultsContainer) resultsContainer.scrollIntoView({ behavior: 'smooth' });
+        
+        alert('Search failed. Please try again.');
     }
 }
 
