@@ -153,8 +153,27 @@ export const searchRides = async (req, res) => {
     const { from, to, date, limit = 20 } = req.query;
     const userGender = req.user.gender ? req.user.gender.toLowerCase() : 'any';
 
+    // Helper function to safely get string values
+    const safeString = (val) => {
+      if (typeof val === "string") return val.trim();
+      if (val && typeof val.toString === "function") return val.toString().trim();
+      return "";
+    };
+
+    // Helper function to safely check if date is valid
+    const isValidDate = (dateVal) => {
+      if (!dateVal) return false;
+      const dateStr = typeof dateVal === "string" ? dateVal.trim() : dateVal.toString();
+      return dateStr && !isNaN(new Date(dateStr).getTime());
+    };
+
+    // Sanitize input parameters
+    const fromStr = safeString(from);
+    const toStr = safeString(to);
+    const dateStr = safeString(date);
+
     // Check if at least one search parameter is provided
-    if (!(from && from.trim()) && !(to && to.trim()) && !(date && date.trim())) {
+    if (!fromStr && !toStr && !dateStr) {
       return res.status(400).json({ message: "Please specify at least one search parameter" });
     }
 
@@ -164,16 +183,23 @@ export const searchRides = async (req, res) => {
       dateTime: { $gte: new Date() }
     };
 
-    if (from && from.trim()) {
-      searchQuery.fromLocation = { $regex: escapeRegex(from.trim()), $options: 'i' };
+    // Add location filters
+    if (fromStr) {
+      searchQuery.fromLocation = { $regex: escapeRegex(fromStr), $options: 'i' };
     }
-    if (to && to.trim()) {
-      searchQuery.toLocation = { $regex: escapeRegex(to.trim()), $options: 'i' };
+    if (toStr) {
+      searchQuery.toLocation = { $regex: escapeRegex(toStr), $options: 'i' };
     }
-    if (date && date !== '') {
-      const startDate = new Date(date + 'T00:00:00.000Z');
-      const endDate = new Date(date + 'T23:59:59.999Z');
-      searchQuery.dateTime = { $gte: startDate, $lte: endDate };
+    
+    // Add date filter with proper validation
+    if (dateStr && isValidDate(dateStr)) {
+      const startDate = new Date(dateStr + 'T00:00:00.000Z');
+      const endDate = new Date(dateStr + 'T23:59:59.999Z');
+      
+      // Only apply date filter if the dates are valid
+      if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+        searchQuery.dateTime = { $gte: startDate, $lte: endDate };
+      }
     }
 
     // Add gender matching filter
@@ -218,6 +244,7 @@ export const searchRides = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 export const getPopularDestinations = async (req, res) => {
   if (!req.user) return res.status(401).json({ message: "Unauthorized: user not found" });
