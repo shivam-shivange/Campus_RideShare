@@ -2,6 +2,9 @@ import Joi from "joi";
 import Ride from "../models/Ride.js";
 import { supabaseAdmin } from "../config/supabase.js";
 
+// Utility to escape regex special characters
+const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 // Schema exports
 export const createRideSchema = Joi.object({
   fromLocation: Joi.string().min(2).max(120).required(),
@@ -30,21 +33,26 @@ export const getUserRidesSchema = Joi.object({
 export const getRideDetailsSchema = Joi.object({
   rideId: Joi.string().required()
 });
+
 export const requestRideSchema = Joi.object({
   rideId: Joi.string().required()
 });
+
 export const cancelRequestSchema = Joi.object({
   rideId: Joi.string().required()
 });
+
 export const decideRequestSchema = Joi.object({
   rideId: Joi.string().required(),
   userId: Joi.string().required(),
   decision: Joi.string().valid("accept", "reject").required()
 });
+
 export const updateTimeSchema = Joi.object({
   rideId: Joi.string().required(),
   dateTime: Joi.date().iso().required()
 });
+
 export const closeRideSchema = Joi.object({
   rideId: Joi.string().required()
 });
@@ -52,11 +60,18 @@ export const closeRideSchema = Joi.object({
 // Controller functions
 
 export const createRide = async (req, res) => {
+  if (!req.user) return res.status(401).json({ message: "Unauthorized: user not found" });
+  
   try {
     const {
       fromLocation, toLocation, availableSeats, preferredGender,
       luggageSpace, timeNegotiation, additionalNotes, dateTime, allowChat
     } = req.body;
+
+    const parsedDate = new Date(dateTime);
+    if (isNaN(parsedDate.getTime())) {
+      return res.status(400).json({ message: "Invalid date format" });
+    }
 
     const ride = await Ride.create({
       creatorId: req.user.id,
@@ -68,10 +83,10 @@ export const createRide = async (req, res) => {
       luggageSpace,
       timeNegotiation,
       additionalNotes: additionalNotes || '',
-      dateTime: new Date(dateTime),
+      dateTime: parsedDate,
       allowChat,
       status: "OPEN",
-      expiresAt: new Date(new Date(dateTime).getTime() + 7 * 24 * 3600 * 1000)
+      expiresAt: new Date(parsedDate.getTime() + 7 * 24 * 3600 * 1000)
     });
 
     res.status(201).json({
@@ -85,7 +100,11 @@ export const createRide = async (req, res) => {
 };
 
 export const listRides = async (req, res) => {
+  if (!req.user) return res.status(401).json({ message: "Unauthorized: user not found" });
+
   try {
+    console.log("User in listRides:", req.user);
+
     const rides = await Ride.find({
       creatorCollegeId: req.user.collegeId,
       status: { $in: ["OPEN", "FULL"] },
@@ -93,27 +112,32 @@ export const listRides = async (req, res) => {
     }).sort({ dateTime: 1 }).lean();
 
     const creatorIds = rides.map(ride => ride.creatorId);
-    if (creatorIds.length > 0) {
-      const { data: creators, error } = await supabaseAdmin
-        .from('users')
-        .select('id, name')
-        .in('id', creatorIds);
-      if (error) {
-        console.error("Error fetching creators:", error);
-        return res.status(500).json({ message: "Error fetching user data" });
-      }
-      const creatorMap = {};
-      creators.forEach(creator => {
-        creatorMap[creator.id] = creator.name;
-      });
-      const ridesWithCreators = rides.map(ride => ({
-        ...ride,
-        creatorName: creatorMap[ride.creatorId] || 'Unknown'
-      }));
-      res.json(ridesWithCreators);
-    } else {
-      res.json([]);
+    
+    if (creatorIds.length === 0) {
+      return res.json([]);
     }
+
+    const { data: creators, error } = await supabaseAdmin
+      .from('users')
+      .select('id, name')
+      .in('id', creatorIds);
+
+    if (error || !creators) {
+      console.error("Error fetching creators:", error);
+      return res.json(rides); // Fallback: return rides without creator names
+    }
+
+    const creatorMap = {};
+    creators.forEach(creator => {
+      creatorMap[creator.id] = creator.name;
+    });
+
+    const ridesWithCreators = rides.map(ride => ({
+      ...ride,
+      creatorName: creatorMap[ride.creatorId] || 'Unknown'
+    }));
+
+    res.json(ridesWithCreators);
   } catch (error) {
     console.error("Error listing rides:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -121,9 +145,18 @@ export const listRides = async (req, res) => {
 };
 
 export const searchRides = async (req, res) => {
+  if (!req.user) return res.status(401).json({ message: "Unauthorized: user not found" });
+
   try {
+    console.log("User in searchRides:", req.user);
+    
     const { from, to, date, limit = 20 } = req.query;
     const userGender = req.user.gender ? req.user.gender.toLowerCase() : 'any';
+
+    // Check if at least one search parameter is provided
+    if (!(from && from.trim()) && !(to && to.trim()) && !(date && date.trim())) {
+      return res.status(400).json({ message: "Please specify at least one search parameter" });
+    }
 
     let searchQuery = {
       creatorCollegeId: req.user.collegeId,
@@ -132,18 +165,18 @@ export const searchRides = async (req, res) => {
     };
 
     if (from && from.trim()) {
-      searchQuery.fromLocation = { $regex: from.trim(), $options: 'i' };
+      searchQuery.fromLocation = { $regex: escapeRegex(from.trim()), $options: 'i' };
     }
     if (to && to.trim()) {
-      searchQuery.toLocation = { $regex: to.trim(), $options: 'i' };
+      searchQuery.toLocation = { $regex: escapeRegex(to.trim()), $options: 'i' };
     }
     if (date && date !== '') {
-      // Use explicit UTC boundaries for searching (prevents timezone errors)
       const startDate = new Date(date + 'T00:00:00.000Z');
       const endDate = new Date(date + 'T23:59:59.999Z');
       searchQuery.dateTime = { $gte: startDate, $lte: endDate };
     }
 
+    // Add gender matching filter
     searchQuery.$or = [
       { preferredGender: 'Any' },
       { preferredGender: { $regex: new RegExp(`^${userGender}$`, 'i') } }
@@ -155,27 +188,31 @@ export const searchRides = async (req, res) => {
       .lean();
 
     const creatorIds = rides.map(ride => ride.creatorId);
-    if (creatorIds.length > 0) {
-      const { data: creators, error } = await supabaseAdmin
-        .from('users')
-        .select('id, name')
-        .in('id', creatorIds);
-      if (error) {
-        console.error("Error fetching creators:", error);
-        return res.status(500).json({ message: "Error fetching user data" });
-      }
-      const creatorMap = {};
-      creators.forEach(creator => {
-        creatorMap[creator.id] = creator.name;
-      });
-      const ridesWithCreators = rides.map(ride => ({
-        ...ride,
-        creatorName: creatorMap[ride.creatorId] || 'Unknown'
-      }));
-      res.json(ridesWithCreators);
-    } else {
-      res.json([]);
+    if (creatorIds.length === 0) {
+      return res.json([]);
     }
+
+    const { data: creators, error } = await supabaseAdmin
+      .from('users')
+      .select('id, name')
+      .in('id', creatorIds);
+
+    if (error || !creators) {
+      console.error("Error fetching creators:", error);
+      return res.json(rides);
+    }
+
+    const creatorMap = {};
+    creators.forEach(creator => {
+      creatorMap[creator.id] = creator.name;
+    });
+
+    const ridesWithCreators = rides.map(ride => ({
+      ...ride,
+      creatorName: creatorMap[ride.creatorId] || 'Unknown'
+    }));
+
+    res.json(ridesWithCreators);
   } catch (error) {
     console.error("Error searching rides:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -183,6 +220,8 @@ export const searchRides = async (req, res) => {
 };
 
 export const getPopularDestinations = async (req, res) => {
+  if (!req.user) return res.status(401).json({ message: "Unauthorized: user not found" });
+
   try {
     const destinations = await Ride.aggregate([
       {
@@ -196,6 +235,7 @@ export const getPopularDestinations = async (req, res) => {
       { $limit: 6 },
       { $project: { destination: "$_id", count: 1, _id: 0 } }
     ]);
+    
     res.json(destinations);
   } catch (error) {
     console.error("Error getting popular destinations:", error);
@@ -204,6 +244,8 @@ export const getPopularDestinations = async (req, res) => {
 };
 
 export const getRecentRides = async (req, res) => {
+  if (!req.user) return res.status(401).json({ message: "Unauthorized: user not found" });
+
   try {
     const limit = parseInt(req.query.limit) || 6;
     const rides = await Ride.find({
@@ -213,27 +255,31 @@ export const getRecentRides = async (req, res) => {
     }).sort({ dateTime: 1 }).limit(limit).lean();
 
     const creatorIds = rides.map(ride => ride.creatorId);
-    if (creatorIds.length > 0) {
-      const { data: creators, error } = await supabaseAdmin
-        .from('users')
-        .select('id, name')
-        .in('id', creatorIds);
-      if (error) {
-        console.error("Error fetching creators:", error);
-        return res.status(500).json({ message: "Error fetching user data" });
-      }
-      const creatorMap = {};
-      creators.forEach(creator => {
-        creatorMap[creator.id] = creator.name;
-      });
-      const ridesWithCreators = rides.map(ride => ({
-        ...ride,
-        creatorName: creatorMap[ride.creatorId] || 'Unknown'
-      }));
-      res.json(ridesWithCreators);
-    } else {
-      res.json([]);
+    if (creatorIds.length === 0) {
+      return res.json([]);
     }
+
+    const { data: creators, error } = await supabaseAdmin
+      .from('users')
+      .select('id, name')
+      .in('id', creatorIds);
+
+    if (error || !creators) {
+      console.error("Error fetching creators:", error);
+      return res.json(rides);
+    }
+
+    const creatorMap = {};
+    creators.forEach(creator => {
+      creatorMap[creator.id] = creator.name;
+    });
+
+    const ridesWithCreators = rides.map(ride => ({
+      ...ride,
+      creatorName: creatorMap[ride.creatorId] || 'Unknown'
+    }));
+
+    res.json(ridesWithCreators);
   } catch (error) {
     console.error("Error getting recent rides:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -241,9 +287,12 @@ export const getRecentRides = async (req, res) => {
 };
 
 export const requestRide = async (req, res) => {
+  if (!req.user) return res.status(401).json({ message: "Unauthorized: user not found" });
+
   try {
     const { rideId } = req.body;
     const ride = await Ride.findById(rideId);
+    
     if (!ride) return res.status(404).json({ message: "Ride not found" });
     if (ride.creatorCollegeId !== req.user.collegeId)
       return res.status(403).json({ message: "Cross-college access denied" });
@@ -272,6 +321,8 @@ export const requestRide = async (req, res) => {
 };
 
 export const cancelRequest = async (req, res) => {
+  if (!req.user) return res.status(401).json({ message: "Unauthorized: user not found" });
+
   try {
     const { rideId } = req.body;
     const ride = await Ride.findById(rideId);
@@ -291,10 +342,11 @@ export const cancelRequest = async (req, res) => {
 };
 
 export const decideRequest = async (req, res) => {
+  if (!req.user) return res.status(401).json({ message: "Unauthorized: user not found" });
+
   try {
     const { rideId, userId, decision } = req.body;
-    console.log('decideRequest called:', { rideId, userId, decision, requesterId: req.user.id });
-
+    
     if (!rideId || !userId || !decision) {
       return res.status(400).json({ message: "Missing required parameters" });
     }
@@ -303,19 +355,13 @@ export const decideRequest = async (req, res) => {
     }
 
     const ride = await Ride.findById(rideId);
-    if (!ride) {
-      console.log('Ride not found:', rideId);
-      return res.status(404).json({ message: "Ride not found" });
-    }
-    if (ride.creatorId !== req.user.id) {
-      console.log('Authorization failed:', { creatorId: ride.creatorId, requesterId: req.user.id });
+    if (!ride) return res.status(404).json({ message: "Ride not found" });
+    if (ride.creatorId !== req.user.id)
       return res.status(403).json({ message: "Only creator can decide" });
-    }
-    if (!ride.requests.includes(userId)) {
-      console.log('User not in requests:', { userId, requests: ride.requests });
+    if (!ride.requests.includes(userId))
       return res.status(400).json({ message: "User did not request this ride" });
-    }
 
+    // Get user details with fallback
     let userData = { id: userId, name: 'Unknown User', email: null };
     try {
       const { data, error } = await supabaseAdmin
@@ -324,14 +370,12 @@ export const decideRequest = async (req, res) => {
         .eq('id', userId)
         .single();
       if (!error && data) userData = data;
-      else if (error) console.error("Supabase error:", error);
     } catch (err) {
       console.error("Supabase connection error:", err);
     }
 
     if (decision === "reject") {
       ride.requests = ride.requests.filter(u => u !== userId);
-      console.log('User rejected, updated requests:', ride.requests);
     } else if (decision === "accept") {
       if (ride.availableSeats <= 0) {
         return res.status(400).json({ message: "No seats available" });
@@ -341,17 +385,9 @@ export const decideRequest = async (req, res) => {
       ride.availableSeats -= 1;
       if (ride.availableSeats === 0) ride.status = "FULL";
       ride.expiresAt = new Date(new Date(ride.dateTime).getTime() + 30 * 24 * 3600 * 1000);
-
-      console.log('User accepted:', {
-        userId,
-        newAvailableSeats: ride.availableSeats,
-        confirmedUsers: ride.confirmedUsers.length,
-        status: ride.status
-      });
     }
 
     await ride.save();
-    console.log('Ride saved successfully');
 
     const userName = userData?.name || 'User';
     const message = decision === "accept"
@@ -372,17 +408,24 @@ export const decideRequest = async (req, res) => {
 };
 
 export const updateRideTime = async (req, res) => {
+  if (!req.user) return res.status(401).json({ message: "Unauthorized: user not found" });
+
   try {
     const { rideId, dateTime } = req.body;
+    
+    const parsedDate = new Date(dateTime);
+    if (isNaN(parsedDate.getTime())) {
+      return res.status(400).json({ message: "Invalid date format" });
+    }
+    
     const ride = await Ride.findById(rideId);
-
     if (!ride) return res.status(404).json({ message: "Ride not found" });
     if (ride.creatorId !== req.user.id)
       return res.status(403).json({ message: "Only creator can update time" });
 
-    ride.dateTime = new Date(dateTime);
+    ride.dateTime = parsedDate;
     const baseRetention = ride.confirmedUsers.length ? 30 : 7;
-    ride.expiresAt = new Date(new Date(ride.dateTime).getTime() + baseRetention * 24 * 3600 * 1000);
+    ride.expiresAt = new Date(parsedDate.getTime() + baseRetention * 24 * 3600 * 1000);
 
     await ride.save();
     res.json({ message: "Ride time updated", ride });
@@ -393,6 +436,8 @@ export const updateRideTime = async (req, res) => {
 };
 
 export const getUserRides = async (req, res) => {
+  if (!req.user) return res.status(401).json({ message: "Unauthorized: user not found" });
+
   try {
     const { status, type } = req.query;
     let rideQuery = { creatorCollegeId: req.user.collegeId };
@@ -430,53 +475,57 @@ export const getUserRides = async (req, res) => {
 
     const userIdsArray = Array.from(allUserIds);
 
-    if (userIdsArray.length > 0) {
-      const { data: users, error } = await supabaseAdmin
-        .from('users')
-        .select('id, name, email, phone, department, year')
-        .in('id', userIdsArray);
-
-      if (error) {
-        console.error("Error fetching users:", error);
-        return res.status(500).json({ message: "Error fetching user data" });
-      }
-      const userMap = {};
-      users.forEach(user => {
-        userMap[user.id] = user;
-      });
-
-      const enrichedRides = rides.map(ride => {
-        const userRole = ride.creatorId === req.user.id ? 'creator' :
-          ride.requests.includes(req.user.id) ? 'requested' :
-            ride.confirmedUsers.includes(req.user.id) ? 'confirmed' : 'none';
-
-        return {
-          ...ride.toObject(),
-          creatorName: userMap[ride.creatorId]?.name || 'Unknown',
-          userRole,
-          requestDetails: ride.requests.map(id => ({
-            id,
-            name: userMap[id]?.name || 'Unknown',
-            email: userMap[id]?.email,
-            phone: userMap[id]?.phone,
-            department: userMap[id]?.department,
-            year: userMap[id]?.year
-          })),
-          confirmedDetails: ride.confirmedUsers.map(id => ({
-            id,
-            name: userMap[id]?.name || 'Unknown',
-            email: userMap[id]?.email,
-            phone: userMap[id]?.phone,
-            department: userMap[id]?.department,
-            year: userMap[id]?.year
-          }))
-        };
-      });
-
-      res.json(enrichedRides);
-    } else {
-      res.json([]);
+    if (userIdsArray.length === 0) {
+      return res.json([]);
     }
+
+    const { data: users, error } = await supabaseAdmin
+      .from('users')
+      .select('id, name, email, phone, department, year')
+      .in('id', userIdsArray);
+
+    if (error || !users) {
+      console.error("Error fetching users:", error);
+      return res.json(rides.map(ride => ({
+        ...ride.toObject(),
+        creatorName: 'Unknown'
+      })));
+    }
+
+    const userMap = {};
+    users.forEach(user => {
+      userMap[user.id] = user;
+    });
+
+    const enrichedRides = rides.map(ride => {
+      const userRole = ride.creatorId === req.user.id ? 'creator' :
+        ride.requests.includes(req.user.id) ? 'requested' :
+          ride.confirmedUsers.includes(req.user.id) ? 'confirmed' : 'none';
+
+      return {
+        ...ride.toObject(),
+        creatorName: userMap[ride.creatorId]?.name || 'Unknown',
+        userRole,
+        requestDetails: ride.requests.map(id => ({
+          id,
+          name: userMap[id]?.name || 'Unknown',
+          email: userMap[id]?.email,
+          phone: userMap[id]?.phone,
+          department: userMap[id]?.department,
+          year: userMap[id]?.year
+        })),
+        confirmedDetails: ride.confirmedUsers.map(id => ({
+          id,
+          name: userMap[id]?.name || 'Unknown',
+          email: userMap[id]?.email,
+          phone: userMap[id]?.phone,
+          department: userMap[id]?.department,
+          year: userMap[id]?.year
+        }))
+      };
+    });
+
+    res.json(enrichedRides);
   } catch (error) {
     console.error("Error getting user rides:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -484,9 +533,12 @@ export const getUserRides = async (req, res) => {
 };
 
 export const getRideDetails = async (req, res) => {
+  if (!req.user) return res.status(401).json({ message: "Unauthorized: user not found" });
+
   try {
     const { rideId } = req.params;
     const ride = await Ride.findById(rideId).lean();
+    
     if (!ride) {
       return res.status(404).json({ message: "Ride not found" });
     }
@@ -500,45 +552,46 @@ export const getRideDetails = async (req, res) => {
     const allUserIds = [ride.creatorId, ...ride.requests, ...ride.confirmedUsers];
     const uniqueUserIds = [...new Set(allUserIds)];
 
-    if (uniqueUserIds.length > 0) {
-      const { data: users, error } = await supabaseAdmin
-        .from('users')
-        .select('id, name, email')
-        .in('id', uniqueUserIds);
-
-      if (error) {
-        console.error("Error fetching users:", error);
-        return res.status(500).json({ message: "Error fetching user data" });
-      }
-      const userMap = {};
-      users.forEach(user => {
-        userMap[user.id] = user;
-      });
-
-      const userRole = ride.creatorId === req.user.id ? 'creator' :
-        ride.requests.includes(req.user.id) ? 'requested' :
-          ride.confirmedUsers.includes(req.user.id) ? 'confirmed' : 'none';
-
-      const enrichedRide = {
-        ...ride,
-        creatorName: userMap[ride.creatorId]?.name || 'Unknown',
-        userRole,
-        requestDetails: ride.requests.map(id => ({
-          id,
-          name: userMap[id]?.name || 'Unknown',
-          email: userMap[id]?.email
-        })),
-        confirmedDetails: ride.confirmedUsers.map(id => ({
-          id,
-          name: userMap[id]?.name || 'Unknown',
-          email: userMap[id]?.email
-        }))
-      };
-
-      res.json(enrichedRide);
-    } else {
-      res.json(ride);
+    if (uniqueUserIds.length === 0) {
+      return res.json(ride);
     }
+
+    const { data: users, error } = await supabaseAdmin
+      .from('users')
+      .select('id, name, email')
+      .in('id', uniqueUserIds);
+
+    if (error || !users) {
+      console.error("Error fetching users:", error);
+      return res.json(ride);
+    }
+
+    const userMap = {};
+    users.forEach(user => {
+      userMap[user.id] = user;
+    });
+
+    const userRole = ride.creatorId === req.user.id ? 'creator' :
+      ride.requests.includes(req.user.id) ? 'requested' :
+        ride.confirmedUsers.includes(req.user.id) ? 'confirmed' : 'none';
+
+    const enrichedRide = {
+      ...ride,
+      creatorName: userMap[ride.creatorId]?.name || 'Unknown',
+      userRole,
+      requestDetails: ride.requests.map(id => ({
+        id,
+        name: userMap[id]?.name || 'Unknown',
+        email: userMap[id]?.email
+      })),
+      confirmedDetails: ride.confirmedUsers.map(id => ({
+        id,
+        name: userMap[id]?.name || 'Unknown',
+        email: userMap[id]?.email
+      }))
+    };
+
+    res.json(enrichedRide);
   } catch (error) {
     console.error("Error getting ride details:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -546,6 +599,8 @@ export const getRideDetails = async (req, res) => {
 };
 
 export const closeRide = async (req, res) => {
+  if (!req.user) return res.status(401).json({ message: "Unauthorized: user not found" });
+
   try {
     const { rideId } = req.body;
     const ride = await Ride.findById(rideId);
